@@ -6,7 +6,7 @@ const SYM = 1
 const NUM = 2
 const STR = 3
 const LABEL = 4
-const DIRECTIVE = 5
+const OPERATOR = 5
 
 const DEF = {
     WAIT: 0,
@@ -15,6 +15,17 @@ const DEF = {
     DOWN: 3,
     RIGHT: 4,
 }
+
+const OP = [
+    '+',
+    '-',
+    '*',
+    '/',
+    '!',
+    '(',
+    ')',
+    ',',
+]
 
 let TAB = 4
 
@@ -31,7 +42,7 @@ function isSeparator(c) {
 }
 
 function isSpecial(c) {
-    return c === ':'
+    return OP.includes(c)
 }
 
 function isDigit(c) {
@@ -119,19 +130,43 @@ function makeInputStream(src) {
     }
 }
 
-function makeLex(getc, retc, eatc, aheadc, expectc, notc, cur) {
+function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
     let mark = 0
     let lineNum = 1
     let lineShift = 0
     let tab = 0
     let lineLead = true // beginning of a string flag
 
+    function dumpSource(shift, pos) {
+        let dump = ''
+        let cur = ''
+
+        let i = shift
+        while (i < src.length) {
+            const c = src[i++]
+            if (c !== '\n') dump += c
+            else break
+        }
+
+        for (let j = 0; j < pos-1; j++) cur += ' '
+        cur += '^'
+
+        console.log(dump)
+        console.log(cur)
+    }
+
     function err(msg) {
-        throw 'syntax error @' + lineNum + ':' + (mark-lineShift) + ' - ' + msg
+        dumpSource(lineShift, mark-lineShift)
+        const err = 'syntax error @' + lineNum + '.' + (mark-lineShift) + ': ' + msg
+        console.log(err)
+        throw err
     }
 
     function xerr (msg) {
-        throw 'lexical error @' + lineNum + ':' + (mark-lineShift) + ' - ' + msg
+        dumpSource(lineShift, mark-lineShift)
+        const err = 'lexical error @' + lineNum + '.' + (mark-lineShift) + ': ' + msg
+        console.log(err)
+        throw err
     }
 
     function markLine () {
@@ -211,6 +246,15 @@ function makeLex(getc, retc, eatc, aheadc, expectc, notc, cur) {
         // got to an actual token
         mark = cur()
 
+        // operator
+        if (isSpecial(c)) {
+            return {
+                type: OPERATOR,
+                tab: tab,
+                val: c,
+            }
+        }
+
         // string
         if (c === '"') {
             let s = ''
@@ -286,24 +330,10 @@ function makeLex(getc, retc, eatc, aheadc, expectc, notc, cur) {
             xerr('wrong number format')
         }
 
-        let directive = false
-        if (c === '.') {
-            directive = true
-            c = getc()
-        }
-
         let sym = ''
         while ( isAlphaNum(c) ) {
             sym += c
             c = getc() 
-        }
-
-        if (directive) {
-            return {
-                type: DIRECTIVE,
-                tab: tab,
-                val: sym,
-            }
         }
 
         if (c === ':') {
@@ -360,6 +390,7 @@ function makeLex(getc, retc, eatc, aheadc, expectc, notc, cur) {
 function basic(vm, src) {
     const stream = makeInputStream(src)
     const lex = makeLex(
+                    src,
                     stream.getc,
                     stream.retc,
                     stream.eatc,
@@ -368,36 +399,80 @@ function basic(vm, src) {
                     stream.notc,
                     stream.cur)
 
-
     function doLabel(block, token) {
-        vm.markLabel(token.val, block, block.length)
+        vm.markLabel(token.val, block, block.length())
     }
 
-    function doExpr() {
+    function atomicValue() {
         const token = lex.next()
 
         if (!token) return
         if (token.lead) {
-            // token from the next line
+            // token from the next line - give it back
             lex.ret()
             return
         }
 
+        const val = token.val
         return {
-            op: 2,
-            val: token.val
+            fn: function() {
+                return val
+            },
+            meta: val,
         }
     }
 
+    function moreA(lval) {
+        const token = lex.next()
+        if (!token) return lval
+
+        if (token.type === OPERATOR) {
+            if (token.val === '+') {
+                const rval = atomicValue()
+                if (!rval) lex.err('value after + is expected!')
+
+                return moreA({
+                    fn: function() {
+                        return lval.fn() + rval.fn()
+                    },
+                    meta: '+'
+                })
+            } else if (token.val === '-') {
+                const rval = atomicValue()
+                if (!rval) lex.err('value after - is expected!')
+
+                return moreA({
+                    fn: function() {
+                        return lval.fn() - rval.fn()
+                    },
+                    meta: '+'
+                })
+            }
+        } 
+        lex.ret()
+        return lval
+    }
+
+    function exprA() {
+        const lval = atomicValue()
+        return moreA(lval)
+    }
+
+    function doExpr() {
+        return exprA()
+    }
+
     function doExprList() {
-        const opt = []
+        let opt = []
 
         let expr
         while(expr = doExpr()) {
             opt.push(expr)
         }
 
-        return opt
+        if (opt.length === 0) return
+        else if (opt.length === 1) return opt[0]
+        else return opt
     }
 
     function doCommand(block) {
@@ -410,11 +485,15 @@ function basic(vm, src) {
             return doCommand(block)
         }
 
-        return {
+        const cmd = {
             type: 1,
             val: token.val,
-            opt: doExprList()
         }
+
+        const opt = doExprList()
+        if (opt) cmd.opt = opt
+
+        return cmd
     }
 
     function doBlock(tab, block) {
@@ -424,7 +503,7 @@ function basic(vm, src) {
         }
     }
 
-    const rootBlock = []
+    const rootBlock = new vm.Block
     doBlock(0, rootBlock)
 
     return rootBlock

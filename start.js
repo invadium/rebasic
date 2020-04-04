@@ -4,7 +4,7 @@
 const fs = require('fs')
 const process = require('process')
 const basic = require('./arch/basic.js')
-const vm = require('./arch/vm.js')
+const vmFactory = require('./arch/vm.js')
 
 // process args
 const args = process.argv;
@@ -36,6 +36,8 @@ function help() {
 }
 
 function run() {
+    const vm = vmFactory()
+
     scripts.forEach(origin => {
         const src = fs.readFileSync(origin, 'utf8')
         const code = basic(vm, src)

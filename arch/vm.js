@@ -4,9 +4,21 @@ function doDot() {
 }
 
 function doPrint(vm, op) {
-    op.opt.forEach(v => {
-        console.log(v.val)
-    })
+    console.log(vm.value(op.opt))
+}
+
+class Block {
+    constructor() {
+        this.code = []
+    }
+
+    push(op) {
+        this.code.push(op)
+    }
+
+    length() {
+        return this.code.length
+    }
 }
 
 class VM {
@@ -27,11 +39,18 @@ class VM {
         //console.log(`${name}: #${pos}`)
     }
 
-    run(block) {
-        let i = 0
+    value(expr) {
+        if (!expr) return 'EMPTY'
+        if (expr.fn) return expr.fn()
+    }
 
-        while(i < block.length) {
-            const op = block[i++]
+    run(block) {
+        const code = block.code
+
+        // execute all opcodes in the code sequence
+        let i = 0
+        while(i < code.length) {
+            const op = code[i++]
 
             //console.dir(op)
             switch(op.type) {
@@ -40,13 +59,18 @@ class VM {
                     if (!cmd) throw `Unknown command [${op.val}]`
                     cmd(this, op)
                     break
-                case 2:
-                    break
             }
         }
     }
 }
 
+function vmFactory() {
+    const vm = new VM()
+    vm.Block = Block
+
+    return vm
+}
+
 if (module) {
-    module.exports = new VM()
+    module.exports = vmFactory
 }
