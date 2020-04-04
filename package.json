@@ -1,0 +1,19 @@
+{
+  "name": "jam-basic",
+  "version": "0.0.1",
+  "description": "Jam Basic interpreter",
+  "main": "jbs.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/invider/jam-basic.git"
+  },
+  "author": "Igor Khotin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/invider/jam-basic/issues"
+  },
+  "homepage": "https://github.com/invider/jam-basic#readme"
+}
