@@ -435,6 +435,14 @@ function basic(vm, src) {
             return
         }
 
+        if (token.type === OP) {
+            if (token.val === '(') {
+                const val = doExpr()
+            } else {
+                lex.err(`unexpected operator ${token.val}`)
+            }
+        }
+
         const val = token.val
         return {
             val: val,
@@ -445,14 +453,60 @@ function basic(vm, src) {
         }
     }
 
-    function moreA(lval) {
+    function moreMD(lval) {
+        const token = lex.next()
+        if (!token) return lval
+
+        if (token.type === OPERATOR) {
+            if (token.val === '*') {
+                const rval = expectVal(atomicVal)
+                return moreMD({
+                    lval: lval,
+                    rval: rval,
+                    get: function mul() {
+                        return this.lval.get() * this.rval.get()
+                    },
+                    toString: binaryOpToString,
+                })
+            } else if (token.val === '/') {
+                const rval = expectVal(atomicVal)
+                return moreMD({
+                    lval: lval,
+                    rval: rval,
+                    get: function div() {
+                        return this.lval.get() / this.rval.get()
+                    },
+                    toString: binaryOpToString,
+                })
+            } else if (token.val === '%') {
+                const rval = expectVal(atomicVal)
+                return moreMD({
+                    lval: lval,
+                    rval: rval,
+                    get: function div() {
+                        return this.lval.get() % this.rval.get()
+                    },
+                    toString: binaryOpToString,
+                })
+            }
+        } 
+        lex.ret()
+        return lval
+    }
+
+    function exprMD() {
+        const lval = atomicVal()
+        return moreMD(lval)
+    }
+
+    function moreAS(lval) {
         const token = lex.next()
         if (!token) return lval
 
         if (token.type === OPERATOR) {
             if (token.val === '+') {
-                const rval = expectVal(atomicVal)
-                return moreA({
+                const rval = expectVal(exprMD)
+                return moreAS({
                     lval: lval,
                     rval: rval,
                     get: function add() {
@@ -461,8 +515,8 @@ function basic(vm, src) {
                     toString: binaryOpToString,
                 })
             } else if (token.val === '-') {
-                const rval = expectVal(atomicVal)
-                return moreA({
+                const rval = expectVal(exprMD)
+                return moreAS({
                     lval: lval,
                     rval: rval,
                     get: function substract() {
@@ -476,13 +530,13 @@ function basic(vm, src) {
         return lval
     }
 
-    function exprA() {
-        const lval = atomicVal()
-        return moreA(lval)
+    function exprAS() {
+        const lval = exprMD()
+        return moreAS(lval)
     }
 
     function doExpr() {
-        return exprA()
+        return exprAS()
     }
 
     function doExprList() {
