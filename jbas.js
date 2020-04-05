@@ -47,7 +47,7 @@ function run() {
         const src = fs.readFileSync(origin, 'utf8')
         const lex = lexFromSource(src)
         const code = basic(vm, lex)
-        vm.run(code)
+        vm.run(code, 0)
     })
 }
 

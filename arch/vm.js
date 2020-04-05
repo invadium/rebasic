@@ -28,6 +28,7 @@ class VM {
     constructor() {
         this.label = {}
         this.command = {
+            'goto': true,
             'dot': doDot,
             'print': doPrint,
         }
@@ -35,6 +36,7 @@ class VM {
             abs: Math.abs,
         }
         this.scope = {}
+        this.stack = []
     }
 
     markLabel(name, block, pos) {
@@ -55,9 +57,15 @@ class VM {
     }
 
     locate(name) {
-        const val = this.scope[name]
+        // check variables
+        let val = this.scope[name]
         if (val === undefined) {
-            throw `unknown variable ${name}`
+            // check labels
+            val = this.label[name]
+            if (val) return name
+
+            console.dir(this.label)
+            throw `unknown identifier ${name}`
         }
         return val
     }
@@ -75,11 +83,11 @@ class VM {
         }
     }
 
-    run(block) {
+    run(block, pos) {
         const code = block.code
 
         // execute all statements in the code sequence
-        let i = 0
+        let i = pos
         while(i < code.length) {
             const op = code[i++]
 
@@ -93,10 +101,22 @@ class VM {
                     // calculate param set
                     const val = op.opt.get()
 
-                    if (Array.isArray(val)) {
-                        cmd.apply(this, val)
-                    } else {
-                        cmd.call(this, val)
+                    switch(op.val) {
+                        case 'goto':
+                            const label = this.label[val]
+                            if (!label) {
+                                throw `unknown label [${val}]`
+                            }
+                            block = label.block
+                            i = label.pos
+                            break
+
+                        default:
+                            if (Array.isArray(val)) {
+                                cmd.apply(this, val)
+                            } else {
+                                cmd.call(this, val)
+                            }
                     }
                     break
 
