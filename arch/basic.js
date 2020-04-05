@@ -397,27 +397,31 @@ function basic(vm, lex) {
         while(expr = doExpr()) {
             list.push(expr)
 
-            /*
             const ahead = lex.ahead()
             if (ahead.type !== lex.OPERATOR
                     || ahead.val !== ',') break
-            */
         }
-
 
         if (list.length === 0) return
         else if (list.length === 1) return list[0]
         else return list
     }
 
-    function doCommand(block) {
+    function doStatement(block) {
         const token = lex.next()
 
         if (!token) return
 
         if (token.type === lex.NUM) {
             doLabel(block, token)
-            return doCommand(block)
+            return doStatement(block)
+        } else if (token.type === lex.SYM) {
+            const ahead = lex.ahead()
+            if (ahead.type === lex.OPERATOR && ahead.val === ':') {
+                lex.next()
+                doLabel(block, token)
+                return doStatement(block)
+            }
         }
 
         const cmd = {
@@ -436,7 +440,7 @@ function basic(vm, lex) {
 
     function doBlock(tab, block) {
         let op
-        while(op = doCommand(block)) {
+        while(op = doStatement(block)) {
             block.push(op)
         }
     }

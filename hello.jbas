@@ -4,6 +4,7 @@
 70 print 1 + (7 + 2) * 3
 ----
 
-print abs(2-10)
+next: print abs(2-10)
 print abs(-10)
 print 20
+

@@ -3,9 +3,8 @@
 const SYM = 1
 const NUM = 2
 const STR = 3
-const LABEL = 4
-const OPERATOR = 5
-const KEYWORD = 6
+const OPERATOR = 4
+const KEYWORD = 5
 
 const OP = [
     '(',
@@ -20,6 +19,7 @@ const OP = [
     '>',
     '=',
     ',',
+    ':',
 ]
 
 const KEYWORDS = [
@@ -369,31 +369,22 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
             c = getc() 
         }
 
-        if (c === ':') {
+        retc()
+
+        sym = sym.toLowerCase() 
+        if (isKeyword(sym)) {
+
             return {
-                type: LABEL,
+                type: KEYWORD,
                 tab: tab,
                 val: sym,
             }
+        }
 
-        } else {
-            retc()
-
-            sym = sym.toLowerCase() 
-            if (isKeyword(sym)) {
-
-                return {
-                    type: KEYWORD,
-                    tab: tab,
-                    val: sym,
-                }
-            }
-
-            return {
-                type: SYM,
-                tab: tab,
-                val: sym,
-            }
+        return {
+            type: SYM,
+            tab: tab,
+            val: sym,
         }
     }
 
@@ -449,7 +440,6 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
         SYM: SYM,
         NUM: NUM,
         STR: STR,
-        LABEL: LABEL,
         OPERATOR: OPERATOR,
         KEYWORD: KEYWORD,
     }
