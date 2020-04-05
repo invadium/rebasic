@@ -6,6 +6,8 @@
 //
 const fs = require('fs')
 const process = require('process')
+
+const lexFromSource = require('./arch/lex.js')
 const basic = require('./arch/basic.js')
 const vmFactory = require('./arch/vm.js')
 
@@ -43,7 +45,8 @@ function run() {
 
     scripts.forEach(origin => {
         const src = fs.readFileSync(origin, 'utf8')
-        const code = basic(vm, src)
+        const lex = lexFromSource(src)
+        const code = basic(vm, lex)
         vm.run(code)
     })
 }
