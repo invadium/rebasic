@@ -53,6 +53,31 @@ function basic(vm, lex) {
             } else {
                 lex.err(`unexpected operator ${token.val}`)
             }
+        } else if (token.type === lex.KEYWORD) {
+            if (token.val === 'true'
+                    || token.val === 'on'
+                    || token.val === 'enabled') {
+                return {
+                    val: true,
+                    get: function value() {
+                        return true
+                    },
+                    toString: valToString,
+                }
+
+            } else if (token.val === 'false'
+                    || token.val === 'off'
+                    || token.val === 'disabled') {
+                return {
+                    val: false,
+                    get: function value() {
+                        return false
+                    },
+                    toString: valToString,
+                }
+            } else {
+                lex.err(`unexpected keyword ${token.val}`)
+            }
         }
 
         const val = token.val

@@ -26,6 +26,12 @@ const KEYWORDS = [
     'not',
     'and',
     'or',
+    'true',
+    'false',
+    'on',
+    'off',
+    'enabled',
+    'disabled',
 ]
 
 let TAB = 4
