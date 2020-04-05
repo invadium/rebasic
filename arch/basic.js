@@ -87,12 +87,23 @@ function basic(vm, lex) {
                     },
                     toString: binaryOpToString,
                 })
+            } else if (token.val === '\\') {
+                const rval = expectVal(atomicVal)
+                return moreMD({
+                    lval: lval,
+                    rval: rval,
+                    get: function idiv() {
+                        return Math.floor(this.lval.get()
+                            / this.rval.get())
+                    },
+                    toString: binaryOpToString,
+                })
             } else if (token.val === '%') {
                 const rval = expectVal(atomicVal)
                 return moreMD({
                     lval: lval,
                     rval: rval,
-                    get: function div() {
+                    get: function mod() {
                         return this.lval.get() % this.rval.get()
                     },
                     toString: binaryOpToString,

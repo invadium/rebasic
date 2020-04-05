@@ -77,7 +77,7 @@ then
 else
     FAILED=YES
 	if [ $VERBOSE == 'YES' ]; then
-        echo $t' - FAILED'
+        echo "$t - FAILED [$val != $match]"
     fi
 	if [ $SOURCE == 'YES' ]; then
 		cat $f
