@@ -44,6 +44,7 @@ function basic(vm, lex) {
 
         if (token.type === lex.OPERATOR) {
             if (token.val === '(') {
+                // ( sub-expression )
                 const val = doExpr()
                 if (!lex.expect(lex.OPERATOR, ')')) {
                     lex.err(`an expression must be closed with )`)
@@ -55,6 +56,7 @@ function basic(vm, lex) {
             if (token.val === 'true'
                     || token.val === 'on'
                     || token.val === 'enabled') {
+                // boolean true literal
                 return {
                     val: true,
                     get: function value() {
@@ -66,6 +68,7 @@ function basic(vm, lex) {
             } else if (token.val === 'false'
                     || token.val === 'off'
                     || token.val === 'disabled') {
+                // boolean false literal
                 return {
                     val: false,
                     get: function value() {
@@ -81,6 +84,7 @@ function basic(vm, lex) {
         const ahead = lex.ahead()
         if (ahead.type === lex.OPERATOR && ahead.val === '(') {
             // function call
+
             lex.next()
             const rval = doExprList()
             if (!lex.expect(lex.OPERATOR, ')')) {
@@ -98,12 +102,23 @@ function basic(vm, lex) {
         }
 
         if (token.type === lex.STR || token.type === lex.NUM) {
+            // string or number literal
             return {
                 val: token.val,
                 get: function value() {
                     return this.val
                 },
                 toString: valToString,
+            }
+        } else  {
+            // variable locator
+            return {
+                val: token.val,
+                bind: vm,
+                get: function value() {
+                    return this.bind.locate(this.val)
+                },
+                toString: () => token.val,
             }
         }
 
@@ -423,14 +438,34 @@ function basic(vm, lex) {
         if (!token) return
 
         if (token.type === lex.NUM) {
+            // string number
             doLabel(block, token)
             return doStatement(block)
+
         } else if (token.type === lex.SYM) {
             const ahead = lex.ahead()
-            if (ahead.type === lex.OPERATOR && ahead.val === ':') {
-                lex.next()
-                doLabel(block, token)
-                return doStatement(block)
+
+            if (ahead.type === lex.OPERATOR) {
+                if (ahead.val === ':') {
+                    // named label
+                    lex.next()
+                    doLabel(block, token)
+                    return doStatement(block)
+
+                } else if (ahead.val === '=') {
+                    // assignment statement
+                    lex.next()
+
+                    const rval = doExpr()
+                    return {
+                        type: 2,
+                        lval: token.val,
+                        rval: rval,
+                        toString: function() {
+                            return `${this.lval} = ${this.rval}`
+                        },
+                    }
+                }
             }
         }
 

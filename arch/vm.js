@@ -34,6 +34,7 @@ class VM {
         this.fun = {
             abs: Math.abs,
         }
+        this.scope = {}
     }
 
     markLabel(name, block, pos) {
@@ -53,6 +54,14 @@ class VM {
         return v.get()
     }
 
+    locate(name) {
+        const val = this.scope[name]
+        if (val === undefined) {
+            throw `unknown variable ${name}`
+        }
+        return val
+    }
+
     call(name, expr) {
         const v = this.val(expr)
         //console.log('calling ' + name + '(' + v + ')')
@@ -69,7 +78,7 @@ class VM {
     run(block) {
         const code = block.code
 
-        // execute all opcodes in the code sequence
+        // execute all statements in the code sequence
         let i = 0
         while(i < code.length) {
             const op = code[i++]
@@ -77,6 +86,7 @@ class VM {
             //console.log(op.toString())
             switch(op.type) {
                 case 1:
+                    // command
                     const cmd = this.command[op.val]
                     if (!cmd) throw `Unknown command [${op.val}]`
 
@@ -89,6 +99,13 @@ class VM {
                         cmd.call(this, val)
                     }
                     break
+
+                case 2: 
+                    // assignment
+                    const lval = op.lval
+                    const rval = op.rval.get()
+                    //console.log('assignment ' + lval + ' = ' + rval)
+                    this.scope[lval] = rval
             }
         }
     }

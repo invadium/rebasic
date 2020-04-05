@@ -388,7 +388,6 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
         }
     }
 
-    let id = 0
     let lastToken
     let isBuffered = false
     function next() {
@@ -397,7 +396,6 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
         } else {
             lastToken = parseNext()
             if (lastToken) {
-                lastToken.id = id ++
                 if (lineLead) lastToken.lead = true
             }
             lineLead = false

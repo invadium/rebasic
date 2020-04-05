@@ -3,10 +3,13 @@
 60 print 5 + 2 + 4 - 2
 70 print 1 + (7 + 2) * 3
 ----
-
 next: print abs(2-10)
-print abs(-10)
-print 20
 
-print "hello", "world", "!"
+a = 100
+b = 200
+c = 2 + 10
+d = 10 + abs(-4)
 
+print d
+print b
+print d + b
