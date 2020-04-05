@@ -136,17 +136,23 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
     let lineShift = 0
     let tab = 0
     let lineLead = true // beginning of a string flag
+    const lines = []
+
+    function lineFrom(shift) {
+        let dump = ''
+        while (shift < src.length) {
+            const c = src[shift++]
+            if (c !== '\n') dump += c
+            else break
+        }
+        return dump
+    }
 
     function dumpSource(shift, pos) {
         let dump = ''
         let cur = ''
 
-        let i = shift
-        while (i < src.length) {
-            const c = src[i++]
-            if (c !== '\n') dump += c
-            else break
-        }
+        dump = lineFrom(shift)
 
         for (let j = 0; j < pos-1; j++) cur += ' '
         cur += '^'
@@ -172,6 +178,7 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
     function markLine () {
         lineNum ++
         lineShift = cur()
+        lines.push(lineShift)
         tab = 0
         lineLead = true
     }
@@ -403,7 +410,22 @@ function basic(vm, src) {
         vm.markLabel(token.val, block, block.length())
     }
 
-    function atomicValue() {
+    function expectVal(fn) {
+        const val = fn()
+        if (val) return val
+        else lex.err('a value is expected!')
+    }
+
+    function binaryOpToString() {
+        return `${this.get.name}(${this.lval}, ${this.rval})`
+    }
+
+    function valToString() {
+        if (typeof this.val === 'string') return `"${this.val}"`
+        return this.val
+    }
+
+    function atomicVal() {
         const token = lex.next()
 
         if (!token) return
@@ -415,10 +437,11 @@ function basic(vm, src) {
 
         const val = token.val
         return {
-            fn: function() {
-                return val
+            val: val,
+            get: function() {
+                return this.val
             },
-            meta: val,
+            toString: valToString,
         }
     }
 
@@ -428,24 +451,24 @@ function basic(vm, src) {
 
         if (token.type === OPERATOR) {
             if (token.val === '+') {
-                const rval = atomicValue()
-                if (!rval) lex.err('value after + is expected!')
-
+                const rval = expectVal(atomicVal)
                 return moreA({
-                    fn: function() {
-                        return lval.fn() + rval.fn()
+                    lval: lval,
+                    rval: rval,
+                    get: function add() {
+                        return this.lval.get() + this.rval.get()
                     },
-                    meta: '+'
+                    toString: binaryOpToString,
                 })
             } else if (token.val === '-') {
-                const rval = atomicValue()
-                if (!rval) lex.err('value after - is expected!')
-
+                const rval = expectVal(atomicVal)
                 return moreA({
-                    fn: function() {
-                        return lval.fn() - rval.fn()
+                    lval: lval,
+                    rval: rval,
+                    get: function substract() {
+                        return this.lval.get() - this.rval.get()
                     },
-                    meta: '+'
+                    toString: binaryOpToString,
                 })
             }
         } 
@@ -454,7 +477,7 @@ function basic(vm, src) {
     }
 
     function exprA() {
-        const lval = atomicValue()
+        const lval = atomicVal()
         return moreA(lval)
     }
 
@@ -488,6 +511,9 @@ function basic(vm, src) {
         const cmd = {
             type: 1,
             val: token.val,
+            toString: function() {
+                return `${this.val} ${this.opt}`
+            },
         }
 
         const opt = doExprList()

@@ -1,7 +1,4 @@
-10 dot
-20 dot
-30 dot
--- 50 print "hello world"
+50 print "hello world"
 60 print 5 + 2 + 4 - 2
 
 

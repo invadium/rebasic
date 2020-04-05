@@ -4,7 +4,7 @@ function doDot() {
 }
 
 function doPrint(vm, op) {
-    console.log(vm.value(op.opt))
+    console.log(vm.val(op.opt))
 }
 
 class Block {
@@ -39,9 +39,9 @@ class VM {
         //console.log(`${name}: #${pos}`)
     }
 
-    value(expr) {
-        if (!expr) return 'EMPTY'
-        if (expr.fn) return expr.fn()
+    val(v) {
+        if (!v) return 'NIL'
+        return v.get()
     }
 
     run(block) {
@@ -52,7 +52,7 @@ class VM {
         while(i < code.length) {
             const op = code[i++]
 
-            //console.dir(op)
+            console.log(op.toString())
             switch(op.type) {
                 case 1:
                     const cmd = this.command[op.val]
