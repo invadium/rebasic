@@ -50,8 +50,6 @@ function basic(vm, lex) {
                 }
                 return val
 
-            } else {
-                lex.err(`unexpected operator ${token.val}`)
             }
         } else if (token.type === lex.KEYWORD) {
             if (token.val === 'true'
@@ -84,7 +82,7 @@ function basic(vm, lex) {
         if (ahead.type === lex.OPERATOR && ahead.val === '(') {
             // function call
             lex.next()
-            const rval = doExpr()
+            const rval = doExprList()
             if (!lex.expect(lex.OPERATOR, ')')) {
                 lex.err(`) is expected after argument list`)
             }
@@ -399,12 +397,24 @@ function basic(vm, lex) {
 
             const ahead = lex.ahead()
             if (ahead.type !== lex.OPERATOR
-                    || ahead.val !== ',') break
+                    || ahead.val !== ',') {
+                break
+            }
+            lex.next()
         }
 
         if (list.length === 0) return
         else if (list.length === 1) return list[0]
-        else return list
+        else return {
+            list: list,
+            get: function() {
+                const res = []
+                for (let i = 0; i < this.list.length; i++) {
+                    res.push(this.list[i].get())
+                }
+                return res
+            }
+        }
     }
 
     function doStatement(block) {

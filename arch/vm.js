@@ -3,8 +3,10 @@ function doDot() {
     console.log(".")
 }
 
-function doPrint(vm, op) {
-    console.log(vm.val(op.opt))
+function doPrint() {
+    for (let i = 0; i < arguments.length; i++) {
+        console.log(arguments[i])
+    }
 }
 
 class Block {
@@ -56,7 +58,12 @@ class VM {
         //console.log('calling ' + name + '(' + v + ')')
         const fn = this.fun[name]
         if (!fn) throw `unknown function [${name}]`
-        return fn(v)
+
+        if (Array.isArray(v)) {
+            return fn.apply(this, v)
+        } else {
+            return fn.call(this, v)
+        }
     }
 
     run(block) {
@@ -72,7 +79,15 @@ class VM {
                 case 1:
                     const cmd = this.command[op.val]
                     if (!cmd) throw `Unknown command [${op.val}]`
-                    cmd(this, op)
+
+                    // calculate param set
+                    const val = op.opt.get()
+
+                    if (Array.isArray(val)) {
+                        cmd.apply(this, val)
+                    } else {
+                        cmd.call(this, val)
+                    }
                     break
             }
         }

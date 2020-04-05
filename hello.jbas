@@ -8,3 +8,5 @@ next: print abs(2-10)
 print abs(-10)
 print 20
 
+print "hello", "world", "!"
+
