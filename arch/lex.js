@@ -5,6 +5,7 @@ const NUM = 2
 const STR = 3
 const LABEL = 4
 const OPERATOR = 5
+const KEYWORD = 6
 
 const OP = [
     '(',
@@ -19,6 +20,12 @@ const OP = [
     '>',
     '=',
     ',',
+]
+
+const KEYWORDS = [
+    'not',
+    'and',
+    'or',
 ]
 
 let TAB = 4
@@ -37,6 +44,10 @@ function isSeparator(c) {
 
 function isOperator(c) {
     return OP.includes(c)
+}
+
+function isKeyword(word) {
+    return KEYWORDS.includes(word)
 }
 
 function isSpecial(c) {
@@ -361,6 +372,17 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
 
         } else {
             retc()
+
+            sym = sym.toLowerCase() 
+            if (isKeyword(sym)) {
+
+                return {
+                    type: KEYWORD,
+                    tab: tab,
+                    val: sym,
+                }
+            }
+
             return {
                 type: SYM,
                 tab: tab,
@@ -419,6 +441,7 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
         STR: STR,
         LABEL: LABEL,
         OPERATOR: OPERATOR,
+        KEYWORD: KEYWORD,
     }
 } 
 

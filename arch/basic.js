@@ -14,6 +14,10 @@ function basic(vm, lex) {
         else lex.err('a value is expected!')
     }
 
+    function unaryOpToString() {
+        return `${this.get.name}(${this.val})`
+    }
+
     function binaryOpToString() {
         return `${this.get.name}(${this.lval}, ${this.rval})`
     }
@@ -41,7 +45,6 @@ function basic(vm, lex) {
         if (token.type === lex.OPERATOR) {
             if (token.val === '(') {
                 const val = doExpr()
-                console.log(val.toString())
                 if (!lex.expect(lex.OPERATOR, ')')) {
                     lex.err(`) is expected`)
                 }
@@ -62,13 +65,34 @@ function basic(vm, lex) {
         }
     }
 
+    function notVal() {
+        const token = lex.next()
+        if (!token) return
+
+        if (token.type === lex.KEYWORD && token.val === 'not') {
+            const rval = expectVal(atomicVal)
+            return {
+                val: rval,
+                get: function mul() {
+                    return !this.val.get()
+                },
+                toString: unaryOpToString,
+            }
+
+        } else {
+            lex.ret()
+            return atomicVal()
+        }
+        return lval
+    }
+
     function moreMD(lval) {
         const token = lex.next()
         if (!token) return lval
 
         if (token.type === lex.OPERATOR) {
             if (token.val === '*') {
-                const rval = expectVal(atomicVal)
+                const rval = expectVal(notVal)
                 return moreMD({
                     lval: lval,
                     rval: rval,
@@ -78,7 +102,7 @@ function basic(vm, lex) {
                     toString: binaryOpToString,
                 })
             } else if (token.val === '/') {
-                const rval = expectVal(atomicVal)
+                const rval = expectVal(notVal)
                 return moreMD({
                     lval: lval,
                     rval: rval,
@@ -88,7 +112,7 @@ function basic(vm, lex) {
                     toString: binaryOpToString,
                 })
             } else if (token.val === '\\') {
-                const rval = expectVal(atomicVal)
+                const rval = expectVal(notVal)
                 return moreMD({
                     lval: lval,
                     rval: rval,
@@ -99,7 +123,7 @@ function basic(vm, lex) {
                     toString: binaryOpToString,
                 })
             } else if (token.val === '%') {
-                const rval = expectVal(atomicVal)
+                const rval = expectVal(notVal)
                 return moreMD({
                     lval: lval,
                     rval: rval,
@@ -115,7 +139,7 @@ function basic(vm, lex) {
     }
 
     function exprMD() {
-        const lval = atomicVal()
+        const lval = notVal()
         return moreMD(lval)
     }
 
@@ -221,7 +245,7 @@ function basic(vm, lex) {
                 return moreEQ({
                     lval: lval,
                     rval: rval,
-                    get: function less() {
+                    get: function eq() {
                         return this.lval.get() == this.rval.get()
                     },
                     toString: binaryOpToString,
@@ -247,8 +271,60 @@ function basic(vm, lex) {
         return moreEQ(lval)
     }
 
+    function moreAND(lval) {
+        const token = lex.next()
+        if (!token) return lval
+
+        if (token.type === lex.KEYWORD) {
+            if (token.val === 'and') {
+                const rval = expectVal(exprEQ)
+                return moreAND({
+                    lval: lval,
+                    rval: rval,
+                    get: function and() {
+                        return this.lval.get() && this.rval.get()
+                    },
+                    toString: binaryOpToString,
+                })
+            }
+        } 
+        lex.ret()
+        return lval
+    }
+
+    function exprAND() {
+        const lval = exprEQ()
+        return moreAND(lval)
+    }
+
+    function moreOR(lval) {
+        const token = lex.next()
+        if (!token) return lval
+
+        if (token.type === lex.KEYWORD) {
+            if (token.val === 'or') {
+                const rval = expectVal(exprAND)
+                return moreOR({
+                    lval: lval,
+                    rval: rval,
+                    get: function or() {
+                        return this.lval.get() || this.rval.get()
+                    },
+                    toString: binaryOpToString,
+                })
+            }
+        } 
+        lex.ret()
+        return lval
+    }
+
+    function exprOR() {
+        const lval = exprAND()
+        return moreOR(lval)
+    }
+
     function doExpr() {
-        return exprEQ()
+        return exprOR()
     }
 
     function doExprList() {

@@ -1,4 +1,0 @@
-50 print "hello world"
-60 print 5 + 2 + 4 - 2
-70 print 2 + 2 * 2
-
