@@ -29,6 +29,9 @@ class VM {
             'dot': doDot,
             'print': doPrint,
         }
+        this.fun = {
+            abs: Math.abs,
+        }
     }
 
     markLabel(name, block, pos) {
@@ -46,6 +49,14 @@ class VM {
             throw 'wrong value!'
         }
         return v.get()
+    }
+
+    call(name, expr) {
+        const v = this.val(expr)
+        //console.log('calling ' + name + '(' + v + ')')
+        const fn = this.fun[name]
+        if (!fn) throw `unknown function [${name}]`
+        return fn(v)
     }
 
     run(block) {

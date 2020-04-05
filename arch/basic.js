@@ -46,7 +46,7 @@ function basic(vm, lex) {
             if (token.val === '(') {
                 const val = doExpr()
                 if (!lex.expect(lex.OPERATOR, ')')) {
-                    lex.err(`) is expected`)
+                    lex.err(`an expression must be closed with )`)
                 }
                 return val
 
@@ -80,17 +80,39 @@ function basic(vm, lex) {
             }
         }
 
-        const val = token.val
-        return {
-            val: val,
-            get: function value() {
-                return this.val
-            },
-            toString: valToString,
+        const ahead = lex.ahead()
+        if (ahead.type === lex.OPERATOR && ahead.val === '(') {
+            // function call
+            lex.next()
+            const rval = doExpr()
+            if (!lex.expect(lex.OPERATOR, ')')) {
+                lex.err(`) is expected after argument list`)
+            }
+
+            return {
+                lval: token.val,
+                rval: rval,
+                get: function call() {
+                    return vm.call(this.lval, this.rval)
+                },
+                toString: unaryOpToString,
+            }
         }
+
+        if (token.type === lex.STR || token.type === lex.NUM) {
+            return {
+                val: token.val,
+                get: function value() {
+                    return this.val
+                },
+                toString: valToString,
+            }
+        }
+
+        lex.err(`unexpected token ${token.val}`)
     }
 
-    function notVal() {
+    function exprUN() {
         const token = lex.next()
         if (!token) return
 
@@ -106,6 +128,7 @@ function basic(vm, lex) {
 
         } else if (token.type === lex.OPERATOR && token.val === '-') {
             const rval = expectVal(atomicVal)
+
             return {
                 val: rval,
                 get: function unaryMinus() {
@@ -132,7 +155,7 @@ function basic(vm, lex) {
 
         if (token.type === lex.OPERATOR) {
             if (token.val === '*') {
-                const rval = expectVal(notVal)
+                const rval = expectVal(exprUN)
                 return moreMD({
                     lval: lval,
                     rval: rval,
@@ -142,7 +165,7 @@ function basic(vm, lex) {
                     toString: binaryOpToString,
                 })
             } else if (token.val === '/') {
-                const rval = expectVal(notVal)
+                const rval = expectVal(exprUN)
                 return moreMD({
                     lval: lval,
                     rval: rval,
@@ -152,7 +175,7 @@ function basic(vm, lex) {
                     toString: binaryOpToString,
                 })
             } else if (token.val === '\\') {
-                const rval = expectVal(notVal)
+                const rval = expectVal(exprUN)
                 return moreMD({
                     lval: lval,
                     rval: rval,
@@ -163,7 +186,7 @@ function basic(vm, lex) {
                     toString: binaryOpToString,
                 })
             } else if (token.val === '%') {
-                const rval = expectVal(notVal)
+                const rval = expectVal(exprUN)
                 return moreMD({
                     lval: lval,
                     rval: rval,
@@ -179,7 +202,7 @@ function basic(vm, lex) {
     }
 
     function exprMD() {
-        const lval = notVal()
+        const lval = exprUN()
         return moreMD(lval)
     }
 
@@ -368,16 +391,23 @@ function basic(vm, lex) {
     }
 
     function doExprList() {
-        let opt = []
+        let list = []
 
         let expr
         while(expr = doExpr()) {
-            opt.push(expr)
+            list.push(expr)
+
+            /*
+            const ahead = lex.ahead()
+            if (ahead.type !== lex.OPERATOR
+                    || ahead.val !== ',') break
+            */
         }
 
-        if (opt.length === 0) return
-        else if (opt.length === 1) return opt[0]
-        else return opt
+
+        if (list.length === 0) return
+        else if (list.length === 1) return list[0]
+        else return list
     }
 
     function doCommand(block) {
