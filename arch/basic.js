@@ -21,6 +21,7 @@ const OP = [
     '-',
     '*',
     '/',
+    '%',
     '!',
     '(',
     ')',
@@ -373,6 +374,15 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
         return lastToken
     }
 
+    function expect(type, val) {
+        const token = next()
+        if (!token) return false
+
+        if (type && token.type !== type) return false
+        if (val && token.val !== val) return false
+        return true
+    }
+
     function ahead() {
         if (!isBuffered) {
             lastToken = parseNext()
@@ -389,6 +399,7 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
     return {
         next: next,
         ahead: ahead,
+        expect: expect,
         ret: ret,
         err: err,
     }
@@ -435,9 +446,15 @@ function basic(vm, src) {
             return
         }
 
-        if (token.type === OP) {
+        if (token.type === OPERATOR) {
             if (token.val === '(') {
                 const val = doExpr()
+                console.log(val.toString())
+                if (!lex.expect(OPERATOR, ')')) {
+                    lex.err(`) is expected`)
+                }
+                return val
+
             } else {
                 lex.err(`unexpected operator ${token.val}`)
             }

@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# === process params ===
+HELP=NO
+VERBOSE=NO
+TRACE=NO
+SOURCE=NO
+TESTPATH="./suit"
+
+EXEC="./jbas"
+EXT="jbas"
+MATCH="res"
+
+FAILED=NO
+
+for i in "$@"; do
+
+case $i in
+    -h|--help)
+    HELP=YES
+    ;;
+    -v|--verbose)
+    VERBOSE=YES
+    ;;
+    -t|--trace)
+    TRACE=YES
+    ;;
+    -s|--source)
+    SOURCE=YES
+    ;;
+    -p|--path)
+    TESTPATH="${i#*=}"
+    ;;
+    *)
+    ;;
+esac
+done
+
+# === help ===
+if [ $HELP == 'YES' ]; then
+    echo 'Sequencer Test Suite'
+    echo '    search and evaluates all *test files in test folder'
+    echo '    shows only FAILED tests by default'
+    echo ''
+    echo 'Usage: probe [OPTION]...'
+    echo ''
+    echo 'Example: ./probe -v -t'
+    echo ''
+    echo 'Available Options:'
+    echo '    -v, --verbose output all test results'
+    echo '    -t, --trace   show evaluation results'
+    echo '    -s, --source  show test sources'
+    echo '    -p, --path    path to the test folder, [./test] by default'
+    exit 0
+fi
+
+# === run tests === 
+for f in $(find $TESTPATH -name "*.$EXT"); do
+
+t=${f%.$EXT}
+m=$t".$MATCH"
+
+val=`$EXEC $f`
+match=`cat $m`
+
+if [ "$val" == "$match" ]
+then
+	if [ $VERBOSE == 'YES' ]; then
+		echo $t' - OK'
+	fi
+    if [ $SOURCE == 'YES' ]; then
+        cat $f
+    fi
+    if [ $TRACE == 'YES' ]; then
+        echo $val' == '$match
+    fi
+else
+    FAILED=YES
+	if [ $VERBOSE == 'YES' ]; then
+        echo $t' - FAILED'
+    fi
+	if [ $SOURCE == 'YES' ]; then
+		cat $f
+	fi
+	if [ $TRACE == 'YES' ]; then
+	    	echo $val' == '$match
+	fi
+fi
+done
+
+if [ $FAILED == 'YES' ]; then
+    echo 'FAILED - Test Suit completed with errors'
+    exit 1
+else
+	#if [ $VERBOSE == 'YES' ]; then
+        echo 'SUCCESS'
+    #fi
+    exit 0
+fi
+

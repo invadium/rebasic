@@ -1,4 +1,4 @@
 50 print "hello world"
 60 print 5 + 2 + 4 - 2
-70 print 7 + 2*3
+70 print 1 + (7 + 2) * 3
 

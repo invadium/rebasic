@@ -41,6 +41,10 @@ class VM {
 
     val(v) {
         if (!v) return 'NIL'
+        if (!v.get) {
+            console.dir(v)
+            throw 'wrong value!'
+        }
         return v.get()
     }
 
@@ -52,7 +56,7 @@ class VM {
         while(i < code.length) {
             const op = code[i++]
 
-            console.log(op.toString())
+            //console.log(op.toString())
             switch(op.type) {
                 case 1:
                     const cmd = this.command[op.val]
