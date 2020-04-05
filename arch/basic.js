@@ -73,8 +73,23 @@ function basic(vm, lex) {
             const rval = expectVal(atomicVal)
             return {
                 val: rval,
-                get: function mul() {
+                get: function not() {
                     return !this.val.get()
+                },
+                toString: unaryOpToString,
+            }
+
+        } else if (token.type === lex.OPERATOR && token.val === '-') {
+            const rval = expectVal(atomicVal)
+            return {
+                val: rval,
+                get: function unaryMinus() {
+                    const v = this.val.get()
+                    if (typeof v !== 'number') {
+                        // TODO central handling of runtime errors
+                        throw 'number is expected for unary opp'
+                    }
+                    return v * -1
                 },
                 toString: unaryOpToString,
             }
