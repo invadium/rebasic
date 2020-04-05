@@ -64,7 +64,6 @@ class VM {
             val = this.label[name]
             if (val) return name
 
-            console.dir(this.label)
             throw `unknown identifier ${name}`
         }
         return val
