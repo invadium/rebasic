@@ -26,6 +26,7 @@ class Block {
 class VM {
 
     constructor() {
+        this.pos = 0
         this.label = {}
         this.command = {
             'goto': true,
@@ -82,50 +83,64 @@ class VM {
         }
     }
 
+    next(stmt) {
+        if (!stmt) return
+        //console.log(stmt.toString())
+        switch(stmt.type) {
+            case 1:
+                // command
+                const cmd = this.command[stmt.val]
+                if (!cmd) throw `Unknown command [${stmt.val}]`
+
+                // calculate param set
+                const val = stmt.opt.get()
+
+                switch(stmt.val) {
+                    case 'goto':
+                        const label = this.label[val]
+                        if (!label) {
+                            throw `unknown label [${val}]`
+                        }
+                        this.code = label.block.code
+                        this.pos = label.pos
+                        break
+
+                    default:
+                        if (Array.isArray(val)) {
+                            cmd.apply(this, val)
+                        } else {
+                            cmd.call(this, val)
+                        }
+                }
+                break
+
+            case 2: 
+                // assignment
+                const lval = stmt.lval
+                const rval = stmt.rval.get()
+                //console.log('assignment ' + lval + ' = ' + rval)
+                this.scope[lval] = rval
+                break
+
+            case 3:
+                // if - then - else
+                const cond = stmt.cond.get()
+                if (cond) {
+                    this.next(stmt.lstmt)
+                } else {
+                    this.next(stmt.rstmt)
+                }
+                break
+        }
+    }
+
     run(block, pos) {
-        const code = block.code
-
         // execute all statements in the code sequence
-        let i = pos
-        while(i < code.length) {
-            const op = code[i++]
+        this.pos = pos
+        this.code = block.code
 
-            //console.log(op.toString())
-            switch(op.type) {
-                case 1:
-                    // command
-                    const cmd = this.command[op.val]
-                    if (!cmd) throw `Unknown command [${op.val}]`
-
-                    // calculate param set
-                    const val = op.opt.get()
-
-                    switch(op.val) {
-                        case 'goto':
-                            const label = this.label[val]
-                            if (!label) {
-                                throw `unknown label [${val}]`
-                            }
-                            block = label.block
-                            i = label.pos
-                            break
-
-                        default:
-                            if (Array.isArray(val)) {
-                                cmd.apply(this, val)
-                            } else {
-                                cmd.call(this, val)
-                            }
-                    }
-                    break
-
-                case 2: 
-                    // assignment
-                    const lval = op.lval
-                    const rval = op.rval.get()
-                    //console.log('assignment ' + lval + ' = ' + rval)
-                    this.scope[lval] = rval
-            }
+        while(this.pos < this.code.length) {
+            this.next(this.code[this.pos ++])
         }
     }
 }

@@ -1,15 +1,6 @@
-----
-50 print "hello world"
-60 print 5 + 2 + 4 - 2
-70 print 1 + (7 + 2) * 3
-----
-a = 100
-b = 200
-c = 2 + 10
-d = 10 + abs(-4)
 
-goto trek
-print d
-print b
+a = 10
 
-trek: print d + b
+if a > 5 then print "big"
+if a < 5 then print "small"
+if a > 20 then print "really big" else print "not that big"

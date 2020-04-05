@@ -467,7 +467,35 @@ function basic(vm, lex) {
                     }
                 }
             }
+        } else if (token.type === lex.KEYWORD) {
+            if (token.val === 'if') {
+                const cond = doExpr()
+
+                // then
+                if (!lex.expect(lex.KEYWORD, 'then')) {
+                    lex.err(`[then] expected`)
+                }
+
+                const lstmt = doStatement()
+
+                let rstmt
+                const ahead = lex.ahead()
+                if (ahead.type === lex.KEYWORD
+                        && ahead.val === 'else') {
+                    lex.next()
+                    rstmt = doStatement()
+                }
+
+                return {
+                    type: 3,
+                    cond: cond,
+                    lstmt: lstmt,
+                    rstmt: rstmt,
+                }
+            }
         }
+
+
 
         const cmd = {
             type: 1,

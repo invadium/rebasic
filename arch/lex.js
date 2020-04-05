@@ -23,9 +23,17 @@ const OP = [
 ]
 
 const KEYWORDS = [
+    'if',
+    'then',
+    'else',
+    'for',
+    'to',
+    'next',
+
     'not',
     'and',
     'or',
+
     'true',
     'false',
     'on',
