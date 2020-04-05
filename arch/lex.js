@@ -7,15 +7,17 @@ const LABEL = 4
 const OPERATOR = 5
 
 const OP = [
-    '+',
-    '-',
+    '(',
+    ')',
     '*',
     '/',
     '\\',
     '%',
-    '!',
-    '(',
-    ')',
+    '+',
+    '-',
+    '<',
+    '>',
+    '=',
     ',',
 ]
 
@@ -33,8 +35,12 @@ function isSeparator(c) {
     return isSpace(c) || isNewLine(c)
 }
 
-function isSpecial(c) {
+function isOperator(c) {
     return OP.includes(c)
+}
+
+function isSpecial(c) {
+    return isOperator(c)
 }
 
 function isDigit(c) {
@@ -246,11 +252,22 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
         mark = cur()
 
         // operator
-        if (isSpecial(c)) {
+        if (isOperator(c)) {
+            let op = c
+            if (c === '<') {
+                if (aheadc() === '>') {
+                    op = '<>'; getc();
+                } else if (aheadc() === '=') {
+                    op = '<='; getc();
+                }
+            } else if (c === '>' && aheadc() === '=') {
+                op = '>='; getc();
+            }
+
             return {
                 type: OPERATOR,
                 tab: tab,
-                val: c,
+                val: op,
             }
         }
 
@@ -383,7 +400,10 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
     }
 
     function ret() {
-        if (isBuffered) throw 'token buffer overflow'
+        if (isBuffered) {
+            console.dir(lastToken)
+            xerr('token buffer overflow')
+        }
         isBuffered = true
     }
 

@@ -55,7 +55,7 @@ function basic(vm, lex) {
         const val = token.val
         return {
             val: val,
-            get: function() {
+            get: function value() {
                 return this.val
             },
             toString: valToString,
@@ -155,8 +155,100 @@ function basic(vm, lex) {
         return moreAS(lval)
     }
 
+    function moreCMP(lval) {
+        const token = lex.next()
+        if (!token) return lval
+
+        if (token.type === lex.OPERATOR) {
+            if (token.val === '<') {
+                const rval = expectVal(exprAS)
+                return moreCMP({
+                    lval: lval,
+                    rval: rval,
+                    get: function less() {
+                        return this.lval.get() < this.rval.get()
+                    },
+                    toString: binaryOpToString,
+                })
+            } else if (token.val === '<=') {
+                const rval = expectVal(exprMD)
+                return moreCMP({
+                    lval: lval,
+                    rval: rval,
+                    get: function lessEq() {
+                        return this.lval.get() <= this.rval.get()
+                    },
+                    toString: binaryOpToString,
+                })
+            } else if (token.val === '>') {
+                const rval = expectVal(exprMD)
+                return moreCMP({
+                    lval: lval,
+                    rval: rval,
+                    get: function more() {
+                        return this.lval.get() > this.rval.get()
+                    },
+                    toString: binaryOpToString,
+                })
+            } else if (token.val === '>=') {
+                const rval = expectVal(exprMD)
+                return moreCMP({
+                    lval: lval,
+                    rval: rval,
+                    get: function moreEq() {
+                        return this.lval.get() >= this.rval.get()
+                    },
+                    toString: binaryOpToString,
+                })
+            }
+        } 
+        lex.ret()
+        return lval
+    }
+
+    function exprCMP() {
+        const lval = exprAS()
+        return moreCMP(lval)
+    }
+
+    function moreEQ(lval) {
+        const token = lex.next()
+        if (!token) return lval
+
+        if (token.type === lex.OPERATOR) {
+            if (token.val === '=') {
+                const rval = expectVal(exprAS)
+                return moreEQ({
+                    lval: lval,
+                    rval: rval,
+                    get: function less() {
+                        return this.lval.get() == this.rval.get()
+                    },
+                    toString: binaryOpToString,
+                })
+            } else if (token.val === '<>') {
+                const rval = expectVal(exprMD)
+                return moreEQ({
+                    lval: lval,
+                    rval: rval,
+                    get: function notEq() {
+                        return this.lval.get() != this.rval.get()
+                    },
+                    toString: binaryOpToString,
+                })
+            }
+        } 
+        lex.ret()
+        return lval
+    }
+
+    function exprEQ() {
+        const lval = exprCMP()
+        return moreEQ(lval)
+    }
+
     function doExpr() {
-        return exprAS()
+        return exprEQ()
     }
 
     function doExprList() {
