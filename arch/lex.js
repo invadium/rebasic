@@ -28,6 +28,7 @@ const OP = [
 const KEYWORDS = [
     'rem',
     'let',
+    'data',
     'if',
     'then',
     'else',
@@ -36,6 +37,7 @@ const KEYWORDS = [
     'step',
     'next',
     'return',
+    'stop',
     'end',
 
     'not',

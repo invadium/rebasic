@@ -494,6 +494,14 @@ function basic(vm, lex) {
         }
     }
 
+    function doExprInList() {
+        const lval = doExprList()
+
+        if (!lval) return []
+        if (lval.list) return lval.list
+        return [ lval ]
+    }
+
     function doStatement(block) {
         const token = lex.next()
 
@@ -557,6 +565,14 @@ function basic(vm, lex) {
                         return `let ${this.lval} = ${this.rval}`
                     },
                 }
+
+            } else if (token.val === 'data') {
+                const list = doExprInList()
+                for (let i = 0; i < list.length; i++) {
+                    const val = list[i].val
+                    vm.store(val)
+                }
+                return doStatement()
 
             } else if (token.val === 'if') {
                 const cond = doExpr()
@@ -652,7 +668,7 @@ function basic(vm, lex) {
                     }
                 }
 
-            } else if (token.val === 'end') {
+            } else if (token.val === 'stop' || token.val === 'end') {
                 return {
                     type: 7,
                     toString: function() {

@@ -31,6 +31,8 @@ class VM {
         this.command = {
             'goto': true,
             'gosub': true,
+            'read': true,
+            'restore': true,
             'dot': doDot,
             'print': doPrint,
         }
@@ -40,6 +42,9 @@ class VM {
         this.scope = {}
         this.bstack = []
         this.rstack = []
+
+        this.data = []
+        this.dataPos = 0
     }
 
     markLabel(name, block, pos) {
@@ -57,6 +62,17 @@ class VM {
             throw 'wrong value!'
         }
         return v.get()
+    }
+
+    store(val) {
+        this.data.push(val)
+    }
+
+    read(name) {
+        if (this.dataPos >= this.data.length) {
+            throw 'no data left to read'
+        }
+        this.assign(name, this.data[this.dataPos++])
     }
 
     assign(name, val) {
@@ -108,7 +124,10 @@ class VM {
                 if (!cmd) throw `Unknown command [${stmt.val}]`
 
                 // calculate param set
-                const val = stmt.opt.get()
+                let val
+                if (stmt.opt && stmt.val !== 'read') {
+                    val = stmt.opt.get()
+                }
 
                 switch(stmt.val) {
                     case 'goto':
@@ -129,6 +148,21 @@ class VM {
                         this.rstack.push(this.pos)
                         this.code = subLabel.block.code
                         this.pos = subLabel.pos
+                        break
+
+                    case 'read':
+                        const opt = stmt.opt
+                        if (opt.list) {
+                            for (let i = 0; i < opt.list.length; i++) {
+                                this.read(opt.list[i].val)
+                            }
+                        } else {
+                            this.read(opt.val)
+                        }
+                        break
+
+                    case 'restore':
+                        this.dataPos = 0
                         break
 
                     default:
