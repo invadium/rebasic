@@ -1,0 +1,8 @@
+print sin(0)
+print sin(pi/2)
+print cos(0)
+print cos(pi)
+
+print tan(0)
+print atn(0)
+print atn2(0, 0)

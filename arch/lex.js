@@ -63,7 +63,7 @@ function isNewLine(c) {
 }
 
 function isSeparator(c) {
-    return isSpace(c) || isNewLine(c)
+    return isSpace(c) || isNewLine(c) || isOperator(c)
 }
 
 function isOperator(c) {

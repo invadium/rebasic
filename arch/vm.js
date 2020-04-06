@@ -39,8 +39,16 @@ class VM {
         this.fun = {
             abs: Math.abs,
             rnd: Math.random,
+            sin: Math.sin,
+            cos: Math.cos,
+            tan: Math.tan,
+            atn: Math.atan,
+            atn2: Math.atan2,
         }
-        this.scope = {}
+        this.scope = {
+            pi: Math.PI,
+            tau: Math.PI * 2,
+        }
         this.bstack = []
         this.rstack = []
 
