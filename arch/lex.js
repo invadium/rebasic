@@ -35,6 +35,8 @@ const KEYWORDS = [
     'to',
     'step',
     'next',
+    'return',
+    'end',
 
     'not',
     'and',

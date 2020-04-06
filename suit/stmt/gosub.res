@@ -1,0 +1,3 @@
+gosub test
+hello
+hello

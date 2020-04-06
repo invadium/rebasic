@@ -643,6 +643,22 @@ function basic(vm, lex) {
                             + ` to ${this.rval} step ${this.step}`
                     }
                 }
+
+            } else if (token.val === 'return') {
+                return {
+                    type: 6,
+                    toString: function() {
+                        return 'return'
+                    }
+                }
+
+            } else if (token.val === 'end') {
+                return {
+                    type: 7,
+                    toString: function() {
+                        return 'end'
+                    }
+                }
             }
         }
 

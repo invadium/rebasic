@@ -30,6 +30,7 @@ class VM {
         this.label = {}
         this.command = {
             'goto': true,
+            'gosub': true,
             'dot': doDot,
             'print': doPrint,
         }
@@ -37,7 +38,8 @@ class VM {
             abs: Math.abs,
         }
         this.scope = {}
-        this.stack = []
+        this.bstack = []
+        this.rstack = []
     }
 
     markLabel(name, block, pos) {
@@ -118,6 +120,17 @@ class VM {
                         this.pos = label.pos
                         break
 
+                    case 'gosub':
+                        const subLabel = this.label[val]
+                        if (!subLabel) {
+                            throw `unknown label [${val}]`
+                        }
+                        this.bstack.push(this.code)
+                        this.rstack.push(this.pos)
+                        this.code = subLabel.block.code
+                        this.pos = subLabel.pos
+                        break
+
                     default:
                         if (Array.isArray(val)) {
                             cmd.apply(this, val)
@@ -165,6 +178,20 @@ class VM {
                 }
                 break
 
+            case 6:
+                if (this.rstack.length === 0) {
+                    // the end
+                    this.pos = Number.MAX_SAFE_INTEGER
+                } else {
+                    this.code = this.bstack.pop()
+                    this.pos = this.rstack.pop()
+                }
+                break
+
+            case 7:
+                // the end
+                this.pos = Number.MAX_SAFE_INTEGER
+                break
         }
     }
 
