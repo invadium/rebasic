@@ -38,6 +38,7 @@ class VM {
         }
         this.fun = {
             abs: Math.abs,
+            rnd: Math.random,
         }
         this.scope = {}
         this.bstack = []

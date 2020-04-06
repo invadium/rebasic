@@ -52,8 +52,11 @@ function basic(vm, lex) {
                     lex.err(`an expression must be closed with )`)
                 }
                 return val
-
+            } else {
+                lex.ret()
+                return
             }
+
         } else if (token.type === lex.KEYWORD) {
             if (token.val === 'true'
                     || token.val === 'on'
@@ -89,6 +92,7 @@ function basic(vm, lex) {
 
             lex.next()
             const rval = doExprList()
+
             if (!lex.expect(lex.OPERATOR, ')')) {
                 lex.err(`) is expected after argument list`)
             }
@@ -199,13 +203,15 @@ function basic(vm, lex) {
                     },
                     toString: unaryOpToString,
                 }
-            } 
+            } else {
+                lex.ret()
+                return atomicVal()
+            }
 
         } else {
             lex.ret()
             return atomicVal()
         }
-        return lval
     }
 
     function moreMD(lval) {
