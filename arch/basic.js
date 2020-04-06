@@ -139,20 +139,22 @@ function basic(vm, lex) {
                 toString: unaryOpToString,
             }
 
-        } else if (token.type === lex.OPERATOR && token.val === '-') {
-            const rval = expectVal(atomicVal)
+        } else if (token.type === lex.OPERATOR) {
 
-            return {
-                val: rval,
-                get: function unaryMinus() {
-                    const v = this.val.get()
-                    if (typeof v !== 'number') {
-                        // TODO central handling of runtime errors
-                        throw 'number is expected for unary opp'
-                    }
-                    return v * -1
-                },
-                toString: unaryOpToString,
+            if (token.val === '-') {
+                const rval = expectVal(atomicVal)
+                return {
+                    val: rval,
+                    get: function unaryMinus() {
+                        const v = this.val.get()
+                        if (typeof v !== 'number') {
+                            // TODO central handling of runtime errors
+                            throw 'number is expected for unary -'
+                        }
+                        return v * -1
+                    },
+                    toString: unaryOpToString,
+                }
             }
 
         } else {
@@ -177,6 +179,7 @@ function basic(vm, lex) {
                     },
                     toString: binaryOpToString,
                 })
+
             } else if (token.val === '/') {
                 const rval = expectVal(exprUN)
                 return moreMD({
@@ -187,6 +190,7 @@ function basic(vm, lex) {
                     },
                     toString: binaryOpToString,
                 })
+
             } else if (token.val === '\\') {
                 const rval = expectVal(exprUN)
                 return moreMD({
@@ -198,6 +202,7 @@ function basic(vm, lex) {
                     },
                     toString: binaryOpToString,
                 })
+
             } else if (token.val === '%') {
                 const rval = expectVal(exprUN)
                 return moreMD({
@@ -208,6 +213,19 @@ function basic(vm, lex) {
                     },
                     toString: binaryOpToString,
                 })
+
+            } else if (token.val === '^') {
+                const rval = expectVal(atomicVal)
+
+                return {
+                    lval: lval,
+                    rval: rval,
+                    get: function power() {
+                        return Math.pow(this.lval.get(),
+                            this.rval.get())
+                    },
+                    toString: binaryOpToString,
+                }
             }
         } 
         lex.ret()
