@@ -533,6 +533,30 @@ function basic(vm, lex) {
                 lex.skipLine()
                 return doStatement()
 
+            } else if (token.val === 'let') {
+                // assume an assignment statement is following
+
+                const variable = lex.next()
+
+                if (variable.type !== lex.SYM) {
+                    lex.err('assignmnet is expected after let')
+                }
+                if (!lex.expect(lex.OPERATOR, '=')) {
+                    lex.err(`an expression must be closed with )`)
+                }
+
+                const rval = doExpr()
+
+                return {
+                    type: 2,
+                    lval: variable.val,
+                    rval: rval,
+                    toString: function() {
+                        return `let ${this.lval} = ${this.rval}`
+                    },
+                }
+
+
             } else if (token.val === 'if') {
                 const cond = doExpr()
 
