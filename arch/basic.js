@@ -4,6 +4,8 @@
 
 function basic(vm, lex) {
 
+    const nextFor = []
+
     function doLabel(block, token) {
         vm.markLabel(token.val, block, block.length())
     }
@@ -535,14 +537,13 @@ function basic(vm, lex) {
 
             } else if (token.val === 'let') {
                 // assume an assignment statement is following
-
                 const variable = lex.next()
 
                 if (variable.type !== lex.SYM) {
                     lex.err('assignmnet is expected after let')
                 }
                 if (!lex.expect(lex.OPERATOR, '=')) {
-                    lex.err(`an expression must be closed with )`)
+                    lex.err(`= is expected`)
                 }
 
                 const rval = doExpr()
@@ -551,11 +552,11 @@ function basic(vm, lex) {
                     type: 2,
                     lval: variable.val,
                     rval: rval,
+
                     toString: function() {
                         return `let ${this.lval} = ${this.rval}`
                     },
                 }
-
 
             } else if (token.val === 'if') {
                 const cond = doExpr()
@@ -581,10 +582,69 @@ function basic(vm, lex) {
                     lstmt: lstmt,
                     rstmt: rstmt,
                 }
+
+            } else if (token.val === 'for') {
+                const controlVar = lex.next()
+
+                if (controlVar.type !== lex.SYM) {
+                    lex.err('loop control variable expected')
+                }
+                if (!lex.expect(lex.OPERATOR, '=')) {
+                    lex.err(`an expression must be closed with )`)
+                }
+
+                const lval = doExpr()
+
+                if (!lex.expect(lex.KEYWORD, 'to')) {
+                    lex.err(`[to] is expected`)
+                }
+
+                const rval = doExpr()
+
+                let step
+                const ahead = lex.ahead()
+                if (ahead.type === lex.KEYWORD
+                            && ahead.val === 'step') {
+                    lex.next()
+                    step = doExpr()
+                }
+
+                const cmd = {
+                    type: 4,
+                    cvar: controlVar.val,
+                    lval: lval,
+                    rval: rval,
+                    step: step,
+                    pos: block.length() + 1,
+
+                    toString: function() {
+                        return `for ${this.cvar} = ${this.lval}`
+                            + ` to ${this.rval} step ${this.step}`
+                            + ` at ${this.pos}`
+                    }
+                }
+                nextFor.push(cmd)
+                return cmd
+
+            } else if (token.val === 'next') {
+
+                const cmd = nextFor.pop()
+                if (!cmd) {
+                    lex.err('no matching for loop for next statement')
+                }
+                lex.skipLine()
+
+                return {
+                    type: 5,
+                    forCommand: cmd,
+
+                    toString: function() {
+                        return `for ${this.cvar} = ${this.lval}`
+                            + ` to ${this.rval} step ${this.step}`
+                    }
+                }
             }
         }
-
-
 
         const cmd = {
             type: 1,

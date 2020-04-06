@@ -1,13 +1,5 @@
+for i = 1 to 10 step 1
+    print "hi"
+next
 
-rem
-Rem some comment here
-REM original basic comment
-
-a = 10
-
-if a > 5 then print "big"
-if a < 5 then print "small"
-if a > 20 then print "really big" else print "not that big"
-
-print 2 ^ 4
-
+print i

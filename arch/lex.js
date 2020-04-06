@@ -33,6 +33,7 @@ const KEYWORDS = [
     'else',
     'for',
     'to',
+    'step',
     'next',
 
     'not',

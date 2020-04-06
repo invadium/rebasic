@@ -57,6 +57,18 @@ class VM {
         return v.get()
     }
 
+    assign(name, val) {
+        this.scope[name] = val
+    }
+
+    load(name) {
+        let val = this.scope[name]
+        if (val === undefined) {
+            throw `unknown identifier ${name}`
+        }
+        return val
+    }
+
     locate(name) {
         // check variables
         let val = this.scope[name]
@@ -85,6 +97,7 @@ class VM {
 
     next(stmt) {
         if (!stmt) return
+
         //console.log(stmt.toString())
         switch(stmt.type) {
             case 1:
@@ -119,7 +132,7 @@ class VM {
                 const lval = stmt.lval
                 const rval = stmt.rval.get()
                 //console.log('assignment ' + lval + ' = ' + rval)
-                this.scope[lval] = rval
+                this.assign(lval, rval)
                 break
 
             case 3:
@@ -131,6 +144,27 @@ class VM {
                     this.next(stmt.rstmt)
                 }
                 break
+
+            case 4:
+                // for - to - step init
+                this.assign(stmt.cvar, stmt.lval.get())
+                break
+
+            case 5:
+                // next
+                const cfor = stmt.forCommand
+                let i = this.load(cfor.cvar)
+                const step = cfor.step? cfor.step.get() : 1
+                const to = cfor.rval.get()
+
+                i += step
+                this.assign(cfor.cvar, i)
+
+                if (i <= to) {
+                    this.pos = cfor.pos
+                }
+                break
+
         }
     }
 
