@@ -528,7 +528,12 @@ function basic(vm, lex) {
                 }
             }
         } else if (token.type === lex.KEYWORD) {
-            if (token.val === 'if') {
+
+            if (token.val === 'rem') {
+                lex.skipLine()
+                return doStatement()
+
+            } else if (token.val === 'if') {
                 const cond = doExpr()
 
                 // then

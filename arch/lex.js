@@ -26,6 +26,8 @@ const OP = [
 ]
 
 const KEYWORDS = [
+    'rem',
+    'let',
     'if',
     'then',
     'else',
@@ -459,6 +461,7 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
         ahead: ahead,
         expect: expect,
         ret: ret,
+        skipLine: skipLine,
         err: err,
 
         SYM: SYM,
