@@ -155,7 +155,49 @@ function basic(vm, lex) {
                     },
                     toString: unaryOpToString,
                 }
-            }
+
+            } else if (token.val === '%') {
+                const rval = expectVal(atomicVal)
+                return {
+                    val: rval,
+                    get: function unaryPercent() {
+                        const v = this.val.get()
+                        if (typeof v !== 'number') {
+                            throw 'number is expected for unary %'
+                        }
+                        return Math.floor(v)
+                    },
+                    toString: unaryOpToString,
+                }
+
+            } else if (token.val === '~') {
+                const rval = expectVal(atomicVal)
+                return {
+                    val: rval,
+                    get: function unaryTilda() {
+                        const v = this.val.get()
+                        if (typeof v !== 'number') {
+                            throw 'number is expected for unary ~'
+                        }
+                        return Math.round(v)
+                    },
+                    toString: unaryOpToString,
+                }
+
+            } else if (token.val === '!') {
+                const rval = expectVal(atomicVal)
+                return {
+                    val: rval,
+                    get: function unaryExcl() {
+                        const v = this.val.get()
+                        if (typeof v !== 'number') {
+                            throw 'number is expected for unary !'
+                        }
+                        return Math.ceil(v)
+                    },
+                    toString: unaryOpToString,
+                }
+            } 
 
         } else {
             lex.ret()

@@ -14,6 +14,8 @@ const OP = [
     '\\',
     '%',
     '^',
+    '~',
+    '!',
     '+',
     '-',
     '<',
@@ -342,6 +344,7 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
                     val: n
                 }
             } else if (c === '0') {
+                // hanlde plain 0
                 retc()
                 c = getc()
                 if (!isSeparator(c)) xerr('wrong number format')
@@ -359,6 +362,20 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
                     n = n*10 + d
                     c = getc()
                 }
+
+                if (c === '.') {
+                    let precision = 1
+
+                    c = getc()
+                    while ((d = toDec(c)) >= 0) {
+                        n = n*10 + d
+                        precision *= 10
+                        c = getc()
+                    }
+
+                    n = n/precision
+                }
+
                 retc()
 
                 return {
