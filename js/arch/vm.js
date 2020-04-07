@@ -1,3 +1,4 @@
+'use strict'
 
 function doDot() {
     console.log(".")
@@ -258,4 +259,8 @@ function vmFactory() {
 
 if (module) {
     module.exports = vmFactory
+} else {
+    this.jbas? this.jbas.vmFactory = vmFactory : this.jbas = {
+        vmFactory
+    }
 }

@@ -491,4 +491,9 @@ function lexFromSource(src) {
 
 if (module) {
     module.exports = lexFromSource
+} else {
+    this.jbas? this.jbas.lexFromSource = lexFromSource
+        : this.jbas = {
+            lexFromSource
+        }
 }

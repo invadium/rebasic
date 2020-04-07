@@ -7,9 +7,9 @@
 const fs = require('fs')
 const process = require('process')
 
-const lexFromSource = require('./arch/lex.js')
-const basic = require('./arch/basic.js')
-const vmFactory = require('./arch/vm.js')
+const lexFromSource = require('./js/arch/lex.js')
+const basic = require('./js/arch/basic.js')
+const vmFactory = require('./js/arch/vm.js')
 
 // process args
 const args = process.argv;

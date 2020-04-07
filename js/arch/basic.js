@@ -714,4 +714,8 @@ function basic(vm, lex) {
 if (module) {
     // node or collider
     module.exports = basic
+} else {
+    this.jbas? this.jbas.basic = basic : this.jbas = {
+        basic
+    }
 }
