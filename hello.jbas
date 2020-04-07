@@ -1,1 +1,3 @@
-print rnd()
+name = "test"
+input "what is your name?", name
+print "hello ", name

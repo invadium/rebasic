@@ -684,6 +684,7 @@ function basic(vm, lex) {
             }
         }
 
+
         const cmd = {
             type: 1,
             val: token.val,
@@ -694,6 +695,10 @@ function basic(vm, lex) {
 
         const opt = doExprList()
         if (opt) cmd.opt = opt
+
+        if (token.val === 'read' || token.val === 'input') {
+            cmd.immediate = true
+        }
 
         return cmd
     }

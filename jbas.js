@@ -10,6 +10,8 @@ const process = require('process')
 const lexFromSource = require('./js/arch/lex.js')
 const basic = require('./js/arch/basic.js')
 const vmFactory = require('./js/arch/vm.js')
+const math = require('./js/lib/math.js')
+const io = require('./js/env/io.js')
 
 // process args
 const args = process.argv;
@@ -40,8 +42,18 @@ function help() {
     console.log('Usage: jbs [script]...')
 }
 
-function run() {
+function setupVM() {
     const vm = vmFactory()
+
+    for (let n in math.fn) vm.defineFun(n, math.fn[n])
+    for (let n in math.scope) vm.assign(n, math.scope[n])
+    for (let n in io) vm.defineCmd(n, io[n])
+
+    return vm
+}
+
+function run() {
+    const vm = setupVM()
 
     scripts.forEach(origin => {
         const src = fs.readFileSync(origin, 'utf8')

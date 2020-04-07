@@ -1,12 +1,20 @@
 'use strict'
 
-function doDot() {
-    console.log(".")
-}
-
-function doPrint() {
+function print() {
     for (let i = 0; i < arguments.length; i++) {
         console.log(arguments[i])
+    }
+}
+
+function input() {
+    for (let i = 0; i < arguments.length; i++) {
+        const v = arguments[i]
+
+        if (typeof v === 'object' && v.id) {
+            this.assign(v.id, 'not defined')
+        } else {
+            console.log(v)
+        }
     }
 }
 
@@ -34,25 +42,15 @@ class VM {
             'gosub': true,
             'read': true,
             'restore': true,
-            'dot': doDot,
-            'print': doPrint,
+            'print': print,
+            'input': input,
         }
-        this.fun = {
-            abs: Math.abs,
-            rnd: Math.random,
-            sin: Math.sin,
-            cos: Math.cos,
-            tan: Math.tan,
-            atn: Math.atan,
-            atn2: Math.atan2,
-        }
-        this.scope = {
-            pi: Math.PI,
-            tau: Math.PI * 2,
-        }
+        this.fun = {}
+        this.scope = {}
         this.bstack = []
         this.rstack = []
 
+        this.skipLookup = false
         this.data = []
         this.dataPos = 0
     }
@@ -85,11 +83,20 @@ class VM {
         this.assign(name, this.data[this.dataPos++])
     }
 
+    defineFun(name, fn) {
+        this.fun[name] = fn
+    }
+
+    defineCmd(name, fn) {
+        this.command[name] = fn
+    }
+
     assign(name, val) {
         this.scope[name] = val
     }
 
     load(name) {
+        if (this.skipLookup) return { id: name }
         let val = this.scope[name]
         if (val === undefined) {
             throw `unknown identifier ${name}`
@@ -98,6 +105,7 @@ class VM {
     }
 
     locate(name) {
+        if (this.skipLookup) return { id: name }
         // check variables
         let val = this.scope[name]
         if (val === undefined) {
@@ -135,8 +143,14 @@ class VM {
 
                 // calculate param set
                 let val
-                if (stmt.opt && stmt.val !== 'read') {
-                    val = stmt.opt.get()
+                if (stmt.opt) {
+                    if (stmt.immediate) {
+                        this.skipLookup = true
+                        val = stmt.opt.get()
+                        this.skipLookup = false
+                    } else {
+                        val = stmt.opt.get()
+                    }
                 }
 
                 switch(stmt.val) {
