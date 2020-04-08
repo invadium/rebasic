@@ -35,7 +35,6 @@ class Block {
 class VM {
 
     constructor() {
-        this.pos = 0
         this.label = {}
         this.command = {
             'goto': true,
@@ -47,12 +46,37 @@ class VM {
         }
         this.fun = {}
         this.scope = {}
+
+        this.pos = 0
         this.bstack = []
         this.rstack = []
-
-        this.skipLookup = false
         this.data = []
         this.dataPos = 0
+        this.interrupted = false
+        this.skipLookup = false
+
+        const vm = this
+        this.inputHandler = function(cmd) {
+            if (cmd) {
+                switch(cmd) {
+                    case 'exit':
+                        vm.command.close()
+                        break
+
+                    default:
+                        if (vm.interrupted) {
+                            vm.interrupted = false
+                            vm.assign(vm.inputTarget, cmd)
+                            vm.resume()
+
+                        } else {
+                            const lex = vm.lexFromSource(cmd)
+                            const code = vm.parse(vm, lex)
+                            vm.run(code, 0)
+                        }
+                }
+            }
+        }
     }
 
     markLabel(name, block, pos) {
@@ -253,34 +277,27 @@ class VM {
         }
     }
 
+    resume() {
+        while(!this.interrupted && this.pos < this.code.length) {
+            this.next(this.code[this.pos ++])
+        }
+
+        if (!this.interrupted && !this.loop) {
+            this.command.close()
+        }
+    }
+
     run(block, pos) {
         // execute all statements in the code sequence
         this.pos = pos? pos : 0
         this.code = block.code
-
-        while(this.pos < this.code.length) {
-            this.next(this.code[this.pos ++])
-        }
+        this.resume()
     }
 
     repl() {
-        const vm = this
-        vm.command.print("jam basic v1.0")
-
-        function nextCmd(cmd) {
-            if (cmd) {
-                switch(cmd) {
-                    case 'exit': vm.command.close(); break;
-                    default:
-                        const lex = vm.lexFromSource(cmd)
-                        const code = vm.basic(vm, lex)
-                        vm.run(code, 0)
-                }
-            }
-        }
-        vm.command.input(nextCmd)
-        nextCmd()
-
+        this.loop = true
+        this.command.print("Welcome to jam basic v1.0!")
+        this.inputHandler()
     }
 }
 

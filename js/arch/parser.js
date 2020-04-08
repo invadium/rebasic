@@ -2,7 +2,7 @@
 
 // @depends(lib/arch/op)
 
-function basic(vm, lex) {
+function parse(vm, lex) {
 
     const nextFor = []
 
@@ -718,9 +718,9 @@ function basic(vm, lex) {
 
 if (module) {
     // node or collider
-    module.exports = basic
+    module.exports = parse
 } else {
-    this.jbas? this.jbas.basic = basic : this.jbas = {
-        basic
+    this.jbas? this.jbas.parse = parse : this.jbas = {
+        parse
     }
 }
