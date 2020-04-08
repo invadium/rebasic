@@ -3,7 +3,6 @@ const readline = require('readline')
 let io
 
 function open() {
-    console.log('opening io...')
     io = readline.createInterface({
         input: process.stdin,
         output: process.stdout,

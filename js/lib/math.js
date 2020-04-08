@@ -7,6 +7,11 @@ const fn = {
     tan: Math.tan,
     atn: Math.atan,
     atn2: Math.atan2,
+    'int': Math.floor,
+    exp: Math.exp,
+    log: Math.log,
+    sgn: Math.sign,
+    sqr: Math.sqrt,
 }
 
 const scope = {
