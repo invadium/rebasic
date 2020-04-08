@@ -262,6 +262,23 @@ class VM {
             this.next(this.code[this.pos ++])
         }
     }
+
+    repl() {
+        const vm = this
+        vm.command.print("jam basic v1.0")
+
+        function nextCmd(cmd) {
+            if (cmd) {
+                switch(cmd) {
+                    case 'exit': vm.command.close(); break;
+                    default: vm.command.print('> ' + cmd)
+                }
+            }
+        }
+        vm.command.input(nextCmd)
+        nextCmd()
+
+    }
 }
 
 function vmFactory() {

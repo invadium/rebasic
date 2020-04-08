@@ -19,14 +19,14 @@ const args = process.argv;
 const opt = {}
 const scripts = []
 
-let cmd = 'run'
+let cmd = 'repl'
 let lastOption
 let parsedOption = false
-
 for (let i = 2; i < args.length; i++) {
     let arg = args[i]
 
-    if (arg === '-h' || arg === '--help' || arg === 'help') {
+    if (arg === '--help' || arg === '-h'
+            || arg === 'help' || arg === 'h') {
         parsedOption = false
         cmd = 'help'
     } else {
@@ -35,6 +35,7 @@ for (let i = 2; i < args.length; i++) {
             throw `Unknown option [${arg}]`
         }
         scripts.push(arg)
+        cmd = 'run'
     }
 }
 
@@ -48,6 +49,8 @@ function setupVM() {
     for (let n in math.fn) vm.defineFun(n, math.fn[n])
     for (let n in math.scope) vm.assign(n, math.scope[n])
     for (let n in io) vm.defineCmd(n, io[n])
+
+    vm.command.open()
 
     return vm
 }
@@ -63,7 +66,13 @@ function run() {
     })
 }
 
+function repl() {
+    const vm = setupVM()
+    vm.repl()
+}
+
 switch(cmd) {
     case 'run': run(); break;
+    case 'repl': repl(); break;
     case 'help': help(); break;
 }

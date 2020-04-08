@@ -1,13 +1,13 @@
 const readline = require('readline')
 
-const io = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-})
+let io
 
-io.on('line', (line) => {
-    console.log('#' + line)
-})
+function open() {
+    io = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    })
+}
 
 function print() {
     for (let i = 0; i < arguments.length; i++) {
@@ -17,7 +17,12 @@ function print() {
     process.stdout.write('\n')
 }
 
-function input() {
+function input(then) {
+    if (typeof then === 'function') {
+        io.on('line', then)
+        return
+    }
+
     for (let i = 0; i < arguments.length; i++) {
         const v = arguments[i]
 
@@ -30,10 +35,11 @@ function input() {
 }
 
 function close() {
-    io.close
+    io.close()
 }
 
 module.exports = {
+    open,
     print,
     input,
     close,
