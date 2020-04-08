@@ -255,7 +255,7 @@ class VM {
 
     run(block, pos) {
         // execute all statements in the code sequence
-        this.pos = pos
+        this.pos = pos? pos : 0
         this.code = block.code
 
         while(this.pos < this.code.length) {
@@ -271,7 +271,10 @@ class VM {
             if (cmd) {
                 switch(cmd) {
                     case 'exit': vm.command.close(); break;
-                    default: vm.command.print('> ' + cmd)
+                    default:
+                        const lex = vm.lexFromSource(cmd)
+                        const code = vm.basic(vm, lex)
+                        vm.run(code, 0)
                 }
             }
         }

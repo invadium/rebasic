@@ -12,7 +12,7 @@ function open() {
 function print() {
     for (let i = 0; i < arguments.length; i++) {
         if (i > 0) process.stdout.write(' ')
-        process.stdout.write(arguments[i])
+        process.stdout.write('' + arguments[i])
     }
     process.stdout.write('\n')
 }

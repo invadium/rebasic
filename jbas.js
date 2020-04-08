@@ -45,6 +45,8 @@ function help() {
 
 function setupVM() {
     const vm = vmFactory()
+    vm.lexFromSource = lexFromSource
+    vm.basic = basic
 
     for (let n in math.fn) vm.defineFun(n, math.fn[n])
     for (let n in math.scope) vm.assign(n, math.scope[n])
