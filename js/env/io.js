@@ -9,6 +9,12 @@ function open() {
     })
 }
 
+function prn() {
+    for (let i = 0; i < arguments.length; i++) {
+        process.stdout.write('' + arguments[i])
+    }
+}
+
 function print() {
     for (let i = 0; i < arguments.length; i++) {
         if (i > 0) process.stdout.write(' ')
@@ -44,6 +50,7 @@ function close() {
 
 module.exports = {
     open,
+    prn,
     print,
     input,
     close,
