@@ -7,6 +7,10 @@ const core = {
         this.command.print(src(this.lines))
     },
 
+    'cls': function() {
+        this.command.print('\033[2J')
+    },
+
     'new': function() {
         this.list = []
         this.lastLine = 0
