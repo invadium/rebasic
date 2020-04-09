@@ -11,6 +11,7 @@ const lexFromSource = require('./js/arch/lex.js')
 const parse = require('./js/arch/parser.js')
 const vmFactory = require('./js/arch/vm.js')
 const math = require('./js/lib/math.js')
+const str = require('./js/lib/str.js')
 const io = require('./js/env/io.js')
 
 // process args
@@ -50,6 +51,7 @@ function setupVM() {
 
     for (let n in math.fn) vm.defineFun(n, math.fn[n])
     for (let n in math.scope) vm.assign(n, math.scope[n])
+    for (let n in str) vm.defineFun(n, str[n])
     for (let n in io) vm.defineCmd(n, io[n])
 
     // specific hooks to handle stdin/out
