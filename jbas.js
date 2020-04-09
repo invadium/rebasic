@@ -10,6 +10,7 @@ const process = require('process')
 const lexFromSource = require('./js/arch/lex.js')
 const parse = require('./js/arch/parser.js')
 const vmFactory = require('./js/arch/vm.js')
+const core = require('./js/lib/core.js')
 const math = require('./js/lib/math.js')
 const str = require('./js/lib/str.js')
 const io = require('./js/env/io.js')
@@ -49,10 +50,11 @@ function setupVM() {
     vm.lexFromSource = lexFromSource
     vm.parse = parse
 
+    for (let n in core) vm.defineCmd(n, core[n])
+    for (let n in io) vm.defineCmd(n, io[n])
     for (let n in math.fn) vm.defineFun(n, math.fn[n])
     for (let n in math.scope) vm.assign(n, math.scope[n])
     for (let n in str) vm.defineFun(n, str[n])
-    for (let n in io) vm.defineCmd(n, io[n])
 
     // specific hooks to handle stdin/out
     vm.command.open()
@@ -66,7 +68,7 @@ function run() {
 
     scripts.forEach(origin => {
         const src = fs.readFileSync(origin, 'utf8')
-        const lex = lexFromSource(src)
+        const lex = lexFromSource(src, vm.command.print)
         const code = parse(vm, lex)
         vm.run(code, 0)
     })

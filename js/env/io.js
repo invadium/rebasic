@@ -10,12 +10,14 @@ function open() {
 }
 
 function prn() {
+    process.stdout.write('> ')
     for (let i = 0; i < arguments.length; i++) {
         process.stdout.write('' + arguments[i])
     }
 }
 
 function print() {
+    process.stdout.write('> ')
     for (let i = 0; i < arguments.length; i++) {
         if (i > 0) process.stdout.write(' ')
         process.stdout.write('' + arguments[i])

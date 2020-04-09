@@ -35,6 +35,9 @@ class Block {
 class VM {
 
     constructor() {
+        this.lastLine = 0
+        this.lines = []
+
         this.label = {}
         this.command = {
             'goto': true,
@@ -57,23 +60,40 @@ class VM {
 
         const vm = this
         this.inputHandler = function(cmd) {
-            if (cmd) {
-                switch(cmd) {
-                    case 'exit':
-                        vm.command.close()
-                        break
+            if (!cmd) return
 
-                    default:
-                        if (vm.interrupted) {
-                            vm.interrupted = false
-                            vm.assign(vm.inputTarget, cmd)
-                            vm.resume()
+            if (vm.interrupted) {
+                vm.interrupted = false
+                vm.assign(vm.inputTarget, cmd)
+                vm.resume()
 
+            } else {
+                try {
+                    const dot = cmd.startsWith('.')
+                    let ln = parseInt(cmd)
+                    if (dot || !isNaN(ln)) {
+                        if (dot) {
+                            vm.lastLine += 10
+                            ln = vm.lastLine
+                            cmd = cmd.substring(1)
+                            cmd = ln + ' ' + cmd
                         } else {
-                            const lex = vm.lexFromSource(cmd)
-                            const code = vm.parse(vm, lex)
-                            vm.run(code, 0)
+                            if (ln > vm.lastLine) {
+                                vm.lastLine = ln
+                            }
                         }
+                        vm.lines[ln] = cmd
+
+                    } else {
+
+                        const lex = vm.lexFromSource(
+                                cmd, vm.command.print)
+                        const code = vm.parse(vm, lex)
+                        vm.run(code, 0)
+                    }
+
+                } catch (e) {
+                    vm.command.print('' + e)
                 }
             }
         }

@@ -106,9 +106,8 @@ function isAlpha(c) {
 }
 
 function isAlphaNum(c) {
-    return !isSeparator(c) && !isSpecial(c)
+    return c && !isSeparator(c) && !isSpecial(c)
 }
-
 
 function makeInputStream(src) {
     let pos = 0
@@ -163,7 +162,8 @@ function makeInputStream(src) {
     }
 }
 
-function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
+function makeLex(src, getc, retc, eatc, aheadc,
+            expectc, notc, cur, print) {
     let mark = 0
     let lineNum = 1
     let lineShift = 0
@@ -190,21 +190,21 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
         for (let j = 0; j < pos-1; j++) cur += ' '
         cur += '^'
 
-        console.log(dump)
-        console.log(cur)
+        print(dump)
+        print(cur)
     }
 
     function err(msg) {
         dumpSource(lineShift, mark-lineShift)
         const err = 'syntax error @' + lineNum + '.' + (mark-lineShift) + ': ' + msg
-        console.log(err)
+        print(err)
         throw err
     }
 
     function xerr (msg) {
         dumpSource(lineShift, mark-lineShift)
         const err = 'lexical error @' + lineNum + '.' + (mark-lineShift) + ': ' + msg
-        console.log(err)
+        print(err)
         throw err
     }
 
@@ -477,7 +477,8 @@ function makeLex(src, getc, retc, eatc, aheadc, expectc, notc, cur) {
     }
 } 
 
-function lexFromSource(src) {
+function lexFromSource(src, print) {
+    print = print || console.out
     const stream = makeInputStream(src)
     return makeLex(src,
                     stream.getc,
@@ -486,7 +487,8 @@ function lexFromSource(src) {
                     stream.aheadc,
                     stream.expectc,
                     stream.notc,
-                    stream.cur)
+                    stream.cur,
+                    print)
 }
 
 if (module) {
