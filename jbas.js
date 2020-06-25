@@ -57,7 +57,7 @@ function setupVM() {
     for (let n in str) vm.defineFun(n, str[n])
 
     // specific hooks to handle stdin/out
-    vm.command.open()
+    vm.command.open() // open IO with io-specific procedure
     vm.command.input(vm.inputHandler)
 
     return vm

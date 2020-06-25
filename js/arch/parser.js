@@ -1,6 +1,4 @@
-// .jbs parser
-
-// @depends(lib/arch/op)
+// .rebas parser
 
 function parse(vm, lex) {
 

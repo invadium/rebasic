@@ -2,6 +2,9 @@ const readline = require('readline')
 
 let io
 
+let OUT = ''
+let PROMPT = ''
+
 function open() {
     io = readline.createInterface({
         input: process.stdin,
@@ -10,14 +13,13 @@ function open() {
 }
 
 function prn() {
-    process.stdout.write('> ')
     for (let i = 0; i < arguments.length; i++) {
         process.stdout.write('' + arguments[i])
     }
 }
 
 function print() {
-    process.stdout.write('> ')
+    //process.stdout.write(OUT)
     for (let i = 0; i < arguments.length; i++) {
         if (i > 0) process.stdout.write(' ')
         process.stdout.write('' + arguments[i])
@@ -26,6 +28,7 @@ function print() {
 }
 
 function input(then) {
+    //process.stdout.write(PROMPT)
     if (typeof then === 'function') {
         // set command handler
         io.on('line', then)
