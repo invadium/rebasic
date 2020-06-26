@@ -18,7 +18,7 @@ function prn() {
     }
 }
 
-function print() {
+function ioPrint() {
     //process.stdout.write(OUT)
     for (let i = 0; i < arguments.length; i++) {
         if (i > 0) process.stdout.write(' ')
@@ -27,7 +27,7 @@ function print() {
     process.stdout.write('\n')
 }
 
-function input(then) {
+function ioInput(then) {
     //process.stdout.write(PROMPT)
     if (typeof then === 'function') {
         // set command handler
@@ -56,7 +56,7 @@ function close() {
 module.exports = {
     open,
     prn,
-    print,
-    input,
+    print: ioPrint,
+    input: ioInput,
     close,
 }
