@@ -1,12 +1,12 @@
 'use strict'
 
-function print() {
+function vmPrint() {
     for (let i = 0; i < arguments.length; i++) {
         console.log(arguments[i])
     }
 }
 
-function input() {
+function vmInput() {
     for (let i = 0; i < arguments.length; i++) {
         const v = arguments[i]
 
@@ -44,8 +44,8 @@ class VM {
             'gosub': true,
             'read': true,
             'restore': true,
-            'print': print,
-            'input': input,
+            'print': vmPrint,
+            'input': vmInput,
         }
         this.fun = {}
         this.scope = {}
