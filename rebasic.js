@@ -42,7 +42,7 @@ for (let i = 2; i < args.length; i++) {
 }
 
 function help() {
-    console.log('Usage: jbs [script]...')
+    console.log('Usage: reba [script]...')
 }
 
 function setupVM() {

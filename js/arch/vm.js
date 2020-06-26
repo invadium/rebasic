@@ -316,7 +316,7 @@ class VM {
 
     repl() {
         this.loop = true
-        this.command.print("Welcome to jam basic v1.0!")
+        this.command.print("Welcome back to basic!")
         this.inputHandler()
     }
 }

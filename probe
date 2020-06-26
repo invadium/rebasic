@@ -7,7 +7,7 @@ TRACE=NO
 SOURCE=NO
 TESTPATH="./suit"
 
-EXEC="./jbas"
+EXEC="./reba"
 EXT="jbas"
 MATCH="res"
 

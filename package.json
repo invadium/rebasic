@@ -1,18 +1,18 @@
 {
-  "name": "jam-basic",
+  "name": "rebasic",
   "version": "0.0.1",
-  "description": "Jam Basic interpreter",
-  "main": "jbas.js",
+  "description": "ReBasic interpreter",
+  "main": "rebasic.js",
   "preferGlobal": true,
   "bin": {
-    "jbas": "./jbas.js"
+    "reba": "./rebasic.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/invider/jam-basic.git"
+    "url": "git+https://github.com/invider/rebasic.git"
   },
   "author": "Igor Khotin",
   "license": "BSD",
