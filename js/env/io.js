@@ -27,6 +27,10 @@ function ioPrint() {
     process.stdout.write('\n')
 }
 
+function ioCls() {
+    this.command.print('\033[2J')
+}
+
 function ioInput(then) {
     //process.stdout.write(PROMPT)
     if (typeof then === 'function') {
@@ -58,5 +62,6 @@ module.exports = {
     prn,
     print: ioPrint,
     input: ioInput,
+    cls: ioCls,
     close,
 }
