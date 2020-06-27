@@ -708,7 +708,7 @@ function parse(vm, lex) {
         }
     }
 
-    const rootBlock = new vm.Block
+    const rootBlock = new vm.Block()
     doBlock(0, rootBlock)
 
     return rootBlock

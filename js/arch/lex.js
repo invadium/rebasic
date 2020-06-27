@@ -404,6 +404,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
         }
         retc()
 
+        if (sym.length === 0) return
         sym = sym.toLowerCase() 
 
         if (isKeyword(sym)) {
@@ -414,6 +415,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
             }
         }
 
+        // identifier
         return {
             type: SYM,
             tab: tab,

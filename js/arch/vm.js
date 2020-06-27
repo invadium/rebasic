@@ -143,7 +143,7 @@ class VM {
         if (this.skipLookup) return { id: name }
         let val = this.scope[name]
         if (val === undefined) {
-            throw `unknown identifier ${name}`
+            throw `unknown identifier [${name}]`
         }
         return val
     }
@@ -157,7 +157,7 @@ class VM {
             val = this.label[name]
             if (val) return name
 
-            throw `unknown identifier ${name}`
+            throw `unknown identifier [${name}]`
         }
         return val
     }
