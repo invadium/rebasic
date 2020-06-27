@@ -307,15 +307,16 @@ function makeLex(src, getc, retc, eatc, aheadc,
         }
 
         // string
-        if (c === '"') {
+        if (c === '"' || c === "'") {
+            const strTerm = c
             let s = ''
             c = getc()
-            while (c && c !== '"' && !isNewLine(c)) {
+            while (c && c !== strTerm && !isNewLine(c)) {
                 s += c
                 c = getc()
             }
 
-            if (c != '"') xerr('unexpected end of string')
+            if (c !== strTerm) xerr('unexpected end of string')
 
             return {
                 type: STR,
@@ -401,12 +402,11 @@ function makeLex(src, getc, retc, eatc, aheadc,
             sym += c
             c = getc() 
         }
-
         retc()
 
         sym = sym.toLowerCase() 
-        if (isKeyword(sym)) {
 
+        if (isKeyword(sym)) {
             return {
                 type: KEYWORD,
                 tab: tab,
