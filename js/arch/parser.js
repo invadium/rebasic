@@ -519,7 +519,7 @@ function parse(vm, lex) {
         } else if (token.type === lex.SYM) {
             const ahead = lex.ahead()
 
-            if (ahead.type === lex.OPERATOR) {
+            if (ahead && ahead.type === lex.OPERATOR) {
                 if (ahead.val === ':') {
                     // named label
                     lex.next()
