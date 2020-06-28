@@ -355,6 +355,7 @@ class VM {
     loadSource(src) {
         if (!src) this.lines = []
         else this.lines = src.split('\n')
+        this.command.print('loaded ' + this.lines.length + ' lines')
     }
 }
 
