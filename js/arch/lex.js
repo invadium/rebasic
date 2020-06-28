@@ -196,17 +196,18 @@ function makeLex(src, getc, retc, eatc, aheadc,
 
     function err(msg) {
         dumpSource(lineShift, mark-lineShift)
-        const err = 'syntax error @' + lineNum + '.' + (mark-lineShift) + ': ' + msg
-        print(err)
+        const err = 'error ' + lineNum + '.' + (mark-lineShift) + ': ' + msg
+        //print(err)
         throw err
     }
 
     function xerr (msg) {
         dumpSource(lineShift, mark-lineShift)
-        const err = 'lexical error @' + lineNum + '.' + (mark-lineShift) + ': ' + msg
-        print(err)
+        const err = 'error ' + lineNum + '.' + (mark-lineShift) + ': ' + msg
+        //print(err)
         throw err
     }
+    
 
     function markLine () {
         lineNum ++
