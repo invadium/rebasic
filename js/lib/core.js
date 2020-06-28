@@ -5,7 +5,7 @@ const core = {
 
 
     'new': function() {
-        this.list = []
+        this.lines = []
         this.lastLine = 0
     },
 
