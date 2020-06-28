@@ -357,6 +357,15 @@ class VM {
         else this.lines = src.split('\n').filter(l => l)
         this.command.print('loaded ' + this.lines.length + ' lines')
     }
+
+    clearScope() {
+        this.scope = {}
+    }
+
+    clearSource() {
+        this.lines = []
+        this.lastLine = 0
+    }
 }
 
 function vmFactory() {

@@ -5,8 +5,12 @@ const core = {
 
 
     'new': function() {
-        this.lines = []
-        this.lastLine = 0
+        vm.clearScope()
+        vm.clearSource()
+    },
+
+    clr: function() {
+        vm.clearScope()
     },
 
     run: function() {
