@@ -357,8 +357,17 @@ class VM {
         this.resumeOnInput = resumeOnInput
     }
 
-    source() {
-        return this.lines.filter(l => l).join('\n')
+    source(from, to) {
+        from = from || 0
+        to = to || this.lines.length - 1
+
+        let res = []
+        for (let i = from; i <= to; i++) {
+            const line = this.lines[i]
+            if (line) res.push(line)
+        }
+        return res.join('\n')
+        //return this.lines.filter(l => l).join('\n')
     }
 
     loadSource(src) {

@@ -1,6 +1,6 @@
 const core = {
-    list: function() {
-        this.command.print(this.source())
+    list: function(from, to) {
+        this.command.print(this.source(from, to))
     },
 
 
