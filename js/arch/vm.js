@@ -162,6 +162,11 @@ class VM {
     }
 
     assign(name, val) {
+        // handle possible number values
+        if (!name.endsWith('$')) {
+            const n = parseFloat(val)
+            if (!isNaN(n)) val = n
+        }
         this.scope[name] = val
     }
 
