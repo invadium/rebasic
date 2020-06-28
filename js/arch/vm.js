@@ -76,17 +76,26 @@ class VM {
                     const dot = cmd.startsWith('.')
                     let ln = parseInt(cmd)
                     if (dot || !isNaN(ln)) {
+                        let cmdLine = cmd
                         if (dot) {
                             vm.lastLine += 10
                             ln = vm.lastLine
                             cmd = cmd.substring(1)
                             cmd = ln + ' ' + cmd
                         } else {
+                            const i = cmd.indexOf(' ')
+                            if (i >= 0) {
+                                cmdLine = cmd.substring(i+1).trim()
+                            } else {
+                                cmdLine = false
+                            }
+
                             if (ln > vm.lastLine) {
                                 vm.lastLine = ln
                             }
                         }
-                        vm.lines[ln] = cmd
+                        if (!cmdLine) vm.lines[ln] = false
+                        else vm.lines[ln] = cmd
 
                     } else {
 
