@@ -20,9 +20,6 @@ const core = {
         this.run(code, 0)
     },
 
-    exit: function() {
-        this.command.close()
-    }, 
 }
 
 if (module) {

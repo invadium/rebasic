@@ -10,9 +10,14 @@ const process = require('process')
 const lexFromSource = require('./js/arch/lex.js')
 const parse = require('./js/arch/parser.js')
 const vmFactory = require('./js/arch/vm.js')
+
+// universal libs
 const core = require('./js/lib/core.js')
 const math = require('./js/lib/math.js')
 const str = require('./js/lib/str.js')
+
+// system libs
+const sys = require('./js/env/sys.js')
 const io = require('./js/env/io.js')
 
 // process args
@@ -52,6 +57,7 @@ function setupVM() {
 
     for (let n in core) vm.defineCmd(n, core[n])
     for (let n in io) vm.defineCmd(n, io[n])
+    for (let n in sys) vm.defineCmd(n, sys[n])
     for (let n in math.fn) vm.defineFun(n, math.fn[n])
     for (let n in math.scope) vm.assign(n, math.scope[n])
     for (let n in str) vm.defineFun(n, str[n])
