@@ -1,3 +1,3 @@
-print "one"
-rem print "two"
-print "three"
+10 print "one"
+20 rem print "two"
+30 print "three"

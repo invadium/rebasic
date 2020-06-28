@@ -555,7 +555,7 @@ function parse(vm, lex) {
 
             if (token.val === 'rem') {
                 lex.skipLine()
-                return doStatement()
+                return doStatement(block)
 
             } else if (token.val === 'let') {
                 // assume an assignment statement is following
@@ -586,7 +586,7 @@ function parse(vm, lex) {
                     const val = list[i].val
                     vm.store(val)
                 }
-                return doStatement()
+                return doStatement(block)
 
             } else if (token.val === 'if') {
                 const cond = doExpr()
@@ -596,14 +596,14 @@ function parse(vm, lex) {
                     lex.err(`[then] expected`)
                 }
 
-                const lstmt = doStatement()
+                const lstmt = doStatement(block)
 
                 let rstmt
                 const ahead = lex.ahead()
                 if (ahead.type === lex.KEYWORD
                         && ahead.val === 'else') {
                     lex.next()
-                    rstmt = doStatement()
+                    rstmt = doStatement(block)
                 }
 
                 return {
