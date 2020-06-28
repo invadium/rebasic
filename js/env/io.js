@@ -24,7 +24,8 @@ function ioPrint() {
     //process.stdout.write(OUT)
     for (let i = 0; i < arguments.length; i++) {
         if (i > 0) process.stdout.write(' ')
-        process.stdout.write('' + arguments[i])
+        const val = arguments[i] || ''
+        process.stdout.write('' + val)
     }
     process.stdout.write('\n')
 }
