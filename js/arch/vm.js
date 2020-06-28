@@ -340,7 +340,7 @@ class VM {
 
     interrupt(resumeOnInput) {
         this.interrupted = true
-        this.resumeOnInput = true
+        this.resumeOnInput = resumeOnInput
     }
 }
 
