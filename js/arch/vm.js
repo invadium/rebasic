@@ -35,6 +35,8 @@ class Block {
 class VM {
 
     constructor() {
+        this.MAX_CYCLES = 20
+        this.MAX_OUTPUTS = 10
         this.lastLine = 0
         this.lines = []
 
@@ -51,6 +53,8 @@ class VM {
         this.scope = {}
 
         this.pos = 0
+        this.cycles = 0
+        this.outputs = 0
         this.bstack = []
         this.rstack = []
         this.data = []
@@ -97,6 +101,28 @@ class VM {
                 }
             }
         }
+
+        this.resume = function() {
+            while(!vm.interrupted && vm.pos < vm.code.length) {
+                vm.next(vm.code[vm.pos ++])
+
+                if (vm.outputs > vm.MAX_OUTPUTS) {
+                    vm.outputs = 0
+                    setTimeout(vm.resume, 1)
+                    return
+                }
+                if (vm.cycles > vm.MAX_CYCLES) {
+                    vm.cycles = 0
+                    setTimeout(vm.resume, 1)
+                    return
+                }
+            }
+
+            if (!vm.interrupted && !vm.loop) {
+                vm.command.close()
+            }
+        }
+
     }
 
     markLabel(name, block, pos) {
@@ -177,6 +203,7 @@ class VM {
 
     next(stmt) {
         if (!stmt) return
+        this.cycles ++
 
         //console.log(stmt.toString())
         switch(stmt.type) {
@@ -297,16 +324,6 @@ class VM {
         }
     }
 
-    resume() {
-        while(!this.interrupted && this.pos < this.code.length) {
-            this.next(this.code[this.pos ++])
-        }
-
-        if (!this.interrupted && !this.loop) {
-            this.command.close()
-        }
-    }
-
     run(block, pos) {
         // execute all statements in the code sequence
         this.pos = pos? pos : 0
@@ -317,7 +334,11 @@ class VM {
     repl() {
         this.loop = true
         this.command.print("Welcome back to basic!")
-        this.inputHandler()
+        //this.inputHandler()
+    }
+
+    interrupt() {
+        this.interrupted = true
     }
 }
 

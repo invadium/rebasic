@@ -63,8 +63,26 @@ function setupVM() {
     return vm
 }
 
+function setInterrupts(vm) {
+    const interruptHanlder = function(sig) {
+        vm.command.print('...interrupted')
+
+        if (!vm.interrupted) {
+            vm.interrupt()
+        } else {
+            if (vm.loop) vm.loop = false
+            //process.exit(1)
+        }
+    }
+    process.on('SIGINT', interruptHanlder)
+    process.on('SIGTERM', interruptHanlder)
+    process.on('SIGHUP', interruptHanlder)
+    process.on('SIGBREAK', interruptHanlder)
+}
+
 function run() {
     const vm = setupVM()
+    setInterrupts(vm)
 
     scripts.forEach(origin => {
         const src = fs.readFileSync(origin, 'utf8')
@@ -76,8 +94,10 @@ function run() {
 
 function repl() {
     const vm = setupVM()
+    setInterrupts(vm)
     vm.repl()
 }
+
 
 switch(cmd) {
     case 'run': run(); break;

@@ -13,12 +13,14 @@ function open() {
 }
 
 function prn() {
+    this.outputs ++
     for (let i = 0; i < arguments.length; i++) {
         process.stdout.write('' + arguments[i])
     }
 }
 
 function ioPrint() {
+    this.outputs ++
     //process.stdout.write(OUT)
     for (let i = 0; i < arguments.length; i++) {
         if (i > 0) process.stdout.write(' ')
@@ -50,7 +52,7 @@ function ioInput(then) {
             process.stdout.write('' + v + ' ')
         }
     }
-    this.interrupted = true
+    this.interrupt()
 }
 
 function close() {
