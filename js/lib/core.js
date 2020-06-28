@@ -5,12 +5,12 @@ const core = {
 
 
     'new': function() {
-        vm.clearScope()
-        vm.clearSource()
+        this.clearScope()
+        this.clearSource()
     },
 
     clr: function() {
-        vm.clearScope()
+        this.clearScope()
     },
 
     run: function() {
