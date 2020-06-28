@@ -67,6 +67,7 @@ class VM {
 
             if (vm.interrupted && vm.resumeOnInput) {
                 vm.assign(vm.inputTarget, cmd)
+                vm.interrupted = false
                 vm.resume()
 
             } else {
@@ -102,7 +103,6 @@ class VM {
         }
 
         this.resume = function() {
-            vm.interrupted = false
             while(!vm.interrupted && vm.pos < vm.code.length) {
                 vm.next(vm.code[vm.pos ++])
 
@@ -328,6 +328,7 @@ class VM {
         // execute all statements in the code sequence
         this.pos = pos? pos : 0
         this.code = block.code
+        this.interrupted = false
         this.resume()
     }
 
