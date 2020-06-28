@@ -36,7 +36,7 @@ function ioCls() {
 function ioInput(then) {
     //process.stdout.write(PROMPT)
     if (typeof then === 'function') {
-        // set command handler
+        // set handler hook
         io.on('line', then)
         return
     }
@@ -52,7 +52,7 @@ function ioInput(then) {
             process.stdout.write('' + v + ' ')
         }
     }
-    this.interrupt()
+    this.interrupt(true)
 }
 
 function close() {

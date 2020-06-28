@@ -68,11 +68,11 @@ function setInterrupts(vm) {
         vm.command.print('...interrupted')
 
         if (!vm.interrupted) {
-            vm.interrupt()
+            vm.interrupt(false)
         } else {
             if (vm.loop) vm.loop = false
-            //process.exit(1)
         }
+        //process.exit(1)
     }
     process.on('SIGINT', interruptHanlder)
     process.on('SIGTERM', interruptHanlder)

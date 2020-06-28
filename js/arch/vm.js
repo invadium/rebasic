@@ -64,14 +64,13 @@ class VM {
 
         const vm = this
         this.inputHandler = function(cmd) {
-            if (!cmd) return
 
-            if (vm.interrupted) {
-                vm.interrupted = false
+            if (vm.interrupted && vm.resumeOnInput) {
                 vm.assign(vm.inputTarget, cmd)
                 vm.resume()
 
             } else {
+                if (!cmd) return
                 try {
                     const dot = cmd.startsWith('.')
                     let ln = parseInt(cmd)
@@ -103,6 +102,7 @@ class VM {
         }
 
         this.resume = function() {
+            vm.interrupted = false
             while(!vm.interrupted && vm.pos < vm.code.length) {
                 vm.next(vm.code[vm.pos ++])
 
@@ -337,8 +337,9 @@ class VM {
         //this.inputHandler()
     }
 
-    interrupt() {
+    interrupt(resumeOnInput) {
         this.interrupted = true
+        this.resumeOnInput = true
     }
 }
 
