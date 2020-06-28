@@ -346,6 +346,11 @@ class VM {
     source() {
         return this.lines.filter(l => l).join('\n')
     }
+
+    loadSource(src) {
+        if (!src) this.lines = []
+        else this.lines = src.split('\n')
+    }
 }
 
 function vmFactory() {
