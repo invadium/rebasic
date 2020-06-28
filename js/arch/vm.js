@@ -342,6 +342,10 @@ class VM {
         this.interrupted = true
         this.resumeOnInput = resumeOnInput
     }
+
+    source() {
+        return this.lines.filter(l => l).join('\n')
+    }
 }
 
 function vmFactory() {

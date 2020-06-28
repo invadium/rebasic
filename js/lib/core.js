@@ -1,10 +1,6 @@
-function src(lines) {
-    return lines.filter(l => l).join('\n')
-}
-
 const core = {
     list: function() {
-        this.command.print(src(this.lines))
+        this.command.print(this.source())
     },
 
 
@@ -15,7 +11,7 @@ const core = {
 
     run: function() {
         const lex = this.lexFromSource(
-                src(this.lines), this.command.print)
+                this.source(), this.command.print)
         const code = this.parse(this, lex)
         this.run(code, 0)
     },
