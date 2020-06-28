@@ -12,22 +12,22 @@ function open() {
     })
 }
 
-function prn() {
-    this.outputs ++
-    for (let i = 0; i < arguments.length; i++) {
-        process.stdout.write('' + arguments[i])
-    }
-}
-
 function ioPrint() {
     this.outputs ++
     //process.stdout.write(OUT)
+    let br = true
     for (let i = 0; i < arguments.length; i++) {
-        if (i > 0) process.stdout.write(' ')
-        const val = arguments[i] || ''
-        process.stdout.write('' + val)
+        let val = arguments[i]
+        if (val === undefined) val = ''
+
+        if (typeof val === 'object' && val.hint) {
+            if (val.nobr) br = false
+        } else {
+            if (i > 0) process.stdout.write(' ')
+            process.stdout.write('' + val)
+        }
     }
-    process.stdout.write('\n')
+    if (br) process.stdout.write('\n')
 }
 
 function ioCls() {
@@ -62,7 +62,6 @@ function close() {
 
 module.exports = {
     open,
-    prn,
     print: ioPrint,
     input: ioInput,
     cls: ioCls,

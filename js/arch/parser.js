@@ -473,15 +473,25 @@ function parse(vm, lex) {
         let list = []
 
         let expr
+        let ahead
         while(expr = doExpr()) {
             list.push(expr)
 
-            const ahead = lex.ahead()
+            ahead = lex.ahead()
             if (ahead.type !== lex.OPERATOR
-                    || ahead.val !== ',') {
+                    || (ahead.val !== ',' && ahead.val !== ';')) {
                 break
             }
             lex.next()
+        }
+
+        if (ahead && ahead.val === ';') {
+            // expr is closed by semicolon, so mark it as closed
+            list.push({
+                get: () => {
+                    return { hint: true, nobr: true }
+                }
+            })
         }
 
         if (list.length === 0) return
