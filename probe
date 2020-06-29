@@ -8,7 +8,7 @@ SOURCE=NO
 TESTPATH="./suit"
 
 EXEC="./reba"
-EXT="jbas"
+EXT="bas"
 MATCH="res"
 
 FAILED=NO
