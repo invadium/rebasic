@@ -469,7 +469,7 @@ function parse(vm, lex) {
         return exprOR()
     }
 
-    function doExprList() {
+    function doExprList(command) {
         let list = []
 
         let expr
@@ -482,17 +482,18 @@ function parse(vm, lex) {
                     || (ahead.val !== ',' && ahead.val !== ';')) {
                 break
             }
-            lex.next()
+
+            const next = lex.next()
+            if (command === 'print' && next.val === ';') {
+                // print val is closed by semicolon, so mark it as closed
+                list.push({
+                    get: () => {
+                        return { semi: true }
+                    }
+                })
+            }
         }
 
-        if (ahead && ahead.val === ';') {
-            // expr is closed by semicolon, so mark it as closed
-            list.push({
-                get: () => {
-                    return { hint: true, nobr: true }
-                }
-            })
-        }
 
         if (list.length === 0) return
         else if (list.length === 1) return list[0]
@@ -701,7 +702,7 @@ function parse(vm, lex) {
             },
         }
 
-        const opt = doExprList()
+        const opt = doExprList(token.val)
         if (opt) cmd.opt = opt
 
         if (token.val === 'read' || token.val === 'input') {

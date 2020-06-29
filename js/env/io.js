@@ -15,19 +15,20 @@ function open() {
 function ioPrint() {
     this.outputs ++
     //process.stdout.write(OUT)
-    let br = true
+    let semi = false
     for (let i = 0; i < arguments.length; i++) {
         let val = arguments[i]
         if (val === undefined) val = ''
 
-        if (typeof val === 'object' && val.hint) {
-            if (val.nobr) br = false
+        if (typeof val === 'object' && val.semi) {
+            semi = true
         } else {
-            if (i > 0) process.stdout.write(' ')
+            if (i > 0 && !semi) process.stdout.write(' ')
             process.stdout.write('' + val)
+            semi = false
         }
     }
-    if (br) process.stdout.write('\n')
+    if (!semi) process.stdout.write('\n')
 }
 
 function ioCls() {
