@@ -38,6 +38,7 @@ class VM {
         this.MAX_CYCLES = 20
         this.MAX_OUTPUTS = 10
         this.lastLine = 0
+        this.ram = []
         this.lines = []
 
         this.label = {}
@@ -372,12 +373,13 @@ class VM {
 
     loadSource(src) {
         if (!src) this.lines = []
-        else this.lines = src.split('\n').filter(l => l)
+        else this.lines = src.split('\n').filter(l => l && !l.startsWith('#'))
         this.command.print('loaded ' + this.lines.length + ' lines')
     }
 
     clearScope() {
         this.scope = {}
+        this.ram = []
     }
 
     clearSource() {
