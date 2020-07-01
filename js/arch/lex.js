@@ -340,7 +340,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
 
                 let d = toHex(getc())
                 if (d < 0) {
-                    xerr('wrong number format')
+                    xerr('wrong hex number format')
                 }
                 while (d >= 0) {
                     n = n*16 + d
@@ -357,7 +357,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
                 // hanlde plain 0
                 retc()
                 c = getc()
-                if (!isSeparator(c)) xerr('wrong number format')
+                if (c && !isSeparator(c)) xerr('wrong number format')
 
                 retc()
                 return {
