@@ -3,7 +3,6 @@ const core = {
         this.command.print(this.source(from, to))
     },
 
-
     'new': function() {
         this.clearScope()
         this.clearSource()
@@ -20,6 +19,13 @@ const core = {
         this.run(code, 0)
     },
 
+    poke: function(n, v) {
+        this.util.expectInteger(n)
+        this.util.expectInteger(v)
+        if (v < 0) v = 0
+        if (v > 255) v = 255
+        this.ram[n || 0] = v || 0
+    },
 }
 
 if (module) {

@@ -18,6 +18,27 @@ function vmInput() {
     }
 }
 
+const util = {
+    expectNumber: function(n) {
+        if (typeof n !== 'number'
+                || Number.isNaN(n)) {
+            throw `Number is expected: [${n}]`
+        }
+    },
+    expectInteger: function(n) {
+        if (typeof n !== 'number'
+                || Number.isNaN(n)
+                || !Number.isInteger(n)) {
+            throw `Integer is expected: [${n}]`
+        }
+    },
+    expectString: function(s) {
+        if (typeof s === 'string') {
+            throw `String is expected: [${s}]`
+        }
+    },
+}
+
 class Block {
     constructor() {
         this.code = []
@@ -62,6 +83,7 @@ class VM {
         this.dataPos = 0
         this.interrupted = false
         this.skipLookup = false
+        this.util = util
 
         const vm = this
         this.inputHandler = function(cmd) {
@@ -386,6 +408,7 @@ class VM {
         this.lines = []
         this.lastLine = 0
     }
+
 }
 
 function vmFactory() {

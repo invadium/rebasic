@@ -13,6 +13,7 @@ const vmFactory = require('./js/arch/vm.js')
 
 // universal libs
 const core = require('./js/lib/core.js')
+const func = require('./js/lib/func.js')
 const math = require('./js/lib/math.js')
 const str = require('./js/lib/str.js')
 
@@ -56,6 +57,7 @@ function setupVM() {
     vm.parse = parse
 
     for (let n in core) vm.defineCmd(n, core[n])
+    for (let n in func) vm.defineFun(n, func[n])
     for (let n in io) vm.defineCmd(n, io[n])
     for (let n in sys) vm.defineCmd(n, sys[n])
     for (let n in math.fn) vm.defineFun(n, math.fn[n])
