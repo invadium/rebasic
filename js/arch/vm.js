@@ -371,7 +371,9 @@ class VM {
 
     repl() {
         this.loop = true
+        this.command.print("Rebasic Version 0.1")
         this.command.print("Welcome back to basic!")
+        this.command.print("Ready...")
         //this.inputHandler()
     }
 
