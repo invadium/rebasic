@@ -1,9 +1,13 @@
+const fs = require('fs')
 const readline = require('readline')
 
 let io
 
 let OUT = ''
 let PROMPT = ''
+
+let ROM = 'rom/'
+let EXT = '.bas'
 
 function open() {
     io = readline.createInterface({
@@ -57,6 +61,32 @@ function ioInput(then) {
     this.interrupt(true)
 }
 
+function load(name) {
+    const vm = this
+    const path = ROM + name + EXT
+    fs.readFile(path, 'utf-8', (err, data) => {
+        if (err) {
+            vm.command.print("failed to open [" + path + "]")
+        } else {
+            vm.loadSource(data)
+        }
+    })
+}
+
+function save(name) {
+    const vm = this
+    const path = ROM + name + EXT
+    const src = vm.source()
+    const lines = vm.lines.length
+    fs.writeFile(path, src, (err) => {
+        if (err) {
+            vm.command.print("failed to save [" + path + "]")
+        } else {
+            vm.command.print(`saved ${lines} lines to [${path}]`)
+        }
+    })
+}
+
 function close() {
     io.close()
 }
@@ -66,5 +96,7 @@ module.exports = {
     print: ioPrint,
     input: ioInput,
     cls: ioCls,
+    load,
+    save,
     close,
 }
