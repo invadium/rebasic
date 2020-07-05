@@ -26,6 +26,16 @@ const core = {
         if (v > 255) v = 255
         this.ram[n || 0] = v || 0
     },
+
+    sleep: function (n) {
+        this.interrupt(false)
+
+        const vm = this
+        setTimeout(() => {
+            this.interrupted = false
+            vm.resume()
+        }, (n * 1000)|0)
+    },
 }
 
 if (module) {

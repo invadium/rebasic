@@ -56,7 +56,7 @@ class Block {
 class VM {
 
     constructor() {
-        this.MAX_CYCLES = 20
+        this.MAX_CYCLES = 10000
         this.MAX_OUTPUTS = 10
         this.lastLine = 0
         this.ram = []
@@ -140,12 +140,12 @@ class VM {
 
                 if (vm.outputs > vm.MAX_OUTPUTS) {
                     vm.outputs = 0
-                    setTimeout(vm.resume, 1)
+                    setTimeout(vm.resume, 0)
                     return
                 }
                 if (vm.cycles > vm.MAX_CYCLES) {
                     vm.cycles = 0
-                    setTimeout(vm.resume, 1)
+                    setTimeout(vm.resume, 0)
                     return
                 }
             }
@@ -374,7 +374,6 @@ class VM {
         this.command.print("Rebasic Version 0.1")
         this.command.print("Welcome back to basic!")
         this.command.print("Ready...")
-        //this.inputHandler()
     }
 
     interrupt(resumeOnInput) {
