@@ -89,6 +89,7 @@ class VM {
         this.inputHandler = function(cmd) {
 
             if (vm.interrupted && vm.resumeOnInput) {
+                // vm waits for input
                 vm.assign(vm.inputTarget, cmd)
                 vm.interrupted = false
                 vm.resume()
@@ -398,6 +399,10 @@ class VM {
         if (!src) this.lines = []
         else this.lines = src.split('\n').filter(l => l && !l.startsWith('#'))
         this.command.print('loaded ' + this.lines.length + ' lines')
+    }
+
+    exec(cmd) {
+        this.inputHandler(cmd)
     }
 
     clearScope() {
