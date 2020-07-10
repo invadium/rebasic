@@ -1,4 +1,15 @@
 const core = {
+
+    help: function(fn) {
+        const vm = this
+        Object.keys(vm.command).forEach(cmd => {
+            vm.command.print(cmd + ' ', { semi: true })
+        })
+        Object.keys(vm.fun).forEach(f => {
+            vm.command.print(f + '() ', { semi: true })
+        })
+    },
+
     list: function(from, to) {
         this.command.print(this.source(from, to))
     },
