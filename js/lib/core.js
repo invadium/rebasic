@@ -2,7 +2,6 @@ const core = {
 
     help: function(name) {
         const vm = this
-        console.dir(name)
 
         // normalize possible id object
         if (name && typeof name === 'object') {
@@ -22,10 +21,12 @@ const core = {
 
         } else {
             Object.keys(vm.command).forEach(cmd => {
+                if (cmd.startsWith('_')) return
                 vm.command.print(cmd + ' ', { semi: true })
             })
-            Object.keys(vm.fun).forEach(f => {
-                vm.command.print(f + '() ', { semi: true })
+            Object.keys(vm.fun).forEach(fn=> {
+                if (fn.startsWith('_')) return
+                vm.command.print(fn + '() ', { semi: true })
             })
             vm.command.print('')
         }
