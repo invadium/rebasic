@@ -705,7 +705,9 @@ function parse(vm, lex) {
         const opt = doExprList(token.val)
         if (opt) cmd.opt = opt
 
-        if (token.val === 'read' || token.val === 'input') {
+        if (token.val === 'read'
+                || token.val === 'input'
+                || token.val === 'help') {
             cmd.immediate = true
         }
 

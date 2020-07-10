@@ -61,7 +61,7 @@ function setupVM() {
     for (let n in io) vm.defineCmd(n, io[n])
     for (let n in sys) vm.defineCmd(n, sys[n])
     for (let n in math.fn) vm.defineFun(n, math.fn[n])
-    for (let n in math.scope) vm.assign(n, math.scope[n])
+    for (let n in math.scope) vm.defineConst(n, math.scope[n])
     for (let n in str) vm.defineFun(n, str[n])
 
     // specific hooks to handle stdin/out

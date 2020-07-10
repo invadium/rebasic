@@ -1,14 +1,34 @@
 const core = {
 
-    help: function(fn) {
+    help: function(name) {
         const vm = this
-        Object.keys(vm.command).forEach(cmd => {
-            vm.command.print(cmd + ' ', { semi: true })
-        })
-        Object.keys(vm.fun).forEach(f => {
-            vm.command.print(f + '() ', { semi: true })
-        })
-        vm.command.print('')
+        console.dir(name)
+
+        // normalize possible id object
+        if (name && typeof name === 'object') {
+            name = name.id
+        }
+
+        if (name) {
+            const fn = vm.command[name] || vm.fun[name]
+            if (!fn) {
+                vm.command.print(name + ' - unknown command')
+            } else {
+                let def = name
+                if (fn.usage) def += ' ' + fn.usage
+                if (fn.man) def += ' - ' + fn.man
+                vm.command.print(def)
+            }
+
+        } else {
+            Object.keys(vm.command).forEach(cmd => {
+                vm.command.print(cmd + ' ', { semi: true })
+            })
+            Object.keys(vm.fun).forEach(f => {
+                vm.command.print(f + '() ', { semi: true })
+            })
+            vm.command.print('')
+        }
     },
 
     env: function(fn) {
@@ -61,6 +81,22 @@ const core = {
         }, (n * 1000)|0)
     },
 }
+
+core.help.usage = '(name)'
+core.help.man = 'list all commands and functions\n'
+        + '              or show help for [name]'
+
+core.env.man = 'list defined variables and their values'
+
+core.list.usage = '(from) (to)'
+core.list.man = 'list basic source'
+
+core['new'].man = 'erase existing program'
+
+core.clr.man = 'clean up defined variables'
+
+core.sleep.usage = 'n'
+core.sleep.man = 'wait for [n] seconds'
 
 if (module) {
     module.exports = core

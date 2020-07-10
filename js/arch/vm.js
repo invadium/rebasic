@@ -77,6 +77,7 @@ class VM {
         }
         this.fun = {}
         this.scope = {}
+        this.constant = {}
 
         this.pos = 0
         this.cycles = 0
@@ -196,6 +197,16 @@ class VM {
 
     defineCmd(name, fn) {
         this.command[name] = fn
+    }
+
+    defineConst(name, val) {
+        // handle possible number values
+        if (!name.endsWith('$')) {
+            const n = parseFloat(val)
+            if (!isNaN(n)) val = n
+        }
+        this.scope[name] = val
+        this.constant[name] = val
     }
 
     assign(name, val) {
@@ -408,7 +419,12 @@ class VM {
     }
 
     clearScope() {
-        this.scope = {}
+        const scope = {}
+        Object.keys(this.constant).forEach(k => {
+            const v = this.constant[k]
+            scope[k] = v
+        })
+        this.scope = scope
         this.ram = []
     }
 
