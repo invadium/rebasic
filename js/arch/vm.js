@@ -1,5 +1,9 @@
 'use strict'
 
+const WELCOME = "Welcome back to basic!"
+const VERSION = "Rebasic Version 0.1"
+const READY  = "Ready..."
+
 function vmPrint() {
     for (let i = 0; i < arguments.length; i++) {
         console.log(arguments[i])
@@ -372,9 +376,7 @@ class VM {
 
     repl() {
         this.loop = true
-        this.command.print("Rebasic Version 0.1")
-        this.command.print("Welcome back to basic!")
-        this.command.print("Ready...")
+        this.printWelcome()
     }
 
     interrupt(resumeOnInput) {
@@ -415,6 +417,11 @@ class VM {
         this.lastLine = 0
     }
 
+    printWelcome() {
+        this.command.print(WELCOME)
+        this.command.print(VERSION)
+        this.command.print(READY)
+    }
 }
 
 function vmFactory() {
