@@ -8,6 +8,19 @@ const core = {
         Object.keys(vm.fun).forEach(f => {
             vm.command.print(f + '() ', { semi: true })
         })
+        vm.command.print('')
+    },
+
+    env: function(fn) {
+        const vm = this
+        Object.keys(vm.scope).forEach(key => {
+            let val = vm.scope[key]
+            if (typeof val === 'string') {
+                val = '"' + val + '"'
+            }
+            vm.command.print(key + '=' + val + ' ', { semi: true })
+        })
+        vm.command.print('')
     },
 
     list: function(from, to) {
