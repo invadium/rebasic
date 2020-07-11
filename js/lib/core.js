@@ -73,7 +73,7 @@ const core = {
     },
 
     sleep: function (n) {
-        this.interrupt(false)
+        this.interrupt()
 
         const vm = this
         setTimeout(() => {

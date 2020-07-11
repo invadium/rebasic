@@ -73,13 +73,14 @@ function setupVM() {
 
 function setInterrupts(vm) {
     const interruptHanlder = function(sig) {
+        vm.stop()
+        if (vm.loop) vm.loop = false
+        /*
         vm.command.print('...interrupted')
-
         if (!vm.interrupted) {
-            vm.interrupt(false)
         } else {
-            if (vm.loop) vm.loop = false
         }
+        */
         //process.exit(1)
     }
     process.on('SIGINT', interruptHanlder)

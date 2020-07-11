@@ -390,9 +390,21 @@ class VM {
         this.printWelcome()
     }
 
-    interrupt(resumeOnInput) {
+    interrupt() {
         this.interrupted = true
-        this.resumeOnInput = resumeOnInput
+        this.resumeOnInput = false
+    }
+
+    waitForInput() {
+        this.interrupted = true
+        this.resumeOnInput = true
+    }
+
+    stop() {
+        if (!this.interrupted || this.resumeOnInput) {
+            this.interrupt()
+            this.command.print('interrupted...')
+        }
     }
 
     source(from, to) {

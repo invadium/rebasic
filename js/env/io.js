@@ -58,7 +58,7 @@ function ioInput(then) {
             process.stdout.write('' + v + ' ')
         }
     }
-    this.interrupt(true)
+    this.waitForInput()
 }
 
 function load(name) {
