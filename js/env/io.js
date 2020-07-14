@@ -91,6 +91,27 @@ function close() {
     io.close()
 }
 
+// help data
+ioPrint.usage = '(val1),(val2);(val3);...'
+ioPrint.man = 'print out list of values,\n'
+       + '    a space is inserted when values are separated by [,],\n'
+       + '    nothing is inserted when separated by [;],\n'
+       + '    no new line printed when command is closed by [;],\n'
+       + '    [print] with no arguments prints a new line'
+
+ioInput.usage = '(prompt),[variable],(variable),...'
+ioInput.man = 'input values from the console,\n'
+        + '    values are stored in provided variables,\n'
+        + '    an optional prompt string can be supplied'
+
+ioCls.man = 'clear the screen'
+
+load.usage = '[filename]'
+load.man = 'load a program from file to main memory'
+
+save.usage = '[filename]'
+save.man = 'save a program to file'
+
 module.exports = {
     open,
     print: ioPrint,

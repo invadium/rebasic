@@ -96,6 +96,9 @@ core['new'].man = 'erase existing program'
 
 core.clr.man = 'clean up defined variables'
 
+core.poke.usage = 'address, value'
+core.poke.man = 'set memory cell at [address] to [value]'
+
 core.sleep.usage = 'n'
 core.sleep.man = 'wait for [n] seconds'
 
