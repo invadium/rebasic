@@ -4,6 +4,7 @@ A
 left
 middle
 right
+512
 256
 left right
 left	right
