@@ -7,4 +7,7 @@ const func = {
 
 }
 
+func.peek.usage = 'address'
+func.peek.man = 'get content of memory at [address]'
+
 module.exports = func
