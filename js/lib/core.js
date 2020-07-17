@@ -78,9 +78,11 @@ const core = {
 
         const vm = this
         setTimeout(() => {
-            this.interrupted = false
-            this.resumeOnTimeout = false
-            vm.resume()
+            if (this.resumeOnInput) {
+                this.interrupted = false
+                this.resumeOnTimeout = false
+                vm.resume()
+            }
         }, (n * 1000)|0)
     },
 }
