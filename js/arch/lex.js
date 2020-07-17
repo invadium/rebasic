@@ -335,8 +335,11 @@ function makeLex(src, getc, retc, eatc, aheadc,
 
         if (isDigit(c)) {
             let n = 0
-            if (c === '0' && getc() === 'x') {
+            const nextc = aheadc()
+            if (c === '0' && nextc === 'x') {
+                getc() // eat x
                 if (sign < 0) xerr("hex value can't be negative")
+
 
                 let d = toHex(getc())
                 if (d < 0) {
@@ -353,9 +356,8 @@ function makeLex(src, getc, retc, eatc, aheadc,
                     tab: tab,
                     val: n
                 }
-            } else if (c === '0') {
+            } else if (c === '0' && nextc !== '.') {
                 // hanlde plain 0
-                retc()
                 c = getc()
                 if (c && !isSeparator(c)) xerr('wrong number format')
 
