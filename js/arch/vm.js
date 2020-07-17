@@ -393,6 +393,7 @@ class VM {
     interrupt() {
         this.interrupted = true
         this.resumeOnInput = false
+        this.resumeOnTimeout = false
     }
 
     waitForInput() {
