@@ -401,7 +401,9 @@ class VM {
     }
 
     stop() {
-        if (!this.interrupted || this.resumeOnInput) {
+        if (!this.interrupted
+                || this.resumeOnInput
+                || this.resumeOnTimeout) {
             this.interrupt()
             this.command.print('interrupted...')
         }

@@ -74,10 +74,12 @@ const core = {
 
     sleep: function (n) {
         this.interrupt()
+        this.resumeOnTimeout = true
 
         const vm = this
         setTimeout(() => {
             this.interrupted = false
+            this.resumeOnTimeout = false
             vm.resume()
         }, (n * 1000)|0)
     },

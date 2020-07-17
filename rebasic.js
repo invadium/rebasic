@@ -81,7 +81,7 @@ function setInterrupts(vm) {
         } else {
         }
         */
-        //process.exit(1)
+        process.exit(1)
     }
     process.on('SIGINT', interruptHanlder)
     process.on('SIGTERM', interruptHanlder)
