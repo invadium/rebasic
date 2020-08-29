@@ -63,7 +63,13 @@ function ioInput(then) {
 
 function load(name) {
     const vm = this
-    const path = ROM + name + EXT
+
+    let path = name
+    if (!path.startsWith('/') && !path.startsWith('.')) {
+        // looks like a file from the ROM folder
+        path = ROM + name + EXT
+    }
+
     fs.readFile(path, 'utf-8', (err, data) => {
         if (err) {
             vm.command.print("failed to open [" + path + "]")
