@@ -441,13 +441,15 @@ class VM {
     loadSource(src) {
         this.clearScope()
         this.clearSource()
+
+        let loaded = 0
         if (src) {
             const lines = src.split('\n').filter(l => l && !l.startsWith('#'))
             for (let i = 0; i < lines.length; i++) {
-                this.placeLine(lines[i], false)
+                if (this.placeLine(lines[i], false)) loaded ++
             }
         }
-        this.command.print('loaded ' + this.lines.length + ' lines')
+        this.command.print(`loaded ${loaded} lines`)
     }
 
     exec(cmd) {
