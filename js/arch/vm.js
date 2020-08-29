@@ -100,43 +100,7 @@ class VM {
                 vm.resume()
 
             } else {
-                if (!cmd) return
-                try {
-                    const dot = cmd.startsWith('.')
-                    let ln = parseInt(cmd)
-                    if (dot || !isNaN(ln)) {
-                        let cmdLine = cmd
-                        if (dot) {
-                            vm.lastLine += 10
-                            ln = vm.lastLine
-                            cmd = cmd.substring(1)
-                            cmd = ln + ' ' + cmd
-                        } else {
-                            const i = cmd.indexOf(' ')
-                            if (i >= 0) {
-                                cmdLine = cmd.substring(i+1).trim()
-                            } else {
-                                cmdLine = false
-                            }
-
-                            if (ln > vm.lastLine) {
-                                vm.lastLine = ln
-                            }
-                        }
-                        if (!cmdLine) vm.lines[ln] = false
-                        else vm.lines[ln] = cmd
-
-                    } else {
-
-                        const lex = vm.lexFromSource(
-                                cmd, vm.command.print)
-                        const code = vm.parse(vm, lex)
-                        vm.run(code, 0)
-                    }
-
-                } catch (e) {
-                    vm.command.print('' + e)
-                }
+                vm.processCommand(cmd)
             }
         }
 
@@ -161,6 +125,57 @@ class VM {
             }
         }
 
+    }
+
+    placeLine(line, numberedOnly) {
+        const dot = line.startsWith('.')
+        let ln = parseInt(line)
+        const number = !isNaN(ln)
+
+        if (!dot && !number && numberedOnly) return false
+
+        let cmdLine = line
+        if (dot) {
+            this.lastLine += 10
+            ln = this.lastLine
+            line = line.substring(1)
+            line = ln + ' ' + line
+        } else if (number) {
+            const i = cmd.indexOf(' ')
+            if (i >= 0) {
+                cmdLine = line.substring(i+1).trim()
+            } else {
+                cmdLine = false
+            }
+
+            if (ln > this.lastLine) {
+                this.lastLine = ln
+            }
+        } else {
+            this.lastLine ++
+            ln = this.lastLine
+        }
+        if (!cmdLine) this.lines[ln] = false // clear the line
+        else this.lines[ln] = line
+
+        return true
+    }
+
+    processCommand(cmd) {
+        if (!cmd) return
+        try {
+            const placed = this.placeLine(cmd, true)
+
+            if (!placed) {
+                const lex = this.lexFromSource(
+                        cmd, this.command.print)
+                const code = this.parse(this, lex)
+                this.run(code, 0)
+            }
+
+        } catch (e) {
+            this.command.print('' + e)
+        }
     }
 
     markLabel(name, block, pos) {
@@ -424,8 +439,14 @@ class VM {
     }
 
     loadSource(src) {
-        if (!src) this.lines = []
-        else this.lines = src.split('\n').filter(l => l && !l.startsWith('#'))
+        this.clearScope()
+        this.clearSource()
+        if (src) {
+            const lines = src.split('\n').filter(l => l && !l.startsWith('#'))
+            for (let i = 0; i < lines.length; i++) {
+                this.placeLine(lines[i], false)
+            }
+        }
         this.command.print('loaded ' + this.lines.length + ' lines')
     }
 

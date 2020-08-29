@@ -65,9 +65,9 @@ match=`cat $m`
 
 if [ "$val" == "$match" ]
 then
-	if [ $VERBOSE == 'YES' ]; then
-		echo $t' - OK'
-	fi
+    if [ $VERBOSE == 'YES' ]; then
+        echo $t' - OK'
+    fi
     if [ $SOURCE == 'YES' ]; then
         cat $f
     fi
