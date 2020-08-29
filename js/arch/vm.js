@@ -141,7 +141,7 @@ class VM {
             line = line.substring(1)
             line = ln + ' ' + line
         } else if (number) {
-            const i = cmd.indexOf(' ')
+            const i = line.indexOf(' ')
             if (i >= 0) {
                 cmdLine = line.substring(i+1).trim()
             } else {
