@@ -3,7 +3,7 @@ const core = {
     help: function(name) {
         const vm = this
 
-        // normalize possible id object
+        // normalize possible ReBasic id object
         if (name && typeof name === 'object') {
             name = name.id
         }
@@ -22,10 +22,14 @@ const core = {
         } else {
             Object.keys(vm.command).forEach(cmd => {
                 if (cmd.startsWith('_')) return
+                const obj = vm.command[cmd]
+                if (typeof obj !== 'function') return
                 vm.command.print(cmd + ' ', { semi: true })
             })
             Object.keys(vm.fun).forEach(fn=> {
                 if (fn.startsWith('_')) return
+                const obj = vm.fun[fn]
+                if (typeof obj !== 'function') return
                 vm.command.print(fn + '() ', { semi: true })
             })
             vm.command.print('')
