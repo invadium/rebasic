@@ -95,14 +95,14 @@ core.help.usage = '(name)'
 core.help.man = 'list all commands and functions\n'
         + '              or show help for [name]'
 
-core.env.man = 'list defined variables and their values'
+core.env.man = 'list all defined variables with their values'
 
 core.list.usage = '(from) (to)'
 core.list.man = 'list basic source'
 
-core['new'].man = 'erase existing program'
+core['new'].man = 'erase current program'
 
-core.clr.man = 'clean up defined variables'
+core.clr.man = 'erase all defined variables'
 
 core.poke.usage = 'address, value'
 core.poke.man = 'set memory cell at [address] to [value]'

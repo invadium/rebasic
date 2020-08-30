@@ -113,7 +113,7 @@ ioInput.man = 'input values from the console,\n'
 ioCls.man = 'clear the screen'
 
 load.usage = '[filename]'
-load.man = 'load a program from file to main memory'
+load.man = 'load a program from file to the main memory'
 
 save.usage = '[filename]'
 save.man = 'save a program to file'
