@@ -52,6 +52,10 @@ const core = {
         this.command.print(this.source(from, to))
     },
 
+    listo: function(to) {
+        this.command.print(this.source(0, to))
+    },
+
     'new': function() {
         this.clearScope()
         this.clearSource()
@@ -97,14 +101,17 @@ core.help.man = 'list all commands and functions\n'
 
 core.env.man = 'list all defined variables with their values'
 
-core.list.usage = '(from) (to)'
+core.list.usage = '(from), (to)'
 core.list.man = 'list basic source'
+
+core.listo.usage = '(to)'
+core.listo.man = 'list basic source up to the specified line'
 
 core['new'].man = 'erase current program'
 
 core.clr.man = 'erase all defined variables'
 
-core.poke.usage = 'address, value'
+core.poke.usage = '(address), (value)'
 core.poke.man = 'set memory cell at [address] to [value]'
 
 core.sleep.usage = 'n'

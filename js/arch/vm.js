@@ -124,11 +124,12 @@ class VM {
                 vm.command.close()
             }
         }
-
     }
 
     placeLine(line, numberedOnly) {
+        // check autonumber
         const dot = line.startsWith('.')
+        // check line number
         let ln = parseInt(line)
         const number = !isNaN(ln)
 
