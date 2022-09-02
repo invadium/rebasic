@@ -86,7 +86,7 @@ const core = {
 
         const vm = this
         setTimeout(() => {
-            if (this.resumeOnInput) {
+            if (this.resumeOnInput || this.resumeOnTimeout) {
                 this.interrupted = false
                 this.resumeOnTimeout = false
                 vm.resume()
