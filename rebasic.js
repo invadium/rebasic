@@ -95,9 +95,11 @@ function run() {
 
     scripts.forEach(origin => {
         const src = fs.readFileSync(origin, 'utf8')
-        const lex = lexFromSource(src, vm.command.print)
-        const code = parse(vm, lex)
-        vm.run(code, 0)
+        //const lex = lexFromSource(src, vm.command.print)
+        //const code = parse(vm, lex)
+        //vm.run(code, 0)
+        vm.loadSource(src, true)
+        vm.exec('run')
     })
 }
 

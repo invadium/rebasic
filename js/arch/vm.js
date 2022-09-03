@@ -439,7 +439,7 @@ class VM {
         //return this.lines.filter(l => l).join('\n')
     }
 
-    loadSource(src) {
+    loadSource(src, silent) {
         this.clearScope()
         this.clearSource()
 
@@ -450,7 +450,7 @@ class VM {
                 if (this.placeLine(lines[i], false)) loaded ++
             }
         }
-        this.command.print(`loaded ${loaded} lines`)
+        if (!silent) this.command.print(`loaded ${loaded} lines`)
     }
 
     exec(cmd) {

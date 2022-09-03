@@ -12,3 +12,8 @@ ReBasic can run most of the examples from old BASIC books.
 The difference is only in I/O operations, drawing
 and all the PEEK and POKE magic you can find in the VIC20/C64 dialects.
 
+
+## How to Install
+
+Can be install locally by running ```./install``` script.
+
