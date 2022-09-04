@@ -484,13 +484,22 @@ function parse(vm, lex) {
             }
 
             const next = lex.next()
-            if (command === 'print' && next.val === ';') {
-                // print val is closed by semicolon, so mark it as closed
-                list.push({
-                    get: () => {
-                        return { semi: true }
-                    }
-                })
+            if (command === 'print') {
+                if (next.val === ';') {
+                    // print val is closed by a semicolon, so mark it as closed
+                    list.push({
+                        get: () => {
+                            return { semi: true }
+                        }
+                    })
+                } else if (next.val === ',') {
+                    // print val is closed by a comma, so mark it as closed
+                    list.push({
+                        get: () => {
+                            return { comma: true }
+                        }
+                    })
+                }
             }
         }
 
