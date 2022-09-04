@@ -95,9 +95,13 @@ function run() {
 
     scripts.forEach(origin => {
         const src = fs.readFileSync(origin, 'utf8')
+
+        // manually parse and run with vm
         //const lex = lexFromSource(src, vm.command.print)
         //const code = parse(vm, lex)
         //vm.run(code, 0)
+        
+        // load source silently and execute "run"
         vm.loadSource(src, true)
         vm.exec('run')
     })

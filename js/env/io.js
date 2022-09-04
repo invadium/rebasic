@@ -20,19 +20,26 @@ function ioPrint() {
     this.outputs ++
     //process.stdout.write(OUT)
     let semi = false
+    let comma = false
     for (let i = 0; i < arguments.length; i++) {
         let val = arguments[i]
         if (val === undefined) val = ''
 
-        if (typeof val === 'object' && val.semi) {
-            semi = true
+        if (typeof val === 'object') {
+            if (val.semi) {
+                semi = true
+            } else if (val.comma) {
+                comma = true
+            }
         } else {
             if (i > 0 && !semi) process.stdout.write(' ')
             process.stdout.write('' + val)
             semi = false
+            comma = false
         }
     }
-    if (!semi) process.stdout.write('\n')
+    if (comma) process.stdout.write(' ')
+    if (!semi && !comma) process.stdout.write('\n')
 }
 
 function ioCls() {
