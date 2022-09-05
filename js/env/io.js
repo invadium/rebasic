@@ -21,6 +21,7 @@ function ioPrint() {
     //process.stdout.write(OUT)
     let semi = false
     let comma = false
+
     for (let i = 0; i < arguments.length; i++) {
         let val = arguments[i]
         if (val === undefined) val = ''
