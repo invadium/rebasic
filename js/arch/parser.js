@@ -547,12 +547,12 @@ function parse(vm, lex) {
                     return doStatement(block)
 
                 } else if (ahead.val === '=') {
-                    // assignment statement
+                    // no-let assignment statement
                     lex.next()
 
                     const rval = doExpr()
                     return {
-                        type: 2,
+                        type: vm.LET,
                         lval: token.val,
                         rval: rval,
                         toString: function() {
@@ -581,7 +581,7 @@ function parse(vm, lex) {
                 const rval = doExpr()
 
                 return {
-                    type: 2,
+                    type: vm.LET,
                     lval: variable.val,
                     rval: rval,
 
@@ -589,6 +589,33 @@ function parse(vm, lex) {
                         return `let ${this.lval} = ${this.rval}`
                     },
                 }
+
+            } else if (token.val === 'dim') {
+                const array = lex.next()
+
+                if (array.type !== lex.SYM) {
+                    lex.err('array name is expected')
+                }
+                if (!lex.expect(lex.OPERATOR, '(')) {
+                    lex.err(`( is expected`)
+                }
+
+                const rval = doExpr()
+
+                if (!lex.expect(lex.OPERATOR, ')')) {
+                    lex.err(`) is expected`)
+                }
+
+                return {
+                    type: vm.LET,
+                    lval: array.val,
+                    rval: rval,
+
+                    toString: function() {
+                        return `dim ${this.lval}(${this.rval})`
+                    },
+                }
+
 
             } else if (token.val === 'data') {
                 const list = doExprInList()
@@ -617,7 +644,7 @@ function parse(vm, lex) {
                 }
 
                 return {
-                    type: 3,
+                    type: vm.IF,
                     cond: cond,
                     lstmt: lstmt,
                     rstmt: rstmt,
@@ -650,7 +677,7 @@ function parse(vm, lex) {
                 }
 
                 const cmd = {
-                    type: 4,
+                    type: vm.FOR,
                     cvar: controlVar.val,
                     lval: lval,
                     rval: rval,
@@ -675,7 +702,7 @@ function parse(vm, lex) {
                 lex.skipLine()
 
                 return {
-                    type: 5,
+                    type: vm.NEXT,
                     forCommand: cmd,
 
                     toString: function() {
@@ -686,7 +713,7 @@ function parse(vm, lex) {
 
             } else if (token.val === 'return') {
                 return {
-                    type: 6,
+                    type: vm.RETURN,
                     toString: function() {
                         return 'return'
                     }
@@ -694,7 +721,7 @@ function parse(vm, lex) {
 
             } else if (token.val === 'stop' || token.val === 'end') {
                 return {
-                    type: 7,
+                    type: vm.END,
                     toString: function() {
                         return 'end'
                     }
@@ -704,7 +731,7 @@ function parse(vm, lex) {
 
 
         const cmd = {
-            type: 1,
+            type: vm.COMMAND,
             val: token.val,
             toString: function() {
                 return `${this.val} ${this.opt}`

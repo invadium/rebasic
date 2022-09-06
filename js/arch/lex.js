@@ -40,6 +40,7 @@ const KEYWORDS = [
     'return',
     'stop',
     'end',
+    'dim',
 
     'not',
     'and',

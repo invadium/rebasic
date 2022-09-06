@@ -4,6 +4,14 @@ const WELCOME = "Welcome back to basic!"
 const VERSION = "Rebasic Version 0.1"
 const READY  = "Ready..."
 
+const COMMAND   = 1
+const LET       = 2
+const IF        = 3
+const FOR       = 4
+const NEXT      = 5
+const RETURN    = 6
+const END       = 7
+
 function vmPrint() {
     for (let i = 0; i < arguments.length; i++) {
         console.log(arguments[i])
@@ -60,6 +68,15 @@ class Block {
 class VM {
 
     constructor() {
+        // export statement type constants
+        this.COMMAND   = 1
+        this.LET       = 2
+        this.IF        = 3
+        this.FOR       = 4
+        this.NEXT      = 5
+        this.RETURN    = 6
+        this.END       = 7
+
         this.MAX_CYCLES = 10000
         this.MAX_OUTPUTS = 10
         this.lastLine = 0
@@ -276,7 +293,7 @@ class VM {
 
         //console.log(stmt.toString())
         switch(stmt.type) {
-            case 1:
+            case COMMAND:
                 // command
                 const cmd = this.command[stmt.val]
                 if (!cmd) throw `Unknown command [${stmt.val}]`
@@ -338,7 +355,7 @@ class VM {
                 }
                 break
 
-            case 2: 
+            case LET: 
                 // assignment
                 const lval = stmt.lval
                 const rval = stmt.rval.get()
@@ -346,7 +363,7 @@ class VM {
                 this.assign(lval, rval)
                 break
 
-            case 3:
+            case IF:
                 // if - then - else
                 const cond = stmt.cond.get()
                 if (cond) {
@@ -356,13 +373,12 @@ class VM {
                 }
                 break
 
-            case 4:
+            case FOR:
                 // for - to - step init
                 this.assign(stmt.cvar, stmt.lval.get())
                 break
 
-            case 5:
-                // next
+            case NEXT:
                 const cfor = stmt.forCommand
                 let i = this.load(cfor.cvar)
                 const step = cfor.step? cfor.step.get() : 1
@@ -376,7 +392,7 @@ class VM {
                 }
                 break
 
-            case 6:
+            case RETURN:
                 if (this.rstack.length === 0) {
                     // the end
                     this.pos = Number.MAX_SAFE_INTEGER
@@ -386,8 +402,8 @@ class VM {
                 }
                 break
 
-            case 7:
-                // the end
+            case END:
+                // the end of program
                 this.pos = Number.MAX_SAFE_INTEGER
                 break
         }
