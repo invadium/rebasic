@@ -6,11 +6,12 @@ const READY  = "Ready..."
 
 const COMMAND   = 1
 const LET       = 2
-const IF        = 3
-const FOR       = 4
-const NEXT      = 5
-const RETURN    = 6
-const END       = 7
+const DIM       = 3
+const IF        = 4
+const FOR       = 5
+const NEXT      = 6
+const RETURN    = 7
+const END       = 8
 
 function vmPrint() {
     for (let i = 0; i < arguments.length; i++) {
@@ -65,17 +66,58 @@ class Block {
     }
 }
 
+class Dim {
+    constructor(rval) {
+        this.sizes = []
+        if (rval.list) {
+            // multi-dimensional
+            for (let i = 0; i < rval.list.length; i++) {
+                const rv = rval.list[i]
+                this.sizes.push( rv.get() )
+            }
+        } else {
+            // assume one-dimension
+            this.sizes.push( rval.get() )
+        }
+        this.dim = this.sizes.length
+
+        let len = this.sizes[0] || -1
+        for (let i = 1; i < this.sizes.length; i++) {
+            len *= this.sizes[i]
+        }
+        this.len = len
+
+        // setup values
+        this.data = []
+        for (let i = 0; i < len; i++) {
+            this.data[i] = 0
+        }
+
+        //console.log(this.dim + ': ' + this.len)
+        //console.dir(this.sizes)
+    }
+
+    get(at) {
+        return 0
+    }
+
+    toString() {
+        return '[0, 0, 0...]'
+    }
+}
+
 class VM {
 
     constructor() {
         // export statement type constants
-        this.COMMAND   = 1
-        this.LET       = 2
-        this.IF        = 3
-        this.FOR       = 4
-        this.NEXT      = 5
-        this.RETURN    = 6
-        this.END       = 7
+        this.COMMAND   = COMMAND
+        this.LET       = LET
+        this.DIM       = DIM
+        this.IF        = IF
+        this.FOR       = FOR
+        this.NEXT      = NEXT
+        this.RETURN    = RETURN
+        this.END       = END
 
         this.MAX_CYCLES = 10000
         this.MAX_OUTPUTS = 10
@@ -357,10 +399,16 @@ class VM {
 
             case LET: 
                 // assignment
-                const lval = stmt.lval
+                const varName = stmt.lval
                 const rval = stmt.rval.get()
-                //console.log('assignment ' + lval + ' = ' + rval)
-                this.assign(lval, rval)
+                this.assign(varName, rval)
+                break
+
+            case DIM:
+                // array definition
+                const arrayName = stmt.lval
+                const dimensions = stmt.rval
+                this.assign(arrayName, new Dim(dimensions))
                 break
 
             case IF:

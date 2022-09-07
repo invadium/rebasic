@@ -514,7 +514,10 @@ function parse(vm, lex) {
                     res.push(this.list[i].get())
                 }
                 return res
-            }
+            },
+            toString: function() {
+                return list.join(',')
+            },
         }
     }
 
@@ -600,16 +603,16 @@ function parse(vm, lex) {
                     lex.err(`( is expected`)
                 }
 
-                const rval = doExpr()
+                const rlist = doExprList()
 
                 if (!lex.expect(lex.OPERATOR, ')')) {
                     lex.err(`) is expected`)
                 }
 
                 return {
-                    type: vm.LET,
+                    type: vm.DIM,
                     lval: array.val,
-                    rval: rval,
+                    rval: rlist,
 
                     toString: function() {
                         return `dim ${this.lval}(${this.rval})`

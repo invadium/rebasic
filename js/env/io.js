@@ -31,6 +31,12 @@ function ioPrint() {
                 semi = true
             } else if (val.comma) {
                 comma = true
+            } else if (val.get) {
+                val = val.get()
+                if (i > 0 && !semi) process.stdout.write(' ')
+                process.stdout.write('' + val)
+                semi = false
+                comma = false
             }
         } else {
             if (i > 0 && !semi) process.stdout.write(' ')
