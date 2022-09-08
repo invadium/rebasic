@@ -7,11 +7,12 @@ const READY  = "Ready..."
 const COMMAND   = 1
 const LET       = 2
 const DIM       = 3
-const IF        = 4
-const FOR       = 5
-const NEXT      = 6
-const RETURN    = 7
-const END       = 8
+const MAP       = 4
+const IF        = 5
+const FOR       = 6
+const NEXT      = 7
+const RETURN    = 8
+const END       = 9
 
 function vmPrint() {
     for (let i = 0; i < arguments.length; i++) {
@@ -67,7 +68,9 @@ class Block {
 }
 
 class Dim {
-    constructor(rval) {
+
+    constructor(name, rval) {
+        this.name  = name
         this.sizes = []
         if (rval.list) {
             // multi-dimensional
@@ -106,6 +109,22 @@ class Dim {
     }
 }
 
+class Map {
+    
+    constructor(name) {
+        this.name = name
+        this.data = {}
+    }
+
+    get(key) {
+        return 'mapped val'
+    }
+
+    toString() {
+        return '{}'
+    }
+}
+
 class VM {
 
     constructor() {
@@ -113,6 +132,7 @@ class VM {
         this.COMMAND   = COMMAND
         this.LET       = LET
         this.DIM       = DIM
+        this.MAP       = MAP
         this.IF        = IF
         this.FOR       = FOR
         this.NEXT      = NEXT
@@ -408,7 +428,13 @@ class VM {
                 // array definition
                 const arrayName = stmt.lval
                 const dimensions = stmt.rval
-                this.assign(arrayName, new Dim(dimensions))
+                this.assign(arrayName, new Dim(arrayName, dimensions))
+                break
+
+            case MAP:
+                // map definition
+                const mapName = stmt.lval
+                this.assign(mapName, new Map(mapName))
                 break
 
             case IF:

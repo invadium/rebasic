@@ -619,6 +619,21 @@ function parse(vm, lex) {
                     },
                 }
 
+            } else if (token.val === 'map') {
+                const map = lex.next()
+
+                if (map.type !== lex.SYM) {
+                    lex.err('map name is expected')
+                }
+
+                return {
+                    type: vm.MAP,
+                    lval: map.val,
+
+                    toString: function() {
+                        return `map ${this.lval}`
+                    },
+                }
 
             } else if (token.val === 'data') {
                 const list = doExprInList()

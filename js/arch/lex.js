@@ -41,6 +41,7 @@ const KEYWORDS = [
     'stop',
     'end',
     'dim',
+    'map',
 
     'not',
     'and',
