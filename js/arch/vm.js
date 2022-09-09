@@ -33,6 +33,9 @@ function vmInput() {
 }
 
 const util = {
+    isNumber: function(n) {
+        return (typeof n === 'number' && !Number.isNaN(n))
+    },
     expectNumber: function(n) {
         if (typeof n !== 'number'
                 || Number.isNaN(n)) {
@@ -101,7 +104,8 @@ class Dim {
     }
 
     get(at) {
-        return 0
+        if (!util.isNumber(at)) throw `array index is expected`
+        return this.data[at]
     }
 
     toString() {
@@ -117,11 +121,12 @@ class Map {
     }
 
     get(key) {
-        return 'mapped val'
+        if (!key) throw `a map key is expected`
+        return this.data[key] || -1
     }
 
     toString() {
-        return '{}'
+        return '{...}'
     }
 }
 
@@ -138,6 +143,9 @@ class VM {
         this.NEXT      = NEXT
         this.RETURN    = RETURN
         this.END       = END
+        // export classes
+        this.Dim = Dim
+        this.Map = Map
 
         this.MAX_CYCLES = 10000
         this.MAX_OUTPUTS = 10
@@ -322,6 +330,10 @@ class VM {
         return val
     }
 
+    probe(name) {
+        return this.scope[name]
+    }
+
     locate(name) {
         if (this.skipLookup) return { id: name }
         // check variables
@@ -336,11 +348,23 @@ class VM {
         return val
     }
 
+    locateElement(name, key) {
+        const variable = this.locate(name)
+        if (!variable) throw `unknown structure [${name}]`
+
+        if (variable.get) {
+            return variable.get(key)
+        }
+        if (variable instanceof Dim) {
+        } else if (variable instanceof Map) {
+        }
+    }
+
     call(name, expr) {
         const v = this.val(expr)
         //console.log('calling ' + name + '(' + v + ')')
         const fn = this.fun[name]
-        if (!fn) throw `unknown function [${name}]`
+        if (!fn) throw `unknown function ${name}()`
 
         if (Array.isArray(v)) {
             return fn.apply(this, v)

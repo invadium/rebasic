@@ -358,7 +358,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
                     tab: tab,
                     val: n
                 }
-            } else if (c === '0' && nextc !== '.') {
+            } else if (c === '0' && nextc !== '.' && !isDigit(nextc)) {
                 // hanlde plain 0
                 c = getc()
                 if (c && !isSeparator(c)) xerr('wrong number format')

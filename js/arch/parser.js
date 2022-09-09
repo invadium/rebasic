@@ -51,6 +51,7 @@ function parse(vm, lex) {
                 }
                 return val
             } else {
+                // no value - another operator
                 lex.ret()
                 return
             }
@@ -86,7 +87,7 @@ function parse(vm, lex) {
 
         const ahead = lex.ahead()
         if (ahead.type === lex.OPERATOR && ahead.val === '(') {
-            // function call
+            // function call or array/map access
 
             lex.next()
             const rval = doExprList()
@@ -99,7 +100,17 @@ function parse(vm, lex) {
                 lval: token.val,
                 rval: rval,
                 get: function call() {
-                    return vm.call(this.lval, this.rval)
+                    // try to locate a variable
+                    const variable = vm.probe(this.lval)
+
+                    if (variable instanceof vm.Dim || variable instanceof vm.Map) {
+                        const v = vm.val(this.rval)
+                        return vm.locateElement( this.lval, v )
+
+                    } else {
+                        // it's not a variable - must be a function
+                        return vm.call(this.lval, this.rval)
+                    }
                 },
                 toString: unaryOpToString,
             }
