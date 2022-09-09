@@ -104,8 +104,25 @@ class Dim {
     }
 
     get(at) {
-        if (!util.isNumber(at)) throw `array index is expected`
-        return this.data[at]
+        if (this.dim > 1) {
+            // multi-dimentional array
+            if (!Array.isArray(at) || this.dim !== at.length) {
+                throw `index list of ${this.dim} elements is expected`
+            }
+
+            let j = 0
+            for (let i = 0; i < at.length - 1; i++) {
+                j += (at[i] - 1) * this.sizes[i]
+            }
+
+            j += at[at.length - 1]
+            return this.data[j]
+
+        } else {
+            // one-dimentional array
+            if (!util.isNumber(at)) throw `array index is expected`
+            return this.data[at]
+        }
     }
 
     toString() {
@@ -348,15 +365,12 @@ class VM {
         return val
     }
 
-    locateElement(name, key) {
+    locateElement(name, rval) {
         const variable = this.locate(name)
         if (!variable) throw `unknown structure [${name}]`
 
         if (variable.get) {
-            return variable.get(key)
-        }
-        if (variable instanceof Dim) {
-        } else if (variable instanceof Map) {
+            return variable.get( this.val(rval) )
         }
     }
 

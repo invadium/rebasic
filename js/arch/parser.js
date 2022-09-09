@@ -104,8 +104,8 @@ function parse(vm, lex) {
                     const variable = vm.probe(this.lval)
 
                     if (variable instanceof vm.Dim || variable instanceof vm.Map) {
-                        const v = vm.val(this.rval)
-                        return vm.locateElement( this.lval, v )
+                        //const v = vm.val(this.rval)
+                        return vm.locateElement( this.lval, this.rval )
 
                     } else {
                         // it's not a variable - must be a function
