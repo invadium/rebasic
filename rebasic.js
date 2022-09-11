@@ -103,7 +103,8 @@ function run() {
         
         // load source silently and execute "run"
         vm.loadSource(src, true)
-        vm.exec('run')
+        vm.exitOnError = true
+        vm.processCommand('run')
     })
 }
 

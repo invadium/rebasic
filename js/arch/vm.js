@@ -1,4 +1,3 @@
-'use strict'
 
 const WELCOME = "Welcome back to basic!"
 const VERSION = "Rebasic Version 0.1"
@@ -13,6 +12,7 @@ const FOR       = 6
 const NEXT      = 7
 const RETURN    = 8
 const END       = 9
+const LET_EL     = 10
 
 function vmPrint() {
     for (let i = 0; i < arguments.length; i++) {
@@ -125,6 +125,29 @@ class Dim {
         }
     }
 
+    set(at, val) {
+        if (this.dim > 1) {
+            // multi-dimentional array
+            if (!Array.isArray(at) || this.dim !== at.length) {
+                throw `index list of ${this.dim} elements is expected`
+            }
+
+            let j = 0
+            for (let i = 0; i < at.length - 1; i++) {
+                j += (at[i] - 1) * this.sizes[i]
+            }
+
+            j += at[at.length - 1]
+
+            this.data[j] = val
+
+        } else {
+            // one-dimentional array
+            if (!util.isNumber(at)) throw `array index is expected`
+            this.data[at] = val
+        }
+    }
+
     toString() {
         return '[0, 0, 0...]'
     }
@@ -160,6 +183,7 @@ class VM {
         this.NEXT      = NEXT
         this.RETURN    = RETURN
         this.END       = END
+        this.LET_EL    = LET_EL
         // export classes
         this.Dim = Dim
         this.Map = Map
@@ -280,6 +304,9 @@ class VM {
 
         } catch (e) {
             this.command.print('' + e)
+            if (this.exitOnError) {
+                process.exit(1)
+            }
         }
     }
 
@@ -369,9 +396,14 @@ class VM {
         const variable = this.locate(name)
         if (!variable) throw `unknown structure [${name}]`
 
-        if (variable.get) {
-            return variable.get( this.val(rval) )
-        }
+        return variable.get( this.val(rval) )
+    }
+
+    assignElement(name, key, rval) {
+        const variable = this.locate(name)
+        if (!variable) throw `unknown structure [${name}]`
+
+        variable.set( key.get(), rval.get() )
     }
 
     call(name, expr) {
@@ -462,6 +494,11 @@ class VM {
                 this.assign(varName, rval)
                 break
 
+            case LET_EL:
+                // set dim/map element
+                this.assignElement(stmt.lval, stmt.ival, stmt.rval)
+                break
+
             case DIM:
                 // array definition
                 const arrayName = stmt.lval
@@ -517,6 +554,12 @@ class VM {
             case END:
                 // the end of program
                 this.pos = Number.MAX_SAFE_INTEGER
+                break
+
+            default:
+                console.log('Unknown statement')
+                console.log(stmt.toString())
+                console.dir(stmt)
                 break
         }
     }

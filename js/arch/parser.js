@@ -573,6 +573,32 @@ function parse(vm, lex) {
                             return `${this.lval} = ${this.rval}`
                         },
                     }
+                } else if (ahead.val === '(') {
+                    // assign element
+                    lex.next()
+
+                    // key or index
+                    const rlist = doExprList()
+                    if (!lex.expect(lex.OPERATOR, ')')) {
+                        lex.err(`) is expected`)
+                    }
+
+                    // parse assignment expression
+                    if (!lex.expect(lex.OPERATOR, '=')) {
+                        lex.err(`= is expected`)
+                    }
+
+                    const rval = doExpr()
+
+                    return {
+                        type: vm.LET_EL,
+                        lval: token.val,
+                        ival: rlist,
+                        rval: rval,
+                        toString: function() {
+                            return `${this.lval}(${this.ival}) = ${this.rval}`
+                        },
+                    }
                 }
             }
         } else if (token.type === lex.KEYWORD) {
