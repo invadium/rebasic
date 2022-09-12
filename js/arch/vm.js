@@ -165,6 +165,12 @@ class Map {
         return this.data[key] || -1
     }
 
+    set(key, val) {
+        if (!key) throw `a map key is expected`
+        if (!val) throw `a value is expected`
+        this.data[key] = val
+    }
+
     toString() {
         return '{...}'
     }
