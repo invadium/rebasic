@@ -672,6 +672,20 @@ function parse(vm, lex) {
                     },
                 }
 
+            } else if (token.val === 'read') {
+                console.log('reader!!!')
+
+                const opt = doExprList(token.val)
+
+                return {
+                    type: vm.READ,
+                    lval: token.val,
+
+                    toString: function() {
+                        return `map ${this.lval}`
+                    },
+                }
+
             } else if (token.val === 'data') {
                 const list = doExprInList()
                 for (let i = 0; i < list.length; i++) {

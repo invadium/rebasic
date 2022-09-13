@@ -12,7 +12,8 @@ const FOR       = 6
 const NEXT      = 7
 const RETURN    = 8
 const END       = 9
-const LET_EL     = 10
+const LET_EL    = 10
+const READ      = 11
 
 function vmPrint() {
     for (let i = 0; i < arguments.length; i++) {
@@ -190,6 +191,7 @@ class VM {
         this.RETURN    = RETURN
         this.END       = END
         this.LET_EL    = LET_EL
+        this.READ      = READ
         // export classes
         this.Dim = Dim
         this.Map = Map
@@ -239,6 +241,9 @@ class VM {
         }
 
         this.resume = function() {
+            // main vm execution cycle
+            // execute current command sequence in a loop
+            // interrupt and reschedule on outputs or cycles limit
             while(!vm.interrupted && vm.pos < vm.code.length) {
                 vm.next(vm.code[vm.pos ++])
 
@@ -309,7 +314,11 @@ class VM {
             }
 
         } catch (e) {
-            this.command.print('' + e)
+            this.command.print('error: ' + e)
+            if (this.opt.debug) {
+                const stack = new Error().stack
+                this.command.print(stack)
+            }
             if (this.exitOnError) {
                 process.exit(1)
             }
@@ -338,6 +347,7 @@ class VM {
     }
 
     read(name) {
+        console.dir(name)
         if (this.dataPos >= this.data.length) {
             throw 'no data left to read'
         }
@@ -402,6 +412,11 @@ class VM {
         const variable = this.locate(name)
         if (!variable) throw `unknown structure [${name}]`
 
+        if (!variable.get) {
+            console.dir(variable)
+            throw `can't locate element of [${name}]`
+        }
+        
         return variable.get( this.val(rval) )
     }
 
@@ -469,16 +484,6 @@ class VM {
                         this.pos = subLabel.pos
                         break
 
-                    case 'read':
-                        const opt = stmt.opt
-                        if (opt.list) {
-                            for (let i = 0; i < opt.list.length; i++) {
-                                this.read(opt.list[i].val)
-                            }
-                        } else {
-                            this.read(opt.val)
-                        }
-                        break
 
                     case 'restore':
                         this.dataPos = 0
@@ -516,6 +521,18 @@ class VM {
                 // map definition
                 const mapName = stmt.lval
                 this.assign(mapName, new Map(mapName))
+                break
+
+            case READ:
+                console.log('!!!!')
+                const opt = stmt.opt
+                if (opt.list) {
+                    for (let i = 0; i < opt.list.length; i++) {
+                        this.read(opt.list[i].val)
+                    }
+                } else {
+                    this.read(opt.val)
+                }
                 break
 
             case IF:

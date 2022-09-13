@@ -29,14 +29,14 @@ const scripts = []
 
 let cmd = 'repl'
 let lastOption
-let parsedOption = false
 for (let i = 2; i < args.length; i++) {
     let arg = args[i]
 
     if (arg === '--help' || arg === '-h'
             || arg === 'help' || arg === 'h') {
-        parsedOption = false
         cmd = 'help'
+    } else if (arg === '--debug' || arg === '-d') {
+        opt.debug = true
     } else {
         // expect script name
         if (arg.startsWith('-')) {
@@ -48,13 +48,17 @@ for (let i = 2; i < args.length; i++) {
 }
 
 function help() {
-    console.log('Usage: reba [script]...')
+    console.log('Usage: rebasic [script]...')
+    console.log('')
+    console.log('Options:')
+    console.log('    --debug or -d - show debug info like stack traces')
 }
 
 function setupVM() {
     const vm = vmFactory()
     vm.lexFromSource = lexFromSource
     vm.parse = parse
+    vm.opt = opt
 
     for (let n in core) vm.defineCmd(n, core[n])
     for (let n in func) vm.defineFun(n, func[n])
