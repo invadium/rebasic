@@ -66,6 +66,8 @@ function parse(vm, lex) {
                     get: function value() {
                         return true
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: valToString,
                 }
 
@@ -78,6 +80,8 @@ function parse(vm, lex) {
                     get: function value() {
                         return false
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: valToString,
                 }
             } else {
@@ -112,6 +116,8 @@ function parse(vm, lex) {
                         return vm.call(this.lval, this.rval)
                     }
                 },
+                pos: token.pos,
+                line: token.line,
                 toString: unaryOpToString,
             }
         }
@@ -123,6 +129,8 @@ function parse(vm, lex) {
                 get: function value() {
                     return this.val
                 },
+                pos: token.pos,
+                line: token.line,
                 toString: valToString,
             }
         } else  {
@@ -133,6 +141,8 @@ function parse(vm, lex) {
                 get: function value() {
                     return this.bind.locate(this.val)
                 },
+                pos: token.pos,
+                line: token.line,
                 toString: () => token.val,
             }
         }
@@ -151,6 +161,8 @@ function parse(vm, lex) {
                 get: function not() {
                     return !this.val.get()
                 },
+                pos: token.pos,
+                line: token.line,
                 toString: unaryOpToString,
             }
 
@@ -168,6 +180,8 @@ function parse(vm, lex) {
                         }
                         return v * -1
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: unaryOpToString,
                 }
 
@@ -182,6 +196,8 @@ function parse(vm, lex) {
                         }
                         return Math.floor(v)
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: unaryOpToString,
                 }
 
@@ -196,6 +212,8 @@ function parse(vm, lex) {
                         }
                         return Math.round(v)
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: unaryOpToString,
                 }
 
@@ -210,6 +228,8 @@ function parse(vm, lex) {
                         }
                         return Math.ceil(v)
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: unaryOpToString,
                 }
             } else {
@@ -236,6 +256,8 @@ function parse(vm, lex) {
                     get: function mul() {
                         return this.lval.get() * this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
 
@@ -247,6 +269,8 @@ function parse(vm, lex) {
                     get: function div() {
                         return this.lval.get() / this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
 
@@ -259,6 +283,8 @@ function parse(vm, lex) {
                         return Math.floor(this.lval.get()
                             / this.rval.get())
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
 
@@ -270,6 +296,8 @@ function parse(vm, lex) {
                     get: function mod() {
                         return this.lval.get() % this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
 
@@ -283,6 +311,8 @@ function parse(vm, lex) {
                         return Math.pow(this.lval.get(),
                             this.rval.get())
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 }
             }
@@ -309,6 +339,8 @@ function parse(vm, lex) {
                     get: function add() {
                         return this.lval.get() + this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
             } else if (token.val === '-') {
@@ -319,6 +351,8 @@ function parse(vm, lex) {
                     get: function substract() {
                         return this.lval.get() - this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
             }
@@ -345,6 +379,8 @@ function parse(vm, lex) {
                     get: function less() {
                         return this.lval.get() < this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
             } else if (token.val === '<=') {
@@ -355,6 +391,8 @@ function parse(vm, lex) {
                     get: function lessEq() {
                         return this.lval.get() <= this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
             } else if (token.val === '>') {
@@ -365,6 +403,8 @@ function parse(vm, lex) {
                     get: function more() {
                         return this.lval.get() > this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
             } else if (token.val === '>=') {
@@ -375,6 +415,8 @@ function parse(vm, lex) {
                     get: function moreEq() {
                         return this.lval.get() >= this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
             }
@@ -401,6 +443,8 @@ function parse(vm, lex) {
                     get: function eq() {
                         return this.lval.get() == this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
             } else if (token.val === '<>') {
@@ -411,6 +455,8 @@ function parse(vm, lex) {
                     get: function notEq() {
                         return this.lval.get() != this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
             }
@@ -437,6 +483,8 @@ function parse(vm, lex) {
                     get: function and() {
                         return this.lval.get() && this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
             }
@@ -463,6 +511,8 @@ function parse(vm, lex) {
                     get: function or() {
                         return this.lval.get() || this.rval.get()
                     },
+                    pos: token.pos,
+                    line: token.line,
                     toString: binaryOpToString,
                 })
             }
@@ -569,6 +619,8 @@ function parse(vm, lex) {
                         type: vm.LET,
                         lval: token.val,
                         rval: rval,
+                        pos: token.pos,
+                        line: token.line,
                         toString: function() {
                             return `${this.lval} = ${this.rval}`
                         },
@@ -595,6 +647,8 @@ function parse(vm, lex) {
                         lval: token.val,
                         ival: rlist,
                         rval: rval,
+                        pos: token.pos,
+                        line: token.line,
                         toString: function() {
                             return `${this.lval}(${this.ival}) = ${this.rval}`
                         },
@@ -625,6 +679,8 @@ function parse(vm, lex) {
                     lval: variable.val,
                     rval: rval,
 
+                    pos: token.pos,
+                    line: token.line,
                     toString: function() {
                         return `let ${this.lval} = ${this.rval}`
                     },
@@ -651,6 +707,8 @@ function parse(vm, lex) {
                     lval: array.val,
                     rval: rlist,
 
+                    pos: token.pos,
+                    line: token.line,
                     toString: function() {
                         return `dim ${this.lval}(${this.rval})`
                     },
@@ -667,6 +725,8 @@ function parse(vm, lex) {
                     type: vm.MAP,
                     lval: map.val,
 
+                    pos: token.pos,
+                    line: token.line,
                     toString: function() {
                         return `map ${this.lval}`
                     },
@@ -681,6 +741,8 @@ function parse(vm, lex) {
                     type: vm.READ,
                     lval: token.val,
 
+                    pos: token.pos,
+                    line: token.line,
                     toString: function() {
                         return `map ${this.lval}`
                     },
@@ -717,6 +779,9 @@ function parse(vm, lex) {
                     cond: cond,
                     lstmt: lstmt,
                     rstmt: rstmt,
+
+                    pos: token.pos,
+                    line: token.line,
                 }
 
             } else if (token.val === 'for') {
@@ -753,6 +818,8 @@ function parse(vm, lex) {
                     step: step,
                     pos: block.length() + 1,
 
+                    pos: token.pos,
+                    line: token.line,
                     toString: function() {
                         return `for ${this.cvar} = ${this.lval}`
                             + ` to ${this.rval} step ${this.step}`
@@ -774,6 +841,8 @@ function parse(vm, lex) {
                     type: vm.NEXT,
                     forCommand: cmd,
 
+                    pos: token.pos,
+                    line: token.line,
                     toString: function() {
                         return `for ${this.cvar} = ${this.lval}`
                             + ` to ${this.rval} step ${this.step}`
@@ -783,6 +852,8 @@ function parse(vm, lex) {
             } else if (token.val === 'return') {
                 return {
                     type: vm.RETURN,
+                    pos: token.pos,
+                    line: token.line,
                     toString: function() {
                         return 'return'
                     }
@@ -791,6 +862,8 @@ function parse(vm, lex) {
             } else if (token.val === 'stop' || token.val === 'end') {
                 return {
                     type: vm.END,
+                    pos: token.pos,
+                    line: token.line,
                     toString: function() {
                         return 'end'
                     }
@@ -802,6 +875,8 @@ function parse(vm, lex) {
         const cmd = {
             type: vm.COMMAND,
             val: token.val,
+            pos: token.pos,
+            line: token.line,
             toString: function() {
                 return `${this.val} ${this.opt}`
             },
@@ -826,7 +901,8 @@ function parse(vm, lex) {
         }
     }
 
-    const rootBlock = new vm.Block()
+    // create and parse root block
+    const rootBlock = new vm.Block(lex)
     doBlock(0, rootBlock)
 
     return rootBlock

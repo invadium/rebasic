@@ -184,6 +184,19 @@ function makeLex(src, getc, retc, eatc, aheadc,
         return dump
     }
 
+    function dumpLine(line, pos) {
+        const lines = src.split('\n')
+        const ln = lines[line-1]
+        if (!ln) return
+
+        let cur = ''
+        for (let j = 0; j < pos-1; j++) cur += ' '
+        cur += '^'
+
+        print(ln)
+        print(cur)
+    }
+
     function dumpSource(shift, pos) {
         let dump = ''
         let cur = ''
@@ -206,11 +219,10 @@ function makeLex(src, getc, retc, eatc, aheadc,
 
     function xerr (msg) {
         dumpSource(lineShift, mark-lineShift)
-        const err = 'error ' + lineNum + '.' + (mark-lineShift) + ': ' + msg
+        const err = 'lex error ' + lineNum + '.' + (mark-lineShift) + ': ' + msg
         //print(err)
         throw err
     }
-    
 
     function markLine () {
         lineNum ++
@@ -307,6 +319,8 @@ function makeLex(src, getc, retc, eatc, aheadc,
                 type: OPERATOR,
                 tab: tab,
                 val: op,
+                pos:  cur() - lineShift,
+                line: lineNum,
             }
         }
 
@@ -326,6 +340,8 @@ function makeLex(src, getc, retc, eatc, aheadc,
                 type: STR,
                 tab: tab,
                 val: s,
+                pos:  cur() - lineShift,
+                line: lineNum,
             }
         }
 
@@ -356,7 +372,9 @@ function makeLex(src, getc, retc, eatc, aheadc,
                 return {
                     type: NUM,
                     tab: tab,
-                    val: n
+                    val: n,
+                    pos:  cur() - lineShift,
+                    line: lineNum,
                 }
             } else if (c === '0' && nextc !== '.' && !isDigit(nextc)) {
                 // hanlde plain 0
@@ -368,6 +386,8 @@ function makeLex(src, getc, retc, eatc, aheadc,
                     type: NUM,
                     tab: tab,
                     val: 0,
+                    pos:  cur() - lineShift,
+                    line: lineNum,
                 }
 
             } else {
@@ -396,6 +416,8 @@ function makeLex(src, getc, retc, eatc, aheadc,
                     type: NUM,
                     tab: tab,
                     val: sign * n,
+                    pos:  cur() - lineShift,
+                    line: lineNum,
                 }
             }
 
@@ -418,6 +440,8 @@ function makeLex(src, getc, retc, eatc, aheadc,
                 type: KEYWORD,
                 tab: tab,
                 val: sym,
+                pos:  cur() - lineShift,
+                line: lineNum,
             }
         }
 
@@ -426,6 +450,8 @@ function makeLex(src, getc, retc, eatc, aheadc,
             type: SYM,
             tab: tab,
             val: sym,
+            pos:  cur() - lineShift,
+            line: lineNum,
         }
     }
 
@@ -476,6 +502,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
         ret: ret,
         skipLine: skipLine,
         err: err,
+        dumpLine: dumpLine,
 
         SYM: SYM,
         NUM: NUM,

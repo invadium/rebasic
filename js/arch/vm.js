@@ -58,7 +58,8 @@ const util = {
 }
 
 class Block {
-    constructor() {
+    constructor(lex) {
+        this.lex = lex
         this.code = []
     }
 
@@ -307,6 +308,7 @@ class VM {
             const placed = this.placeLine(cmd, true)
 
             if (!placed) {
+                // not sourced - parse and run immediately
                 const lex = this.lexFromSource(
                         cmd, this.command.print)
                 const code = this.parse(this, lex)
@@ -314,10 +316,14 @@ class VM {
             }
 
         } catch (e) {
+            this.dumpContext()
             this.command.print('error: ' + e)
             if (this.opt.debug) {
-                const stack = new Error().stack
-                this.command.print(stack)
+                if (e.stack) {
+                    this.command.print(e.stack)
+                }
+                //const stack = new Error().stack
+                //this.command.print(stack)
             }
             if (this.exitOnError) {
                 process.exit(1)
@@ -591,6 +597,7 @@ class VM {
         // execute all statements in the code sequence
         this.pos = pos? pos : 0
         this.code = block.code
+        this.lex = block.lex
         this.interrupted = false
         this.resume()
     }
@@ -670,6 +677,16 @@ class VM {
         this.command.print(WELCOME)
         this.command.print(VERSION)
         this.command.print(READY)
+    }
+
+    dumpContext() {
+        if (!this.code) return
+        const cur = this.code[this.pos]
+        // dump statement object here?
+        // console.dir(cur)
+        if (cur && cur.line && cur.pos && this.lex) {
+            this.lex.dumpLine(cur.line, cur.pos)
+        }
     }
 }
 
