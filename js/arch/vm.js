@@ -40,19 +40,19 @@ const util = {
     expectNumber: function(n) {
         if (typeof n !== 'number'
                 || Number.isNaN(n)) {
-            throw `Number is expected: [${n}]`
+            throw new Error(`Number is expected: [${n}]`)
         }
     },
     expectInteger: function(n) {
         if (typeof n !== 'number'
                 || Number.isNaN(n)
                 || !Number.isInteger(n)) {
-            throw `Integer is expected: [${n}]`
+            throw new Error(`Integer is expected: [${n}]`)
         }
     },
     expectString: function(s) {
         if (typeof s === 'string') {
-            throw `String is expected: [${s}]`
+            throw new Error(`String is expected: [${s}]`)
         }
     },
 }
@@ -109,7 +109,7 @@ class Dim {
         if (this.dim > 1) {
             // multi-dimentional array
             if (!Array.isArray(at) || this.dim !== at.length) {
-                throw `index list of ${this.dim} elements is expected`
+                throw new Error(`index list of ${this.dim} elements is expected`)
             }
 
             let j = 0
@@ -122,7 +122,7 @@ class Dim {
 
         } else {
             // one-dimentional array
-            if (!util.isNumber(at)) throw `array index is expected`
+            if (!util.isNumber(at)) throw new Error(`array index is expected`)
             return this.data[at]
         }
     }
@@ -131,7 +131,7 @@ class Dim {
         if (this.dim > 1) {
             // multi-dimentional array
             if (!Array.isArray(at) || this.dim !== at.length) {
-                throw `index list of ${this.dim} elements is expected`
+                throw new Error(`index list of ${this.dim} elements is expected`)
             }
 
             let j = 0
@@ -145,7 +145,7 @@ class Dim {
 
         } else {
             // one-dimentional array
-            if (!util.isNumber(at)) throw `array index is expected`
+            if (!util.isNumber(at)) throw new Error(`array index is expected`)
             this.data[at] = val
         }
     }
@@ -163,13 +163,13 @@ class Map {
     }
 
     get(key) {
-        if (!key) throw `a map key is expected`
+        if (!key) throw new Error(`a map key is expected`)
         return this.data[key] || -1
     }
 
     set(key, val) {
-        if (!key) throw `a map key is expected`
-        if (!val) throw `a value is expected`
+        if (!key) throw new Error(`a map key is expected`)
+        if (!val) throw new Error(`a value is expected`)
         this.data[key] = val
     }
 
@@ -343,7 +343,7 @@ class VM {
         if (!v) return 'NIL'
         if (!v.get) {
             console.dir(v)
-            throw 'wrong value!'
+            throw new Error('wrong value!')
         }
         return v.get()
     }
@@ -355,7 +355,7 @@ class VM {
     read(name) {
         console.dir(name)
         if (this.dataPos >= this.data.length) {
-            throw 'no data left to read'
+            throw new Error('no data left to read')
         }
         this.assign(name, this.data[this.dataPos++])
     }
@@ -391,7 +391,7 @@ class VM {
         if (this.skipLookup) return { id: name }
         let val = this.scope[name]
         if (val === undefined) {
-            throw `unknown identifier [${name}]`
+            throw new Error(`unknown identifier [${name}]`)
         }
         return val
     }
@@ -409,18 +409,18 @@ class VM {
             val = this.label[name]
             if (val) return name
 
-            throw `unknown identifier [${name}]`
+            throw new Error(`unknown identifier [${name}]`)
         }
         return val
     }
 
     locateElement(name, rval) {
         const variable = this.locate(name)
-        if (!variable) throw `unknown structure [${name}]`
+        if (!variable) throw new Error(`unknown structure [${name}]`)
 
         if (!variable.get) {
             console.dir(variable)
-            throw `can't locate element of [${name}]`
+            throw new Error(`can't locate element of [${name}]`)
         }
         
         return variable.get( this.val(rval) )
@@ -428,7 +428,7 @@ class VM {
 
     assignElement(name, key, rval) {
         const variable = this.locate(name)
-        if (!variable) throw `unknown structure [${name}]`
+        if (!variable) throw new Error(`unknown structure [${name}]`)
 
         variable.set( key.get(), rval.get() )
     }
@@ -437,7 +437,7 @@ class VM {
         const v = this.val(expr)
         //console.log('calling ' + name + '(' + v + ')')
         const fn = this.fun[name]
-        if (!fn) throw `unknown function ${name}()`
+        if (!fn) throw new Error(`unknown function ${name}()`)
 
         if (Array.isArray(v)) {
             return fn.apply(this, v)
@@ -455,7 +455,7 @@ class VM {
             case COMMAND:
                 // command
                 const cmd = this.command[stmt.val]
-                if (!cmd) throw `Unknown command [${stmt.val}]`
+                if (!cmd) throw new Error(`Unknown command [${stmt.val}]`)
 
                 // calculate param set
                 let val
@@ -473,7 +473,7 @@ class VM {
                     case 'goto':
                         const label = this.label[val]
                         if (!label) {
-                            throw `unknown label [${val}]`
+                            throw new Error(`unknown label [${val}]`)
                         }
                         this.code = label.block.code
                         this.pos = label.pos
@@ -482,7 +482,7 @@ class VM {
                     case 'gosub':
                         const subLabel = this.label[val]
                         if (!subLabel) {
-                            throw `unknown label [${val}]`
+                            throw new Error(`unknown label [${val}]`)
                         }
                         this.bstack.push(this.code)
                         this.rstack.push(this.pos)

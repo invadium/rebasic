@@ -176,7 +176,7 @@ function parse(vm, lex) {
                         const v = this.val.get()
                         if (typeof v !== 'number') {
                             // TODO central handling of runtime errors
-                            throw 'number is expected for unary -'
+                            throw new Error('number is expected for unary -')
                         }
                         return v * -1
                     },
@@ -192,7 +192,7 @@ function parse(vm, lex) {
                     get: function unaryPercent() {
                         const v = this.val.get()
                         if (typeof v !== 'number') {
-                            throw 'number is expected for unary %'
+                            throw new Error('number is expected for unary %')
                         }
                         return Math.floor(v)
                     },
@@ -208,7 +208,7 @@ function parse(vm, lex) {
                     get: function unaryTilda() {
                         const v = this.val.get()
                         if (typeof v !== 'number') {
-                            throw 'number is expected for unary ~'
+                            throw new Error('number is expected for unary ~')
                         }
                         return Math.round(v)
                     },
@@ -224,7 +224,7 @@ function parse(vm, lex) {
                     get: function unaryExcl() {
                         const v = this.val.get()
                         if (typeof v !== 'number') {
-                            throw 'number is expected for unary !'
+                            throw new Error('number is expected for unary !')
                         }
                         return Math.ceil(v)
                     },

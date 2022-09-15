@@ -40,7 +40,7 @@ for (let i = 2; i < args.length; i++) {
     } else {
         // expect script name
         if (arg.startsWith('-')) {
-            throw `Unknown option [${arg}]`
+            throw new Error(`Unknown option [${arg}]`)
         }
         scripts.push(arg)
         cmd = 'run'

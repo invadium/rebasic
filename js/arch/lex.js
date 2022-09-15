@@ -129,7 +129,7 @@ function makeInputStream(src) {
     }
 
     function retc() {
-        if (buf) throw "stream buffer overflow"
+        if (buf) throw new Error("stream buffer overflow")
         buf = true
     }
 
@@ -140,7 +140,7 @@ function makeInputStream(src) {
     }
 
     function expectc(c) {
-        if (getc() !== c) throw `${c} is expected`
+        if (getc() !== c) throw new Error(`${c} is expected`)
     }
 
     function eatc(c) {
@@ -151,7 +151,7 @@ function makeInputStream(src) {
     }
 
     function notc(c) {
-        if (getc() === c) throw `${c} is not expected`
+        if (getc() === c) throw new Error(`${c} is not expected`)
     }
 
     return {
@@ -214,14 +214,14 @@ function makeLex(src, getc, retc, eatc, aheadc,
         dumpSource(lineShift, mark-lineShift)
         const err = 'error ' + lineNum + '.' + (mark-lineShift) + ': ' + msg
         //print(err)
-        throw err
+        throw new Error(err)
     }
 
     function xerr (msg) {
         dumpSource(lineShift, mark-lineShift)
         const err = 'lex error ' + lineNum + '.' + (mark-lineShift) + ': ' + msg
         //print(err)
-        throw err
+        throw new Error(err)
     }
 
     function markLine () {
