@@ -57,39 +57,43 @@ fi
 # === run tests === 
 for f in $(find $TESTPATH -name "*.$EXT"); do
 
-t=${f%.$EXT}
-m=$t".$MATCH"
+    t=${f%.$EXT}
+    m=$t".$MATCH"
 
-val=`$EXEC $f`
-match=`cat $m`
-
-if [ "$val" == "$match" ]
-then
     if [ $VERBOSE == 'YES' ]; then
-        echo $t' - OK'
+        echo -n "$t..."
     fi
-    if [ $SOURCE == 'YES' ]; then
-        cat $f
+
+    val=`$EXEC $f`
+    match=`cat $m`
+
+    if [ "$val" == "$match" ]
+    then
+        if [ $VERBOSE == 'YES' ]; then
+            echo 'OK'
+        fi
+        if [ $SOURCE == 'YES' ]; then
+            cat $f
+        fi
+        if [ $TRACE == 'YES' ]; then
+            echo $val' == '$match
+        fi
+    else
+        FAILED=YES
+        if [ $VERBOSE == 'YES' ]; then
+            echo "$t - FAILED ["
+            echo "$val"
+            echo "=============================="
+            echo "$match"
+            echo "]"
+        fi
+        if [ $SOURCE == 'YES' ]; then
+            cat $f
+        fi
+        if [ $TRACE == 'YES' ]; then
+                echo $val' == '$match
+        fi
     fi
-    if [ $TRACE == 'YES' ]; then
-        echo $val' == '$match
-    fi
-else
-    FAILED=YES
-	if [ $VERBOSE == 'YES' ]; then
-        echo "$t - FAILED ["
-        echo "$val"
-        echo "=============================="
-        echo "$match"
-        echo "]"
-    fi
-	if [ $SOURCE == 'YES' ]; then
-		cat $f
-	fi
-	if [ $TRACE == 'YES' ]; then
-	    	echo $val' == '$match
-	fi
-fi
 done
 
 if [ $FAILED == 'YES' ]; then
