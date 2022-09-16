@@ -566,7 +566,7 @@ class VM {
                 this.assign(cfor.cvar, i)
 
                 if (i <= to) {
-                    this.pos = cfor.pos
+                    this.pos = cfor.jumpTo
                 }
                 break
 

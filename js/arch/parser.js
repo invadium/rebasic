@@ -816,7 +816,7 @@ function parse(vm, lex) {
                     lval: lval,
                     rval: rval,
                     step: step,
-                    pos: block.length() + 1,
+                    jumpTo: block.length() + 1,
 
                     pos: token.pos,
                     line: token.line,
