@@ -185,7 +185,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
         return dump
     }
 
-    function dumpLine(line, pos) {
+    function dumpLine(line, pos, dprint) {
         const lines = src.split('\n')
         const ln = lines[line-1]
         if (!ln) return
@@ -194,8 +194,13 @@ function makeLex(src, getc, retc, eatc, aheadc,
         for (let j = 0; j < pos-1; j++) cur += ' '
         cur += '^'
 
-        print(ln)
-        print(cur)
+        if (dprint) {
+            dprint(ln)
+            dprint(cur)
+        } else {
+            print(ln)
+            print(cur)
+        }
     }
 
     function dumpSource(shift, pos) {
@@ -213,14 +218,14 @@ function makeLex(src, getc, retc, eatc, aheadc,
 
     function err(msg) {
         dumpSource(lineShift, mark-lineShift)
-        const err = 'error ' + lineNum + '.' + (mark-lineShift) + ': ' + msg
+        const err = '' + lineNum + '.' + (mark-lineShift) + ': ' + msg
         //print(err)
         throw new Error(err)
     }
 
     function xerr (msg) {
         dumpSource(lineShift, mark-lineShift)
-        const err = 'lex error ' + lineNum + '.' + (mark-lineShift) + ': ' + msg
+        const err = '' + lineNum + '.' + (mark-lineShift) + ': ' + msg
         //print(err)
         throw new Error(err)
     }

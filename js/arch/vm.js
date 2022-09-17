@@ -209,6 +209,7 @@ class VM {
         this.ram = []
         this.lines = []
 
+        this.opt = {}
         this.label = {}
         this.command = {
             'goto': true,
@@ -252,7 +253,7 @@ class VM {
             // execute current command sequence in a loop
             // interrupt and reschedule on outputs or cycles limit
             while(!vm.interrupted && vm.pos < vm.code.length) {
-                vm.next(vm.code[vm.pos ++])
+                vm.next(vm.code[vm.pos++])
 
                 if (vm.outputs > vm.MAX_OUTPUTS) {
                     vm.outputs = 0
@@ -310,26 +311,30 @@ class VM {
 
     processCommand(cmd) {
         if (!cmd) return
-        try {
-            const placed = this.placeLine(cmd, true)
+        const placed = this.placeLine(cmd, true)
 
+        try {
             if (!placed) {
                 // not sourced - parse and run immediately
                 const lex = this.lexFromSource(
                         cmd, this.command.print)
                 const code = this.parse(this, lex)
-                this.run(code, 0)
+                this.run(code, 0, true)
             }
 
         } catch (e) {
-            this.dumpContext()
-            this.command.print(e)
-            if (this.opt.debug) {
-                if (e.stack) {
-                    this.command.print(e.stack)
-                }
-                //const stack = new Error().stack
-                //this.command.print(stack)
+            if (!this.replMode) {
+                this.dumpContext()
+            }
+
+            this.command.print(e.message)
+            if (this.opt.errToConsole) {
+                // graphical output, so print to console as well
+                console.log(e)
+            }
+
+            if (this.opt.debug && !this.opt.errToConsole && e.stack) {
+                this.command.print(e.stack)
             }
             if (this.exitOnError) {
                 process.exit(1)
@@ -618,8 +623,9 @@ class VM {
         }
     }
 
-    run(block, pos) {
+    run(block, pos, replMode) {
         // execute all statements in the code sequence
+        this.replMode = !!replMode
         this.pos = pos? pos : 0
         this.code = block.code
         this.lex = block.lex
@@ -706,11 +712,16 @@ class VM {
 
     dumpContext() {
         if (!this.code) return
-        const cur = this.code[this.pos]
+
+        const pos = this.pos > 0? this.pos - 1 : 0
+        const cur = this.code[pos]
         // dump statement object here?
         // console.dir(cur)
         if (cur && cur.line && cur.pos && this.lex) {
             this.lex.dumpLine(cur.line, cur.pos)
+            if (this.opt.errToConsole) {
+                this.lex.dumpLine(cur.line, cur.pos, (line) => console.log(line) )
+            }
         }
     }
 }
