@@ -29,6 +29,7 @@ const OP = [
 const KEYWORDS = [
     'rem',
     'let',
+    'read',
     'data',
     'if',
     'then',

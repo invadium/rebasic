@@ -15,6 +15,9 @@ const END       = 9
 const LET_EL    = 10
 const READ      = 11
 
+const CALL      = 12
+const VAR_LOC   = 13
+
 function vmPrint() {
     for (let i = 0; i < arguments.length; i++) {
         console.log(arguments[i])
@@ -193,6 +196,9 @@ class VM {
         this.END       = END
         this.LET_EL    = LET_EL
         this.READ      = READ
+
+        this.CALL      = CALL
+        this.VAR_LOC   = VAR_LOC
         // export classes
         this.Dim = Dim
         this.Map = Map
@@ -317,7 +323,7 @@ class VM {
 
         } catch (e) {
             this.dumpContext()
-            this.command.print('error: ' + e)
+            this.command.print(e)
             if (this.opt.debug) {
                 if (e.stack) {
                     this.command.print(e.stack)
@@ -352,12 +358,21 @@ class VM {
         this.data.push(val)
     }
 
-    read(name) {
-        console.dir(name)
+    read(opt) {
         if (this.dataPos >= this.data.length) {
             throw new Error('no data left to read')
         }
-        this.assign(name, this.data[this.dataPos++])
+
+        const dataItem = this.data[this.dataPos++]
+        if (opt.type === CALL) {
+            // reading to dim/map
+            this.assignElementVal(opt.lval, opt.rval, dataItem)
+        } else if (opt.type === VAR_LOC) {
+            // reading to a variable
+            this.assign(opt.val, dataItem)
+        } else {
+            throw new Error(`can't read [${'' + opt}]`)
+        }
     }
 
     defineFun(name, fn) {
@@ -431,6 +446,13 @@ class VM {
         if (!variable) throw new Error(`unknown structure [${name}]`)
 
         variable.set( key.get(), rval.get() )
+    }
+
+    assignElementVal(name, key, val) {
+        const variable = this.locate(name)
+        if (!variable) throw new Error(`unknown structure [${name}]`)
+
+        variable.set( key.get(), val )
     }
 
     call(name, expr) {
@@ -530,14 +552,17 @@ class VM {
                 break
 
             case READ:
-                console.log('!!!!')
-                const opt = stmt.opt
-                if (opt.list) {
-                    for (let i = 0; i < opt.list.length; i++) {
-                        this.read(opt.list[i].val)
+                //console.log('=== executing read! ===')
+                //console.log(stmt.toString())
+                //console.dir(stmt)
+
+                const readVars = stmt.rval
+                if (readVars.list) {
+                    for (let i = 0; i < readVars.list.length; i++) {
+                        this.read(readVars.list[i])
                     }
                 } else {
-                    this.read(opt.val)
+                    this.read(readVars)
                 }
                 break
 

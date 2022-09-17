@@ -101,9 +101,10 @@ function parse(vm, lex) {
             }
 
             return {
+                type: vm.CALL,
                 lval: token.val,
                 rval: rval,
-                get: function call() {
+                get: function fnCallOrArray() {
                     // try to locate a variable
                     const variable = vm.probe(this.lval)
 
@@ -118,7 +119,9 @@ function parse(vm, lex) {
                 },
                 pos: token.pos,
                 line: token.line,
-                toString: unaryOpToString,
+                toString: function() {
+                    return `${this.lval}(${this.rval})`
+                },
             }
         }
 
@@ -136,11 +139,12 @@ function parse(vm, lex) {
         } else  {
             // variable locator
             return {
+                type: vm.VAR_LOC,
                 val: token.val,
-                bind: vm,
                 get: function value() {
-                    return this.bind.locate(this.val)
+                    return vm.locate(this.val)
                 },
+
                 pos: token.pos,
                 line: token.line,
                 toString: () => token.val,
@@ -733,18 +737,17 @@ function parse(vm, lex) {
                 }
 
             } else if (token.val === 'read') {
-                console.log('reader!!!')
-
-                const opt = doExprList(token.val)
+                const rval = doExprList(token.val)
 
                 return {
                     type: vm.READ,
-                    lval: token.val,
+                    rval: rval,
+                    immediate: true,
 
                     pos: token.pos,
                     line: token.line,
                     toString: function() {
-                        return `map ${this.lval}`
+                        return `read ${this.rval}`
                     },
                 }
 
@@ -875,6 +878,7 @@ function parse(vm, lex) {
         const cmd = {
             type: vm.COMMAND,
             val: token.val,
+
             pos: token.pos,
             line: token.line,
             toString: function() {
@@ -885,8 +889,7 @@ function parse(vm, lex) {
         const opt = doExprList(token.val)
         if (opt) cmd.opt = opt
 
-        if (token.val === 'read'
-                || token.val === 'input'
+        if (token.val === 'input'
                 || token.val === 'help') {
             cmd.immediate = true
         }
