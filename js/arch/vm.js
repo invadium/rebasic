@@ -18,6 +18,10 @@ const READ      = 11
 const CALL      = 12
 const VAR_LOC   = 13
 
+const NIL       = 101
+const COMMA     = 102
+const SEMICOLON = 103
+
 function vmPrint() {
     for (let i = 0; i < arguments.length; i++) {
         console.log(arguments[i])
@@ -199,6 +203,9 @@ class VM {
 
         this.CALL      = CALL
         this.VAR_LOC   = VAR_LOC
+        this.NIL       = NIL
+        this.COMMA     = COMMA
+        this.SEMICOLON = SEMICOLON
         // export classes
         this.Dim = Dim
         this.Map = Map

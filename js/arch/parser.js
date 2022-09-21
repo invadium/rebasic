@@ -531,6 +531,13 @@ function parse(vm, lex) {
     }
 
     function doExpr() {
+        const ahead = lex.ahead()
+        if (ahead.type === lex.OPERATOR && ahead.val === ',') {
+            return {
+                type: vm.NIL,
+                get: () => '<NIL>',
+            }
+        }
         return exprOR()
     }
 
@@ -553,6 +560,7 @@ function parse(vm, lex) {
                 if (next.val === ';') {
                     // print val is closed by a semicolon
                     list.push({
+                        type: vm.SEMICOLON,
                         get: () => {
                             return { semi: true }
                         }
@@ -560,6 +568,7 @@ function parse(vm, lex) {
                 } else if (next.val === ',') {
                     // print val is closed by a comma
                     list.push({
+                        type: vm.COMMA,
                         get: () => {
                             return { comma: true }
                         }
