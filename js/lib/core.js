@@ -23,13 +23,13 @@ const core = {
             Object.keys(vm.command).forEach(cmd => {
                 if (cmd.startsWith('_')) return
                 const obj = vm.command[cmd]
-                if (typeof obj !== 'function') return
+                if (typeof obj !== 'function' || obj.service) return
                 vm.command.print(cmd + ' ', { semi: true })
             })
-            Object.keys(vm.fun).forEach(fn=> {
+            Object.keys(vm.fun).forEach(fn => {
                 if (fn.startsWith('_')) return
                 const obj = vm.fun[fn]
-                if (typeof obj !== 'function') return
+                if (typeof obj !== 'function' || obj.service) return
                 vm.command.print(fn + '() ', { semi: true })
             })
             vm.command.print('')
