@@ -14,6 +14,7 @@ const OP = [
     '\\',
     '^',
     '~',
+    '%',
     '!',
     '+',
     '-',
@@ -46,6 +47,7 @@ const KEYWORDS = [
     'not',
     'and',
     'or',
+    'mod',
 
     'true',
     'false',

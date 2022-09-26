@@ -291,7 +291,6 @@ function parse(vm, lex) {
                     line: token.line,
                     toString: binaryOpToString,
                 })
-
             } else if (token.val === '%') {
                 const rval = expectVal(exprUN)
                 return moreMD({
@@ -304,7 +303,6 @@ function parse(vm, lex) {
                     line: token.line,
                     toString: binaryOpToString,
                 })
-
             } else if (token.val === '^') {
                 const rval = expectVal(atomicVal)
 
@@ -320,7 +318,21 @@ function parse(vm, lex) {
                     toString: binaryOpToString,
                 }
             }
-        } 
+        } else if (token.type === lex.KEYWORD) {
+            if (token.val === 'mod') {
+                const rval = expectVal(exprUN)
+                return moreMD({
+                    lval: lval,
+                    rval: rval,
+                    get: function mod() {
+                        return this.lval.get() % this.rval.get()
+                    },
+                    pos: token.pos,
+                    line: token.line,
+                    toString: binaryOpToString,
+                })
+            }
+        }
         lex.ret()
         return lval
     }

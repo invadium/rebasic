@@ -411,7 +411,7 @@ class VM {
             const n = parseFloat(val)
             if (!isNaN(n)) {
                 val = n
-                if (name.endsWith('%')) val = Math.round(val)
+                //if (name.endsWith('%')) val = Math.round(val)
             }
         }
         this.scope[name] = val
