@@ -409,7 +409,10 @@ class VM {
         // handle possible number values
         if (!name.endsWith('$')) {
             const n = parseFloat(val)
-            if (!isNaN(n)) val = n
+            if (!isNaN(n)) {
+                val = n
+                if (name.endsWith('%')) val = Math.round(val)
+            }
         }
         this.scope[name] = val
     }
