@@ -246,7 +246,7 @@ class VM {
 
             if (vm.interrupted && vm.resumeOnInput) {
                 // vm waits for input
-                vm.assign(vm.inputTarget, cmd)
+                vm.assignTarget(vm.inputTarget, cmd)
                 vm.interrupted = false
                 vm.resume()
 
@@ -417,6 +417,25 @@ class VM {
         this.scope[name] = val
     }
 
+    assignTarget(target, val) {
+        const name = target.id
+        // handle possible number values based on $ flag
+        if (!name.endsWith('$')) {
+            const n = parseFloat(val)
+            if (!isNaN(n)) {
+                val = n
+                //if (name.endsWith('%')) val = Math.round(val)
+            }
+        }
+
+        if (target.index) {
+            // dealing with dim or map
+            this.assignElementPlain(name, target.index, val)
+        } else {
+            this.scope[name] = val
+        }
+    }
+
     load(name) {
         if (this.skipLookup) return { id: name }
         let val = this.scope[name]
@@ -448,6 +467,12 @@ class VM {
         const variable = this.locate(name)
         if (!variable) throw new Error(`unknown structure [${name}]`)
 
+        if (this.skipLookup) {
+            // we are in the input state, so don't have to locate value
+            variable.index = this.val(rval)
+            return variable
+        }
+
         if (!variable.get) {
             console.dir(variable)
             throw new Error(`can't locate element of [${name}]`)
@@ -457,17 +482,24 @@ class VM {
     }
 
     assignElement(name, key, rval) {
-        const variable = this.locate(name)
-        if (!variable) throw new Error(`unknown structure [${name}]`)
+        const struct = this.locate(name)
+        if (!struct) throw new Error(`unknown structure [${name}]`)
 
-        variable.set( key.get(), rval.get() )
+        struct.set( key.get(), rval.get() )
     }
 
     assignElementVal(name, key, val) {
-        const variable = this.locate(name)
-        if (!variable) throw new Error(`unknown structure [${name}]`)
+        const struct = this.locate(name)
+        if (!struct) throw new Error(`unknown structure [${name}]`)
 
-        variable.set( key.get(), val )
+        struct.set( key.get(), val )
+    }
+
+    assignElementPlain(name, key, val) {
+        const struct = this.locate(name)
+        if (!struct) throw new Error(`unknown structure [${name}]`)
+
+        struct.set( key, val )
     }
 
     call(name, expr) {
@@ -733,6 +765,14 @@ class VM {
                 this.lex.dumpLine(cur.line, cur.pos, (line) => console.log(line) )
             }
         }
+    }
+
+    dumpCode() {
+        if (!this.code) return
+
+        const pos = this.pos > 0? this.pos - 1 : 0
+        const cur = this.code[pos]
+        console.dir(cur)
     }
 }
 

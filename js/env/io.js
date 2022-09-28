@@ -66,8 +66,8 @@ function ioInput(then) {
         const v = arguments[i]
 
         if (typeof v === 'object' && v.id) {
-            this.inputTarget = v.id
-            this.assign(v.id, 'waiting for values')
+            // we need to preserve input target, so vm can assign input later
+            this.inputTarget = v
         } else {
             process.stdout.write('' + v + ' ')
         }
