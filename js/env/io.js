@@ -134,9 +134,10 @@ save.man = 'save a program to file'
 
 module.exports = {
     open,
-    print: ioPrint,
-    input: ioInput,
-    cls: ioCls,
+    print:  ioPrint,
+    input:  ioInput,
+    cls:    ioCls,
+    home:   ioCls,
     load,
     save,
     close,
