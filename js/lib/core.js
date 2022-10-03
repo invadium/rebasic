@@ -65,10 +65,20 @@ const core = {
         this.clearScope()
     },
 
-    run: function() {
+    run: function(n) {
         const lex = this.lexFromSource(
                 this.source(), this.command.print)
         const code = this.parse(this, lex)
+
+        if (n) {
+            // run from a label
+            const label = this.label[n]
+            if (label) {
+                this.code = label.block.code
+                this.pos  = label.pos
+                return
+            }
+        }
         this.run(code, 0)
     },
 
