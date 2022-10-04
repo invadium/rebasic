@@ -36,14 +36,16 @@ const core = {
         }
     },
 
-    env: function(fn) {
+    env: function(filter) {
         const vm = this
         Object.keys(vm.scope).forEach(key => {
-            let val = vm.scope[key]
-            if (typeof val === 'string') {
-                val = '"' + val + '"'
+            if (!filter || key.includes(filter)) {
+                let val = vm.scope[key]
+                if (typeof val === 'string') {
+                    val = '"' + val + '"'
+                }
+                vm.command.print(key + '=' + val + ' ', { semi: true })
             }
-            vm.command.print(key + '=' + val + ' ', { semi: true })
         })
         vm.command.print('')
     },
