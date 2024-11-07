@@ -171,13 +171,13 @@ class Map {
 
     get(key) {
         if (!key) throw new Error(`a map key is expected`)
-        return this.data[key] || -1
+        return this.data[key.toLowerCase()] || -1
     }
 
     set(key, val) {
         if (!key) throw new Error(`a map key is expected`)
         if (!val) throw new Error(`a value is expected`)
-        this.data[key] = val
+        this.data[key.toLowerCase()] = val
     }
 
     toString() {
