@@ -680,6 +680,12 @@ function parse(vm, lex) {
                     }
                 }
             }
+        } else if (token.type === lex.OPERATOR) {
+            if (token.val === '#' || token.val === '`') {
+                lex.skipLine()
+                return doStatement(block)
+            }
+
         } else if (token.type === lex.KEYWORD) {
 
             if (token.val === 'rem') {

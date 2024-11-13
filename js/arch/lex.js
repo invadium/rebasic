@@ -24,6 +24,8 @@ const OP = [
     ',',
     ':',
     ';',
+    '`',
+    '#',
 ]
 
 const KEYWORDS = [
