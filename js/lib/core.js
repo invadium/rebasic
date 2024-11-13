@@ -54,13 +54,28 @@ const core = {
         this.command.print(this.source(from, to))
     },
 
+    'list!': function(from, to) {
+        this.command.cls.call(this)
+        this.command.print(this.source(from, to))
+    },
+
     listo: function(to) {
+        this.command.print(this.source(0, to))
+    },
+
+    'listo!': function(to) {
+        this.command.cls.call(this)
         this.command.print(this.source(0, to))
     },
 
     'new': function() {
         this.clearScope()
         this.clearSource()
+    },
+
+    'new!': function() {
+        this.command.cls.call(this)
+        this.command.new.call(this)
     },
 
     clr: function() {
@@ -82,6 +97,11 @@ const core = {
             }
         }
         this.run(code, 0)
+    },
+
+    'run!': function(n) {
+        this.command.cls.call(this)
+        this.command.run.call(this, n)
     },
 
     poke: function(n, v) {
@@ -114,12 +134,25 @@ core.help.man = 'list all commands and functions\n'
 core.env.man = 'list all defined variables with their values'
 
 core.list.usage = '(from), (to)'
-core.list.man = 'list basic source'
+core.list.man = 'list the source'
+
+core['list!'].usage = '(from), (to)'
+core['list!'].man = 'list the source after clearing the screen'
 
 core.listo.usage = '(to)'
 core.listo.man = 'list basic source up to the specified line'
 
+core['listo!'].usage = '(to)'
+core['listo!'].man = 'list basic source up to the specified line after clearing the screen'
+
+core.run.usage = '<from line/label>'
+core.run.man = 'run the program (starting from line/label when provided)'
+
+core['run!'].usage = '<from line/label>'
+core['run!'].man = 'run the program after clearing the screen'
+
 core['new'].man = 'erase current program'
+core['new!'].man = 'erase current program and clear the screen'
 
 core.clr.man = 'erase all defined variables'
 
