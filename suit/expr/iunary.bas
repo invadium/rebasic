@@ -1,5 +1,10 @@
-print 2.5
+print 5.5
 print %2.9
-print ~2.1
-print ~2.5
+print %2.5
+print %2.3
+print ~3.1
+print ~3.5
+print ~3.9
 print !4.1
+print !4.5
+print !4.9
