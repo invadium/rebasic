@@ -23,9 +23,7 @@ const OP = [
     '=',
     ',',
     ':',
-    ';',
-    '`',
-    '#',
+    ';'
 ]
 
 const KEYWORDS = [
@@ -290,7 +288,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
             return parseNext()
         }
 
-        if (c === '#') return afterLineComment()
+        if (c === '#' || c === '`') return afterLineComment()
 
         // skip -- and multiline ---- comments
         if (c === '-' || c === '=') {
@@ -436,6 +434,11 @@ function makeLex(src, getc, retc, eatc, aheadc,
 
         let sym = ''
         while ( isAlphaNum(c) ) {
+            sym += c
+            c = getc() 
+        }
+        if (c === '!') {
+            // eat the trailing !
             sym += c
             c = getc() 
         }
