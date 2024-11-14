@@ -310,8 +310,12 @@ class VM {
             this.lastLine ++
             ln = this.lastLine
         }
-        if (!cmdLine) this.lines[ln] = false // clear the line
-        else this.lines[ln] = line
+        if (!cmdLine) {
+            this.lines[ln] = false // clear the line
+        } else {
+            this.lines[ln] = line
+            if (this.onNewLine) this.onNewLine(ln)
+        }
 
         return true
     }
