@@ -96,6 +96,7 @@ const core = {
                 return
             }
         }
+        this.onRun()
         this.run(code, 0)
     },
 

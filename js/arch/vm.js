@@ -1,4 +1,3 @@
-
 const WELCOME = "Welcome back to basic!"
 const VERSION = "Rebasic Version 0.1"
 const READY  = "Ready..."
@@ -237,9 +236,10 @@ class VM {
         this.rstack = []
         this.data = []
         this.dataPos = 0
-        this.interrupted = false
         this.skipLookup = false
         this.util = util
+        this.interrupt()
+        this.loop = false
 
         const vm = this
         this.inputHandler = function(cmd) {
@@ -249,11 +249,16 @@ class VM {
                 vm.assignTarget(vm.inputTarget, cmd)
                 vm.interrupted = false
                 vm.resume()
+                vm.onInput(true)
 
             } else {
                 vm.processCommand(cmd)
+                vm.onInput(false)
             }
         }
+        this.onRun   = function() {}
+        this.onStop  = function() {}
+        this.onInput = function() {}
 
         this.resume = function() {
             // main vm execution cycle
@@ -262,6 +267,7 @@ class VM {
             while(!vm.interrupted && vm.pos < vm.code.length) {
                 vm.next(vm.code[vm.pos++])
 
+                // reschedule the next batch if needed
                 if (vm.outputs > vm.MAX_OUTPUTS) {
                     vm.outputs = 0
                     setTimeout(vm.resume, 0)
@@ -276,6 +282,14 @@ class VM {
 
             if (!vm.interrupted && !vm.loop) {
                 vm.command.close()
+            }
+
+            if (vm.pos === vm.code.length
+                    && !vm.resumeOnInput
+                    && vm.rstack.length === 0
+                    && vm.loop) {
+                vm.interrupted = true
+                vm.onStop()
             }
         }
     }
