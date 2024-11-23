@@ -896,7 +896,6 @@ function parse(vm, lex) {
             }
         }
 
-
         const cmd = {
             type: vm.COMMAND,
             val: token.val,
@@ -912,7 +911,8 @@ function parse(vm, lex) {
         if (opt) cmd.opt = opt
 
         if (token.val === 'input'
-                || token.val === 'help') {
+                || token.val === 'help'
+                || token.val === 'help!') {
             cmd.immediate = true
         }
 

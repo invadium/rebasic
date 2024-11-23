@@ -36,6 +36,12 @@ const core = {
         }
     },
 
+    'help!': function(name) {
+        const vm = this
+        vm.command.cls.call(vm)
+        vm.command.help.call(vm, name)
+    },
+
     env: function(filter) {
         const vm = this
         Object.keys(vm.scope).forEach(key => {
