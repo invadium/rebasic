@@ -1,0 +1,7 @@
+# core help
+
+>> list (from), (to) - list the program source
+
+usage:
+    list - show all sources
+    list 50, 500 - show the source from the 50th line up to the 500th line
