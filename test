@@ -1,4 +1,4 @@
 #!/bin/sh
 
-./retest -v $%
+bash ./retest -v $%
 

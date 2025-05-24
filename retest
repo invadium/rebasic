@@ -1,83 +1,136 @@
 #!/bin/bash
 
-#
-# TODO:
-# > filter full names to run a subset (e.g. "stmt", "math", "unit-one")
+# reBASIC
+RETEST_PATH=./suit
+RETEST_EXEC=./rebasic
+RETEST_CASE_EXT=bas
+RETEST_EXPECT_EXT=res
 
-# === process params ===
+# test state
+FAILED=NO # a test suit failed flag
+
+# === test config ===
+# source data config
+export RETEST_PATH=${RETEST_PATH:-"./test"}  # a path for test cases lookup
+EXEC=${RETEST_EXEC:-"bash"}           # an interpreter for test execution
+CASE=${RETEST_CASE_EXT:-"case"}       # a file extention for test cases
+EXPECT=${RETEST_EXPECT_EXT:-"expect"} # a file extention for expected results
+# output flags
 HELP=NO
 VERBOSE=NO
 TRACE=NO
 SOURCE=NO
-TESTPATH="./suit"
 
-EXEC="./rebasic"
-EXT="bas"
-MATCH="res"
+# parse and apply command line arguments
+#for i in "$@"; do
 
-FAILED=NO
+while [[ $# -gt 0 ]]
+do
+    key="${1}"
 
-for i in "$@"; do
-
-case $i in
-    -h|--help)
-    HELP=YES
-    ;;
-    -v|--verbose)
-    VERBOSE=YES
-    ;;
-    -t|--trace)
-    TRACE=YES
-    ;;
-    -s|--source)
-    SOURCE=YES
-    ;;
-    -p|--path)
-    TESTPATH="${i#*=}"
-    ;;
-    *)
-    ;;
-esac
+    case ${key} in
+        -h|--help)
+        HELP=YES
+        shift
+        ;;
+        -v|--verbose)
+        VERBOSE=YES
+        shift
+        ;;
+        -t|--trace)
+        TRACE=YES
+        shift
+        ;;
+        -s|--source)
+        SOURCE=YES
+        shift
+        ;;
+        -p|--path)
+        RETEST_PATH="${2}"
+        shift
+        shift
+        ;;
+        -c|--case)
+        CASE="${2}"
+        shift
+        shift
+        ;;
+        -x|--exec)
+        EXEC="${2}"
+        shift
+        shift
+        ;;
+        -e|--expect)
+        EXPECT="${2}"
+        shift
+        shift
+        ;;
+        *)
+        shift
+        ;;
+    esac
 done
 
 # === help ===
 if [ $HELP == 'YES' ]; then
-    echo 'ReTest - Bash Sequenced Test Suite'
-    echo '    search and evaluates all *test files in test folder'
-    echo '    shows only FAILED tests by default'
+    echo 'ReTest - a minimalistic bash-powered test framework'
+    echo '    searches and evaluates all *.case files in the ./test folder'
+    echo '    shows only the FAILED tests by default'
     echo ''
     echo 'Usage: retest [OPTION]...'
     echo ''
-    echo 'Example: ./retest -v -t'
+    echo 'Example: ./retest -t -p test-suit.2 -c py -e'
     echo ''
     echo 'Available Options:'
-    echo '    -v, --verbose output all test results'
-    echo '    -t, --trace   show evaluation results'
-    echo '    -s, --source  show test sources'
-    echo '    -p, --path    path to the test folder, [./test] by default'
+    echo '    -p | --path    path to the test folder, "./test" by default'
+    echo '    -x | --exec    an interpreter for test cases, "bash" by default'
+    echo '    -c | --case    case files extention, "case" by default'
+    echo '    -e | --expect  expected data file extention, "expect" by default'
+    echo '    -v | --verbose show all test results'
+    echo '    -t | --trace   show evaluation results'
+    echo '    -s | --source  show test sources'
     exit 0
 fi
 
-# === run tests === 
-for f in $(find $TESTPATH -name "*.$EXT"); do
+# save base dir
+baseDir=`pwd`
 
-    t=${f%.$EXT}
-    m=$t".$MATCH"
+# === find and run all the tests === 
+if [ $TRACE == 'YES' ]; then
+    echo "=============================================="
+    echo "reTest Order Tree:"
+    find $RETEST_PATH -name "*.$CASE" | sort
+    echo "=============================================="
+fi
+for f in $(find $RETEST_PATH -name "*.$CASE" | sort); do
 
-    if [ $VERBOSE == 'YES' ]; then
-        echo -n "$t..."
-    fi
+    test=${f%.$CASE}       # test case name with path included and extension excluded
+    dir=`dirname $f`       # test case directory
+    case=`basename $f`     # test case file name
+    name=${case%.$CASE}    # pure test case name (no extension)
+    expect=$name".$EXPECT" # derive an expected data file name from the name
 
+    # run the test
     val=`$EXEC $f`
-    match=`cat $m`
+
+    # set the test directory
+    cd $dir
+
+    if [ ! -f $expect ]; then
+        echo "Missing [$test.$EXPECT] to match expected results"
+        match='Missing Data'
+    else
+        match=`cat $expect`
+    fi
 
     if [ "$val" == "$match" ]
     then
         if [ $VERBOSE == 'YES' ]; then
-            echo 'OK'
+            echo $test' - OK'
         fi
         if [ $SOURCE == 'YES' ]; then
-            cat $f
+            echo "=== $f ==="
+            cat $case
         fi
         if [ $TRACE == 'YES' ]; then
             echo $val' == '$match
@@ -85,23 +138,31 @@ for f in $(find $TESTPATH -name "*.$EXT"); do
     else
         FAILED=YES
         if [ $VERBOSE == 'YES' ]; then
-            echo "$t - FAILED ["
+            echo "$test - FAILED ["
             echo "$val"
             echo "=============================="
             echo "$match"
             echo "]"
         fi
         if [ $SOURCE == 'YES' ]; then
-            cat $f
+            echo "=== $f ==="
+            cat $case
         fi
         if [ $TRACE == 'YES' ]; then
-                echo $val' == '$match
+            echo $val' == '$match
         fi
     fi
+
+    # jump back to base
+    cd $baseDir
 done
 
 if [ $FAILED == 'YES' ]; then
-    echo 'FAILED - Test Suit completed with errors'
+    if [ $VERBOSE == 'YES' ]; then
+        echo 'FAILED - Test Suit completed with errors'
+    else
+        echo 'FAILED'
+    fi
     exit 1
 else
 	#if [ $VERBOSE == 'YES' ]; then
@@ -109,4 +170,3 @@ else
     #fi
     exit 0
 fi
-
