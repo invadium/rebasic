@@ -32,6 +32,9 @@ const KEYWORDS = [
     'read',
     'data',
     'if',
+    'on',
+    'goto',
+    'gosub',
     'then',
     'else',
     'for',
@@ -51,8 +54,6 @@ const KEYWORDS = [
 
     'true',
     'false',
-    'on',
-    'off',
     'enabled',
     'disabled',
 ]

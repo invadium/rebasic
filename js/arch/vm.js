@@ -1,21 +1,26 @@
-const WELCOME = "Welcome back to basic!"
-const VERSION = "Rebasic Version 0.1"
-const READY  = "Ready..."
+const WELCOME = "Welcome to ReBASIC, Version 0.2!"
+const HELP    = 'Enter "help" for instructions.'
+const READY   = "Ready..."
 
 const COMMAND   = 1
 const LET       = 2
 const DIM       = 3
 const MAP       = 4
 const IF        = 5
-const FOR       = 6
-const NEXT      = 7
-const RETURN    = 8
-const END       = 9
-const LET_EL    = 10
-const READ      = 11
+const ON_GOTO   = 6
+const ON_GOSUB  = 7
+const FOR       = 8
+const NEXT      = 9
+const RETURN    = 10
+const END       = 11
+const LET_EL    = 12
+const READ      = 13
 
-const CALL      = 12
-const VAR_LOC   = 13
+const GOTO      = 21
+const GOSUB     = 22
+
+const CALL      = 31
+const VAR_LOC   = 32
 
 const NIL       = 101
 const COMMA     = 102
@@ -193,12 +198,17 @@ class VM {
         this.DIM       = DIM
         this.MAP       = MAP
         this.IF        = IF
+        this.ON_GOTO   = ON_GOTO
+        this.ON_GOSUB  = ON_GOSUB
         this.FOR       = FOR
         this.NEXT      = NEXT
         this.RETURN    = RETURN
         this.END       = END
         this.LET_EL    = LET_EL
         this.READ      = READ
+
+        this.GOTO      = GOTO
+        this.GOSUB     = GOSUB
 
         this.CALL      = CALL
         this.VAR_LOC   = VAR_LOC
@@ -218,12 +228,13 @@ class VM {
         this.opt = {}
         this.label = {}
         this.command = {
-            'goto': true,
-            'gosub': true,
-            'read': true,
+            'goto':    true,
+            'gosub':   true,
+            'on':      true,
+            'read':    true,
             'restore': true,
-            'print': vmPrint,
-            'input': vmInput,
+            'print':   vmPrint,
+            'input':   vmInput,
         }
         this.fun = {}
         this.scope = {}
@@ -563,7 +574,7 @@ class VM {
                             throw new Error(`unknown label [${val}]`)
                         }
                         this.code = label.block.code
-                        this.pos = label.pos
+                        this.pos  = label.pos
                         break
 
                     case 'gosub':
@@ -574,9 +585,8 @@ class VM {
                         this.bstack.push(this.code)
                         this.rstack.push(this.pos)
                         this.code = subLabel.block.code
-                        this.pos = subLabel.pos
+                        this.pos  = subLabel.pos
                         break
-
 
                     case 'restore':
                         this.dataPos = 0
@@ -638,6 +648,36 @@ class VM {
                     this.next(stmt.lstmt)
                 } else {
                     this.next(stmt.rstmt)
+                }
+                break
+
+            case ON_GOTO:
+                const gotoSelector = this.load(stmt.lval) - 1
+                const gotoLabelName = stmt.labels[gotoSelector]
+
+                if (gotoLabelName) {
+                    // found a label to jump to
+                    const gotoLabel = this.label[gotoLabelName]
+                    this.code = gotoLabel.block.code
+                    this.pos = gotoLabel.pos
+                } else {
+                    throw new Error(`no goto label selected for [${gotoSelector}]`)
+                }
+                break
+
+            case ON_GOSUB:
+                const gosubSelector = this.load(stmt.lval) - 1
+                const gosubLabelName = stmt.labels[gosubSelector]
+
+                if (gosubLabelName) {
+                    // found a label to jump to
+                    const gosubLabel = this.label[gosubLabelName]
+                    this.bstack.push(this.code)
+                    this.rstack.push(this.pos)
+                    this.code = gosubLabel.block.code
+                    this.pos  = gosubLabel.pos
+                } else {
+                    throw new Error(`no gosub label selected for [${gosubSelector}]`)
                 }
                 break
 
@@ -766,7 +806,7 @@ class VM {
 
     printWelcome() {
         this.command.print(WELCOME)
-        this.command.print(VERSION)
+        this.command.print(HELP)
         this.command.print(READY)
     }
 

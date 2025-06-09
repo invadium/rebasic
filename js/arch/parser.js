@@ -58,7 +58,6 @@ function parse(vm, lex) {
 
         } else if (token.type === lex.KEYWORD) {
             if (token.val === 'true'
-                    || token.val === 'on'
                     || token.val === 'enabled') {
                 // boolean true literal
                 return {
@@ -72,7 +71,6 @@ function parse(vm, lex) {
                 }
 
             } else if (token.val === 'false'
-                    || token.val === 'off'
                     || token.val === 'disabled') {
                 // boolean false literal
                 return {
@@ -615,6 +613,14 @@ function parse(vm, lex) {
         return [ lval ]
     }
 
+    function consumeLabel() {
+        const label = lex.next()
+        if (label.type !== lex.NUM && label.type !== lex.SYM) {
+            lex.err('label or line number is expected')
+        }
+        return label.val
+    }
+
     function doStatement(block) {
         const token = lex.next()
 
@@ -692,7 +698,7 @@ function parse(vm, lex) {
                 const variable = lex.next()
 
                 if (variable.type !== lex.SYM) {
-                    lex.err('assignmnet is expected after let')
+                    lex.err('variable assignmnet is expected after let')
                 }
                 if (!lex.expect(lex.OPERATOR, '=')) {
                     lex.err(`= is expected`)
@@ -806,6 +812,48 @@ function parse(vm, lex) {
                     rstmt: rstmt,
 
                     pos: token.pos,
+                    line: token.line,
+                }
+
+            } else if (token.val === 'on') {
+                const variable = lex.next()
+
+                // goto or gosub
+                let type = 0
+                const ahead = lex.ahead()
+                if (ahead.type === lex.KEYWORD
+                        && ahead.val === 'goto') {
+                    type = vm.ON_GOTO
+                } else if (ahead.type === lex.KEYWORD
+                        && ahead.val === 'gosub') {
+                    type = vm.ON_GOSUB
+                } else {
+                    lex.err(`[goto] or [gosub] expected`)
+                }
+                lex.next()
+
+                // consume labels
+                const labels = []
+
+                let expectMoreLabels = true
+                while(expectMoreLabels) {
+                    const label = consumeLabel()
+                    labels.push(label)
+
+                    const ahead = lex.ahead()
+                    if (ahead.type === lex.OPERATOR && ahead.val === ',') {
+                        lex.next() // consume comma - we expect more labels to come
+                    } else {
+                        expectMoreLabels = false // no more labels
+                    }
+                }
+
+                return {
+                    type:   type,
+                    lval:   variable.val,
+                    labels: labels,
+
+                    pos:  token.pos,
                     line: token.line,
                 }
 
