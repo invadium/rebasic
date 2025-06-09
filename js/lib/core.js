@@ -88,6 +88,10 @@ const core = {
         this.clearScope()
     },
 
+    clear: function() {
+        this.clearScope()
+    },
+
     run: function(n) {
         const lex = this.lexFromSource(
                 this.source(), this.command.print)
@@ -161,7 +165,8 @@ core['run!'].man = 'run the program after clearing the screen'
 core['new'].man = 'erase current program'
 core['new!'].man = 'erase current program and clear the screen'
 
-core.clr.man = 'erase all defined variables'
+core.clr.man   = 'erase all defined variables'
+core.clear.man = 'erase all defined variables'
 
 core.poke.usage = '(address), (value)'
 core.poke.man = 'set memory cell at [address] to [value]'

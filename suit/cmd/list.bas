@@ -1,5 +1,7 @@
-10 A = 10
-20 B = 20
-30 C = A * B
-40 PRINT C
-50 LIST
+10 a = 10
+20 b = 20
+30 c = a * b
+40 print "value:", c
+50 print "Program Listring:"
+60 list 
+70 print "-----------------"
