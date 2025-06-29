@@ -289,7 +289,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
             return parseNext()
         }
 
-        if (c === '#' || c === '`') return afterLineComment()
+        if (c === '#' || c === "'" || c === '`') return afterLineComment()
 
         // skip -- and multiline ---- comments
         if (c === '-' || c === '=') {
