@@ -57,15 +57,15 @@ const scope = {
     tau: Math.PI * 2,
 }
 
-const math = {
+const rmath = {
     fn: fn,
     scope: scope,
 }
 
 if (module) {
-    module.exports = math
+    module.exports = rmath
 } else {
-    this.jbas? this.jbas.math = math : this.jbas = {
-        math
+    this.jbas? this.jbas.rmath = rmath : this.jbas = {
+        rmath
     }
 }

@@ -790,19 +790,86 @@ function parse(vm, lex) {
             } else if (token.val === 'if') {
                 const cond = doExpr()
 
-                // then
-                if (!lex.expect(lex.KEYWORD, 'then')) {
-                    lex.err(`[then] expected`)
-                }
+                let lstmt, rstmt
 
-                const lstmt = doStatement(block)
+                // switch between then/goto/gosub
+                const next = lex.next()
+                if (next.type === lex.KEYWORD && next.val ==='then') {
+                    lstmt = doStatement(block)
 
-                let rstmt
-                const ahead = lex.ahead()
-                if (ahead.type === lex.KEYWORD
-                        && ahead.val === 'else') {
-                    lex.next()
-                    rstmt = doStatement(block)
+                    const ahead = lex.ahead()
+                    if (ahead.type === lex.KEYWORD
+                            && ahead.val === 'else') {
+                        lex.next()
+                        rstmt = doStatement(block)
+                    }
+
+                } else if (next.type === lex.KEYWORD && next.val === 'goto') {
+                    const opt = doExprList('goto')
+                    lstmt = {
+                        type: vm.COMMAND,
+                        val:  'goto',
+                        opt:  opt,
+
+                        pos:  next.pos,
+                        line: next.line,
+                        toString: function() {
+                            return `${this.val} ${this.opt}`
+                        },
+                    }
+
+                    const ahead = lex.ahead()
+                    if (ahead.type === lex.KEYWORD
+                            && ahead.val === 'else') {
+                        lex.next()
+                        const opt = doExprList('goto')
+                        rstmt = {
+                            type: vm.COMMAND,
+                            val:  'goto',
+                            opt:  opt,
+
+                            pos:  next.pos,
+                            line: next.line,
+                            toString: function() {
+                                return `${this.val} ${this.opt}`
+                            },
+                        }
+                    }
+
+                } else if (next.type === lex.KEYWORD && next.val === 'gosub') {
+                    const opt = doExprList('gosub')
+                    lstmt = {
+                        type: vm.COMMAND,
+                        val:  'gosub',
+                        opt:  opt,
+
+                        pos:  next.pos,
+                        line: next.line,
+                        toString: function() {
+                            return `${this.val} ${this.opt}`
+                        },
+                    }
+
+                    const ahead = lex.ahead()
+                    if (ahead.type === lex.KEYWORD
+                            && ahead.val === 'else') {
+                        lex.next()
+                        const opt = doExprList('gosub')
+                        rstmt = {
+                            type: vm.COMMAND,
+                            val:  'gosub',
+                            opt:  opt,
+
+                            pos:  next.pos,
+                            line: next.line,
+                            toString: function() {
+                                return `${this.val} ${this.opt}`
+                            },
+                        }
+                    }
+
+                } else {
+                    lex.err(`[then|goto|gosub] expected!`)
                 }
 
                 return {

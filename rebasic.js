@@ -12,10 +12,10 @@ const parse = require('./js/arch/parser.js')
 const vmFactory = require('./js/arch/vm.js')
 
 // universal libs
-const core = require('./js/lib/core.js')
-const func = require('./js/lib/func.js')
-const math = require('./js/lib/math.js')
-const str = require('./js/lib/str.js')
+const core  = require('./js/lib/core.js')
+const func  = require('./js/lib/func.js')
+const rmath = require('./js/lib/rmath.js')
+const str   = require('./js/lib/str.js')
 
 // system libs
 const sys = require('./js/env/sys.js')
@@ -64,8 +64,8 @@ function setupVM() {
     for (let n in func) vm.defineFun(n, func[n])
     for (let n in io) vm.defineCmd(n, io[n])
     for (let n in sys) vm.defineCmd(n, sys[n])
-    for (let n in math.fn) vm.defineFun(n, math.fn[n])
-    for (let n in math.scope) vm.defineConst(n, math.scope[n])
+    for (let n in rmath.fn) vm.defineFun(n, rmath.fn[n])
+    for (let n in rmath.scope) vm.defineConst(n, rmath.scope[n])
     for (let n in str) vm.defineFun(n, str[n])
 
     // specific hooks to handle stdin/out
