@@ -50,7 +50,7 @@ const core = {
                 if (typeof val === 'string') {
                     val = '"' + val + '"'
                 }
-                vm.command.print(key + '=' + val + ' ', { semi: true })
+                vm.command.print('* ' + key + '=' + val + ' ', { semi: false })
             }
         })
         vm.command.print('')

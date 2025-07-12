@@ -31,8 +31,8 @@ function ioPrint() {
                 semi = true
             } else if (val.comma) {
                 comma = true
-            } else if (val.get) {
-                val = val.get()
+            } else if (val.toPrint) {
+                val = val.toPrint()
                 if (i > 0 && !semi) process.stdout.write(' ')
                 process.stdout.write('' + val)
                 semi = false

@@ -48,6 +48,12 @@ const util = {
     isNumber: function(n) {
         return (typeof n === 'number' && !Number.isNaN(n))
     },
+    isString: function(v) {
+        return toString.call(v) === '[object String]'
+    },
+    isObject: function(v) {
+        return (v && typeof v === 'object' && !Array.isArray(v))
+    },
     expectNumber: function(n) {
         if (typeof n !== 'number'
                 || Number.isNaN(n)) {
@@ -125,16 +131,18 @@ class Dim {
 
             let j = 0
             for (let i = 0; i < at.length - 1; i++) {
-                j += (at[i] - 1) * this.sizes[i]
+                for (let k = i + 1; k < at.length; k++) {
+                    j += (at[i] - 1) * this.sizes[k]
+                }
             }
 
-            j += at[at.length - 1]
+            j += at[at.length - 1] - 1
             return this.data[j]
 
         } else {
             // one-dimentional array
             if (!util.isNumber(at)) throw new Error(`array index is expected`)
-            return this.data[at]
+            return this.data[at - 1]
         }
     }
 
@@ -147,18 +155,40 @@ class Dim {
 
             let j = 0
             for (let i = 0; i < at.length - 1; i++) {
-                j += (at[i] - 1) * this.sizes[i]
+                for (let k = i + 1; k < at.length; k++) {
+                    j += (at[i] - 1) * this.sizes[k]
+                }
             }
 
-            j += at[at.length - 1]
+            j += at[at.length - 1] - 1
 
+            if (j < 0 || j >= this.data.length) throw new Error(`array index out of bounds`)
             this.data[j] = val
 
         } else {
             // one-dimentional array
             if (!util.isNumber(at)) throw new Error(`array index is expected`)
-            this.data[at] = val
+            if (at <= 0 || at > this.data.length) throw new Error(`array index out of bounds`)
+            
+            this.data[at - 1] = val
         }
+    }
+
+    toPrint() {
+        const ls = []
+        for (let i = 0; i < this.data.length; i++) {
+            const val = this.data[i]
+            if (util.isNumber(val)) {
+                ls.push('' + val)
+            } else if (util.isString(val)) {
+                ls.push(`"${val}"`)
+            } else if (util.isObject(val) && val.toPrint) {
+                ls.push(val.toPrint())
+            } else {
+                ls.push('')
+            }
+        }
+        return '[' + ls.join(',') + ']'
     }
 
     toString() {
@@ -182,6 +212,17 @@ class Map {
         if (!key) throw new Error(`a map key is expected`)
         if (!val) throw new Error(`a value is expected`)
         this.data[key.toLowerCase()] = val
+    }
+
+    toPrint() {
+        const dir = []
+        dir.push('{')
+        Object.keys(this.data).forEach(key => {
+            const val = this.data[key]
+            dir.push(`  ${key}: ${val}`)
+        })
+        dir.push('}')
+        return dir.join('\n')
     }
 
     toString() {
