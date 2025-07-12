@@ -31,3 +31,10 @@ Just use a ```./test``` helper script to run ```retest``` in a verbose mode:
 ./test
 ```
 
+## How to Debug
+
+You can run rebasic with --debug flag to enable full stacktrace:
+
+```
+rebasic --debug
+```

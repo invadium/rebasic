@@ -94,6 +94,8 @@ class Dim {
     constructor(name, rval) {
         this.name  = name
         this.sizes = []
+
+        if (!rval) throw new Error(`array dimensions are expected`)
         if (rval.list) {
             // multi-dimensional
             for (let i = 0; i < rval.list.length; i++) {
@@ -124,7 +126,7 @@ class Dim {
 
     get(at) {
         if (this.dim > 1) {
-            // multi-dimentional array
+            // multi-dimensional array
             if (!Array.isArray(at) || this.dim !== at.length) {
                 throw new Error(`index list of ${this.dim} elements is expected`)
             }
@@ -140,7 +142,7 @@ class Dim {
             return this.data[j]
 
         } else {
-            // one-dimentional array
+            // one-dimensional array
             if (!util.isNumber(at)) throw new Error(`array index is expected`)
             return this.data[at - 1]
         }
@@ -148,16 +150,18 @@ class Dim {
 
     set(at, val) {
         if (this.dim > 1) {
-            // multi-dimentional array
+            // multi-dimensional array
             if (!Array.isArray(at) || this.dim !== at.length) {
                 throw new Error(`index list of ${this.dim} elements is expected`)
             }
 
             let j = 0
             for (let i = 0; i < at.length - 1; i++) {
+                let u = at[i] - 1
                 for (let k = i + 1; k < at.length; k++) {
-                    j += (at[i] - 1) * this.sizes[k]
+                    u *= this.sizes[k]
                 }
+                j += u
             }
 
             j += at[at.length - 1] - 1
@@ -166,7 +170,7 @@ class Dim {
             this.data[j] = val
 
         } else {
-            // one-dimentional array
+            // one-dimensional array
             if (!util.isNumber(at)) throw new Error(`array index is expected`)
             if (at <= 0 || at > this.data.length) throw new Error(`array index out of bounds`)
             
@@ -554,6 +558,12 @@ class VM {
     assignElement(name, key, rval) {
         const struct = this.locate(name)
         if (!struct) throw new Error(`unknown structure [${name}]`)
+
+        if (!(struct instanceof Dim) && !(struct instanceof Map)) {
+            throw new Error('array or map is expected')
+        }
+        if (!key) throw new Error('key or index is expected')
+        if (!rval) throw new Error('element value is expected')
 
         struct.set( key.get(), rval.get() )
     }
