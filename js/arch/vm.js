@@ -323,7 +323,6 @@ class VM {
             // execute current command sequence in a loop
             // interrupt and reschedule on outputs or cycles limit
             while(!vm.interrupted && vm.pos < vm.code.length) {
-                console.log(vm.code[vm.pos].toString())
                 vm.next(vm.code[vm.pos++])
 
                 // reschedule the next batch if needed
