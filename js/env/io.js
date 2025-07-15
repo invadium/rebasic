@@ -16,7 +16,7 @@ function open() {
     })
 }
 
-function ioPrint() {
+function __print__() {
     this.outputs ++
     //process.stdout.write(OUT)
     let semi = false
@@ -53,7 +53,7 @@ function ioCls() {
     this.command.print('\033[2J')
 }
 
-function ioInput(then) {
+function __input__(then) {
     //process.stdout.write(PROMPT)
     if (typeof then === 'function') {
         // set handler hook
@@ -112,15 +112,15 @@ function close() {
 }
 
 // help data
-ioPrint.usage = '(val1),(val2);(val3);...'
-ioPrint.man = 'print out list of values,\n'
+__print__.usage = '(val1),(val2);(val3);...'
+__print__.man = 'print out list of values,\n'
        + '    a space is inserted when values are separated by [,],\n'
        + '    nothing is inserted when separated by [;],\n'
        + '    no new line printed when command is closed by [;],\n'
        + '    [print] with no arguments prints a new line'
 
-ioInput.usage = '(prompt),[variable],(variable),...'
-ioInput.man = 'input values from the console,\n'
+__input__.usage = '(prompt),[variable],(variable),...'
+__input__.man = 'input values from the console,\n'
         + '    values are stored in provided variables,\n'
         + '    an optional prompt string can be supplied'
 
@@ -134,8 +134,8 @@ save.man = 'save a program to file'
 
 module.exports = {
     open,
-    print:  ioPrint,
-    input:  ioInput,
+    print:  __print__,
+    input:  __input__,
     cls:    ioCls,
     home:   ioCls,
     load,

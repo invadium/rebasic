@@ -299,15 +299,17 @@ class VM {
 
         const vm = this
         this.inputHandler = function(cmd) {
-
+            // handle the next line of input
             if (vm.interrupted && vm.resumeOnInput) {
-                // vm waits for input
+                // vm waits for the input
                 vm.assignTarget(vm.inputTarget, cmd)
                 vm.interrupted = false
-                vm.resume()
+                vm.resumeOnInput = false
                 vm.onInput(true)
+                vm.resume()
 
             } else {
+                // vm is in immediate REPL mode
                 vm.processCommand(cmd)
                 vm.onInput(false)
             }
@@ -321,6 +323,7 @@ class VM {
             // execute current command sequence in a loop
             // interrupt and reschedule on outputs or cycles limit
             while(!vm.interrupted && vm.pos < vm.code.length) {
+                console.log(vm.code[vm.pos].toString())
                 vm.next(vm.code[vm.pos++])
 
                 // reschedule the next batch if needed
@@ -763,7 +766,8 @@ class VM {
 
             case END:
                 // the end of program
-                this.pos = Number.MAX_SAFE_INTEGER
+                //this.pos = Number.MAX_SAFE_INTEGER
+                this.pos = this.code.length
                 break
 
             default:
