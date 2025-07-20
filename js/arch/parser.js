@@ -627,7 +627,7 @@ function parse(vm, lex) {
         if (!token) return
 
         if (token.type === lex.NUM) {
-            // string number
+            // line number
             doLabel(block, token)
             return doStatement(block)
 
@@ -795,7 +795,7 @@ function parse(vm, lex) {
                 // switch between then/goto/gosub
                 const next = lex.next()
                 if (next.type === lex.KEYWORD && next.val ==='then') {
-                    lstmt = doStatement(block)
+                    lstmt = doThenStatement(block)
 
                     const ahead = lex.ahead()
                     if (ahead.type === lex.KEYWORD
@@ -1032,6 +1032,63 @@ function parse(vm, lex) {
         }
 
         return cmd
+    }
+
+    function doThenStatement(block) {
+        const token = lex.next()
+
+        if (!token) return
+
+        if (token.type === lex.NUM) {
+            return {
+                type: vm.COMMAND,
+                val:  'goto',
+                opt:  {
+                    val: token.val,
+                    get: function value() {
+                        return this.val
+                    },
+                    pos:  token.pos,
+                    line: token.line,
+                    toString: valToString,
+                },
+
+                pos:  token.pos,
+                line: token.line,
+                toString: function() {
+                    return `${this.val} ${this.opt}`
+                },
+            }
+
+        } else if (token.type === lex.OPERATOR && token.val === '@') {
+            // goto label
+            const label = lex.next()
+            if (label.type !== lex.SYM) lex.err('a label name is expected')
+
+            return {
+                type: vm.COMMAND,
+                val:  'goto',
+                opt:  {
+                    val: label.val,
+                    get: function value() {
+                        return this.val
+                    },
+                    pos:  label.pos,
+                    line: label.line,
+                    toString: valToString,
+                },
+
+                pos:  token.pos,
+                line: token.line,
+                toString: function() {
+                    return `${this.val} ${this.opt}`
+                },
+            }
+
+        } else {
+            lex.ret()
+            return doStatement(block)
+        }
     }
 
     function doBlock(tab, block) {

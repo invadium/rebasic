@@ -1,10 +1,10 @@
 'use strict'
 
-const SYM = 1
-const NUM = 2
-const STR = 3
+const SYM      = 1
+const NUM      = 2
+const STR      = 3
 const OPERATOR = 4
-const KEYWORD = 5
+const KEYWORD  = 5
 
 const OP = [
     '(',
@@ -16,6 +16,7 @@ const OP = [
     '~',
     '%',
     '!',
+    '@',
     '+',
     '-',
     '<',
