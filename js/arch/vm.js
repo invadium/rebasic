@@ -2,29 +2,35 @@ const WELCOME = "Welcome to ReBASIC, Version 0.2!"
 const HELP    = 'Enter "help" for instructions.'
 const READY   = "Ready..."
 
-const COMMAND   = 1
-const LET       = 2
-const DIM       = 3
-const MAP       = 4
-const IF        = 5
-const ON_GOTO   = 6
-const ON_GOSUB  = 7
-const FOR       = 8
-const NEXT      = 9
-const RETURN    = 10
-const END       = 11
-const LET_EL    = 12
-const READ      = 13
+const COMMAND       = 1
+const LET           = 2
+const DIM           = 3
+const MAP           = 4
+const IF            = 5
+const ON_GOTO       = 6
+const ON_GOSUB      = 7
+const FOR           = 8
+const NEXT          = 9
+const RETURN        = 10
+const END           = 11
+const LET_EL        = 12
+const SET_EL        = 13
+const GET_EL        = 14
+const TAR_EL        = 15
+const READ          = 16
 
-const GOTO      = 21
-const GOSUB     = 22
+const GOTO          = 21
+const GOSUB         = 22
 
-const CALL      = 31
-const VAR_LOC   = 32
+const CALL_OR_FETCH = 31
+const VAR_LOC       = 32
+const VAR_SET       = 33
+const TAR_SET       = 34
+const TAR_LIST      = 35
 
-const NIL       = 101
-const COMMA     = 102
-const SEMICOLON = 103
+const NIL           = 101
+const COMMA         = 102
+const SEMICOLON     = 103
 
 function vmPrint() {
     for (let i = 0; i < arguments.length; i++) {
@@ -238,28 +244,35 @@ class VM {
 
     constructor() {
         // export statement type constants
-        this.COMMAND   = COMMAND
-        this.LET       = LET
-        this.DIM       = DIM
-        this.MAP       = MAP
-        this.IF        = IF
-        this.ON_GOTO   = ON_GOTO
-        this.ON_GOSUB  = ON_GOSUB
-        this.FOR       = FOR
-        this.NEXT      = NEXT
-        this.RETURN    = RETURN
-        this.END       = END
-        this.LET_EL    = LET_EL
-        this.READ      = READ
+        this.COMMAND       = COMMAND
+        this.LET           = LET
+        this.DIM           = DIM
+        this.MAP           = MAP
+        this.IF            = IF
+        this.ON_GOTO       = ON_GOTO
+        this.ON_GOSUB      = ON_GOSUB
+        this.FOR           = FOR
+        this.NEXT          = NEXT
+        this.RETURN        = RETURN
+        this.END           = END
+        this.LET_EL        = LET_EL
+        this.SET_EL        = SET_EL
+        this.GET_EL        = GET_EL
+        this.TAR_EL        = TAR_EL
+        this.READ          = READ
 
-        this.GOTO      = GOTO
-        this.GOSUB     = GOSUB
+        this.GOTO          = GOTO
+        this.GOSUB         = GOSUB
 
-        this.CALL      = CALL
-        this.VAR_LOC   = VAR_LOC
-        this.NIL       = NIL
-        this.COMMA     = COMMA
-        this.SEMICOLON = SEMICOLON
+        this.CALL_OR_FETCH = CALL_OR_FETCH
+        this.VAR_LOC       = VAR_LOC
+        this.VAR_SET       = VAR_SET
+        this.TAR_SET       = TAR_SET
+        this.TAR_LIST      = TAR_LIST
+        this.NIL           = NIL
+        this.COMMA         = COMMA
+        this.SEMICOLON     = SEMICOLON
+
         // export classes
         this.Dim = Dim
         this.Map = Map
@@ -452,7 +465,14 @@ class VM {
         }
 
         const dataItem = this.data[this.dataPos++]
-        if (opt.type === CALL) {
+
+        if (opt.type === TAR_SET) {
+            opt.set(dataItem)
+        } else {
+            throw new Error(`can't read [${'' + opt}]`)
+        }
+        /*
+        if (opt.type === CALL_OR_FETCH) {
             // reading to dim/map
             this.assignElementVal(opt.lval, opt.rval, dataItem)
         } else if (opt.type === VAR_LOC) {
@@ -461,6 +481,7 @@ class VM {
         } else {
             throw new Error(`can't read [${'' + opt}]`)
         }
+        */
     }
 
     defineFun(name, fn) {
@@ -663,7 +684,8 @@ class VM {
 
             case LET_EL:
                 // set dim/map element
-                this.assignElement(stmt.lval, stmt.ival, stmt.rval)
+                const container = this.locate(stmt.lval)
+                stmt.set(container, stmt.rval)
                 break
 
             case DIM:
@@ -685,6 +707,7 @@ class VM {
                 //console.dir(stmt)
 
                 const readVars = stmt.rval
+
                 if (readVars.list) {
                     for (let i = 0; i < readVars.list.length; i++) {
                         this.read(readVars.list[i])

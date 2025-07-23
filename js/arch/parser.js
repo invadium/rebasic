@@ -1,4 +1,4 @@
-// .rebas parser
+//to .rebas parser
 
 function parse(vm, lex) {
 
@@ -32,7 +32,7 @@ function parse(vm, lex) {
     //    expression parsing
     // ========================
 
-    function atomicVal() {
+    function doAtomicVal(target) {
         const token = lex.next()
 
         if (!token) return
@@ -92,23 +92,28 @@ function parse(vm, lex) {
             // function call or array/map access
 
             lex.next()
-            const rval = doExprList()
+            const rval = doSelector(ahead)
+            //const rval = doExprList()
 
             if (!lex.expect(lex.OPERATOR, ')')) {
                 lex.err(`) is expected after argument list`)
             }
 
             return {
-                type: vm.CALL,
+                type: vm.CALL_OR_FETCH,
                 lval: token.val,
                 rval: rval,
-                get: function fnCallOrArray() {
+                get: function fnCallOrFetch() {
                     // try to locate a variable
                     const variable = vm.probe(this.lval)
 
-                    if (variable instanceof vm.Dim || variable instanceof vm.Map) {
-                        //const v = vm.val(this.rval)
-                        return vm.locateElement( this.lval, this.rval )
+                    if (variable instanceof vm.Dim) {
+                        if (!this.rval) throw new Error('array index is expected')
+                        return this.rval.select(variable)
+                    } else if (variable instanceof vm.Map) {
+                        if (!this.rval) throw new Error('map key is expected')
+                        return this.rval.select(variable)
+                        //return vm.locateElement( this.lval, this.rval )
 
                     } else {
                         // it's not a variable - must be a function
@@ -157,7 +162,7 @@ function parse(vm, lex) {
         if (!token) return
 
         if (token.type === lex.KEYWORD && token.val === 'not') {
-            const rval = expectVal(atomicVal)
+            const rval = expectVal(doAtomicVal)
             return {
                 val: rval,
                 get: function not() {
@@ -171,7 +176,7 @@ function parse(vm, lex) {
         } else if (token.type === lex.OPERATOR) {
 
             if (token.val === '-') {
-                const rval = expectVal(atomicVal)
+                const rval = expectVal(doAtomicVal)
                 return {
                     val: rval,
                     get: function unaryMinus() {
@@ -188,7 +193,7 @@ function parse(vm, lex) {
                 }
 
             } else if (token.val === '%') {
-                const rval = expectVal(atomicVal)
+                const rval = expectVal(doAtomicVal)
                 return {
                     val: rval,
                     get: function unaryPercent() {
@@ -204,7 +209,7 @@ function parse(vm, lex) {
                 }
 
             } else if (token.val === '~') {
-                const rval = expectVal(atomicVal)
+                const rval = expectVal(doAtomicVal)
                 return {
                     val: rval,
                     get: function unaryTilda() {
@@ -220,7 +225,7 @@ function parse(vm, lex) {
                 }
 
             } else if (token.val === '!') {
-                const rval = expectVal(atomicVal)
+                const rval = expectVal(doAtomicVal)
                 return {
                     val: rval,
                     get: function unaryExcl() {
@@ -236,12 +241,12 @@ function parse(vm, lex) {
                 }
             } else {
                 lex.ret()
-                return atomicVal()
+                return doAtomicVal()
             }
 
         } else {
             lex.ret()
-            return atomicVal()
+            return doAtomicVal()
         }
     }
 
@@ -302,7 +307,7 @@ function parse(vm, lex) {
                     toString: binaryOpToString,
                 })
             } else if (token.val === '^') {
-                const rval = expectVal(atomicVal)
+                const rval = expectVal(doAtomicVal)
 
                 return {
                     lval: lval,
@@ -613,6 +618,174 @@ function parse(vm, lex) {
         return [ lval ]
     }
 
+    function doMoreTargets() {
+        const token = lex.next()
+        if (token.type !== lex.SYM) lex.err('variable identifier is expected')
+
+        const ahead = lex.ahead()
+        if (ahead.type === lex.OPERATOR && ahead.val === '(') {
+            // array/map target
+            lex.next()
+            const ival = doSelectorSet(ahead)
+
+            if (!lex.expect(lex.OPERATOR, ')')) {
+                lex.err(`an expression must be closed with )`)
+            }
+
+            return {
+                type: vm.TAR_SET,
+                lval: token.val, 
+                ival: ival,
+
+                set: function(data) {
+                    const container = vm.locate(this.lval)
+                    if (!container) throw Error(`unable to find container [${this.lval}]`)
+                    this.ival.set(container, data)
+                },
+
+
+                pos:  token.pos,
+                line: token.line,
+                toString: function() {
+                    return `${ival}`
+                },
+            }
+
+        } else {
+            return {
+                type: vm.TAR_SET,
+                val:  token.val,
+
+                set:  function(data) {
+                    vm.assign(this.val, data)
+                },
+            }
+        }
+    }
+
+    function doTargetList(headerToken, targetList) {
+        const target = doMoreTargets()
+        if (!target) return targetList
+
+        const more = lex.ahead()
+        if (more.type === lex.OPERATOR && more.val === ',') {
+            lex.next()
+
+            if (!targetList) {
+                targetList = {
+                    type: vm.TAR_LIST,
+                    list: [ target ],
+
+                    toString: function() {
+                        return '' + this.list
+                    }
+                }
+            } else {
+                targetList.list.push(target)
+            }
+            return doTargetList(more, targetList)
+            
+        } else {
+            if (targetList) {
+                targetList.list.push(target)
+                return targetList
+            } else {
+                return target
+            }
+        }
+    }
+
+    function doSelector(headerToken) {
+        const ival = doExprList()
+        if (!ival) return
+
+        const ahead = lex.ahead()
+        if (ahead.type === lex.OPERATOR && ahead.val === ':') {
+            // do the next selection
+            lex.next()
+
+            const nextSelector = doSelector(ahead)
+            return {
+                type: vm.GET_EL,
+                ival: ival,
+                nval: nextSelector,
+                select: function(headTarget) {
+                    if (!headTarget) throw new Error('missing a container for element selection')
+                    return this.nval.select( headTarget.get( this.ival.get() ) )
+                },
+
+                pos:  headerToken.pos,
+                line: headerToken.line,
+                toString: function() {
+                    return `${this.ival}:${this.nextSelector}`
+                },
+            }
+        }
+
+        // mono-set
+        return {
+            type: vm.GET_EL,
+            ival: ival,
+            select:  function(target) {
+                if (!target) throw new Error('missing a container for element selection')
+                return target.get(this.ival.get())
+            },
+            get: function() {
+                return this.ival.get()
+            },
+
+            pos:  headerToken.pos,
+            line: headerToken.line,
+            toString: function() {
+                return `${this.ival}`
+            },
+        }
+    }
+
+    function doSelectorSet(headerToken) {
+        const ival = doExprList()
+        if (!ival) return
+
+        const ahead = lex.ahead()
+        if (ahead.type === lex.OPERATOR && ahead.val === ':') {
+            // do the next selection
+            lex.next()
+
+            const nextSelector = doSelectorSet(ahead)
+            return {
+                type: vm.SET_EL,
+                ival: ival,
+                nval: nextSelector,
+                set: function(headTarget, data) {
+                    if (!headTarget) throw new Error('missing a container for element assignment')
+                    this.nval.set( headTarget.get( this.ival.get() ), data )
+                },
+
+                pos:  headerToken.pos,
+                line: headerToken.line,
+                toString: function() {
+                    return `${this.ival}:${this.nextSelector}`
+                },
+            }
+        }
+
+        // mono-set
+        return {
+            type: vm.SET_EL,
+            ival: ival,
+            set:  function(target, data) {
+                if (!target) throw new Error('missing a container for element assignment')
+                target.set(this.ival.get(), data)
+            },
+
+            pos:  headerToken.pos,
+            line: headerToken.line,
+            toString: function() {
+                return `${this.ival}`
+            },
+        }
+    }
+
     function consumeLabel() {
         const label = lex.next()
         if (label.type !== lex.NUM && label.type !== lex.SYM) {
@@ -657,11 +830,11 @@ function parse(vm, lex) {
                         },
                     }
                 } else if (ahead.val === '(') {
-                    // assign element
+                    // array assign element
                     lex.next()
 
                     // key or index
-                    const rlist = doExprList()
+                    const selectorSet = doSelectorSet(ahead)
                     if (!lex.expect(lex.OPERATOR, ')')) {
                         lex.err(`) is expected`)
                     }
@@ -676,9 +849,15 @@ function parse(vm, lex) {
                     return {
                         type: vm.LET_EL,
                         lval: token.val,
-                        ival: rlist,
+                        ival: selectorSet,
                         rval: rval,
-                        pos: token.pos,
+
+                        set: function(target) {
+                            if (!this.ival) throw new Error('key or index is expected')
+                            this.ival.set(target, this.rval.get())
+                        },
+
+                        pos:  token.pos,
                         line: token.line,
                         toString: function() {
                             return `${this.lval}(${this.ival}) = ${this.rval}`
@@ -765,7 +944,7 @@ function parse(vm, lex) {
                 }
 
             } else if (token.val === 'read') {
-                const rval = doExprList(token.val)
+                const rval = doTargetList(token)
 
                 return {
                     type: vm.READ,
