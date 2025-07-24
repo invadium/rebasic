@@ -88,7 +88,7 @@ function parse(vm, lex) {
         }
 
         const ahead = lex.ahead()
-        if (ahead.type === lex.OPERATOR && ahead.val === '(') {
+        if (ahead && ahead.type === lex.OPERATOR && ahead.val === '(') {
             // function call or array/map access
 
             lex.next()
@@ -547,7 +547,7 @@ function parse(vm, lex) {
 
     function doExpr() {
         const ahead = lex.ahead()
-        if (ahead.type === lex.OPERATOR && ahead.val === ',') {
+        if (ahead && ahead.type === lex.OPERATOR && ahead.val === ',') {
             return {
                 type: vm.NIL,
                 get: () => '<NIL>',
@@ -565,7 +565,7 @@ function parse(vm, lex) {
             list.push(expr)
 
             ahead = lex.ahead()
-            if (ahead.type !== lex.OPERATOR
+            if (ahead && ahead.type !== lex.OPERATOR
                     || (ahead.val !== ',' && ahead.val !== ';')) {
                 break
             }
@@ -623,7 +623,7 @@ function parse(vm, lex) {
         if (token.type !== lex.SYM) lex.err('variable identifier is expected')
 
         const ahead = lex.ahead()
-        if (ahead.type === lex.OPERATOR && ahead.val === '(') {
+        if (ahead && ahead.type === lex.OPERATOR && ahead.val === '(') {
             // array/map target
             lex.next()
             const ival = doSelectorSet(ahead)
@@ -668,7 +668,7 @@ function parse(vm, lex) {
         if (!target) return targetList
 
         const more = lex.ahead()
-        if (more.type === lex.OPERATOR && more.val === ',') {
+        if (more && more.type === lex.OPERATOR && more.val === ',') {
             lex.next()
 
             if (!targetList) {
@@ -700,7 +700,7 @@ function parse(vm, lex) {
         if (!ival) return
 
         const ahead = lex.ahead()
-        if (ahead.type === lex.OPERATOR && ahead.val === ':') {
+        if (ahead && ahead.type === lex.OPERATOR && ahead.val === ':') {
             // do the next selection
             lex.next()
 
@@ -977,7 +977,7 @@ function parse(vm, lex) {
                     lstmt = doThenStatement(block)
 
                     const ahead = lex.ahead()
-                    if (ahead.type === lex.KEYWORD
+                    if (ahead && ahead.type === lex.KEYWORD
                             && ahead.val === 'else') {
                         lex.next()
                         rstmt = doStatement(block)
@@ -998,7 +998,7 @@ function parse(vm, lex) {
                     }
 
                     const ahead = lex.ahead()
-                    if (ahead.type === lex.KEYWORD
+                    if (ahead && ahead.type === lex.KEYWORD
                             && ahead.val === 'else') {
                         lex.next()
                         const opt = doExprList('goto')
@@ -1030,7 +1030,7 @@ function parse(vm, lex) {
                     }
 
                     const ahead = lex.ahead()
-                    if (ahead.type === lex.KEYWORD
+                    if (ahead && ahead.type === lex.KEYWORD
                             && ahead.val === 'else') {
                         lex.next()
                         const opt = doExprList('gosub')
@@ -1067,7 +1067,7 @@ function parse(vm, lex) {
                 // goto or gosub
                 let type = 0
                 const ahead = lex.ahead()
-                if (ahead.type === lex.KEYWORD
+                if (ahead && ahead.type === lex.KEYWORD
                         && ahead.val === 'goto') {
                     type = vm.ON_GOTO
                 } else if (ahead.type === lex.KEYWORD
@@ -1087,7 +1087,7 @@ function parse(vm, lex) {
                     labels.push(label)
 
                     const ahead = lex.ahead()
-                    if (ahead.type === lex.OPERATOR && ahead.val === ',') {
+                    if (ahead && ahead.type === lex.OPERATOR && ahead.val === ',') {
                         lex.next() // consume comma - we expect more labels to come
                     } else {
                         expectMoreLabels = false // no more labels
@@ -1123,7 +1123,7 @@ function parse(vm, lex) {
 
                 let step
                 const ahead = lex.ahead()
-                if (ahead.type === lex.KEYWORD
+                if (ahead && ahead.type === lex.KEYWORD
                             && ahead.val === 'step') {
                     lex.next()
                     step = doExpr()
