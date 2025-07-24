@@ -572,7 +572,7 @@ function parse(vm, lex) {
 
             const next = lex.next()
             if (command === 'print') {
-                if (next.val === ';') {
+                if (next && next.val === ';') {
                     // print val is closed by a semicolon
                     list.push({
                         type: vm.SEMICOLON,
@@ -580,7 +580,7 @@ function parse(vm, lex) {
                             return { semi: true }
                         }
                     })
-                } else if (next.val === ',') {
+                } else if (next && next.val === ',') {
                     // print val is closed by a comma
                     list.push({
                         type: vm.COMMA,
@@ -788,6 +788,8 @@ function parse(vm, lex) {
 
     function consumeLabel() {
         const label = lex.next()
+        if (!label) return
+
         if (label.type !== lex.NUM && label.type !== lex.SYM) {
             lex.err('label or line number is expected')
         }
@@ -876,7 +878,7 @@ function parse(vm, lex) {
                 // assume an assignment statement is following
                 const variable = lex.next()
 
-                if (variable.type !== lex.SYM) {
+                if (!variable || variable.type !== lex.SYM) {
                     lex.err('variable assignmnet is expected after let')
                 }
                 if (!lex.expect(lex.OPERATOR, '=')) {
@@ -900,7 +902,7 @@ function parse(vm, lex) {
             } else if (token.val === 'dim') {
                 const array = lex.next()
 
-                if (array.type !== lex.SYM) {
+                if (!array || array.type !== lex.SYM) {
                     lex.err('array name is expected')
                 }
                 if (!lex.expect(lex.OPERATOR, '(')) {
@@ -928,7 +930,7 @@ function parse(vm, lex) {
             } else if (token.val === 'map') {
                 const map = lex.next()
 
-                if (map.type !== lex.SYM) {
+                if (!map || map.type !== lex.SYM) {
                     lex.err('map name is expected')
                 }
 
@@ -973,7 +975,7 @@ function parse(vm, lex) {
 
                 // switch between then/goto/gosub
                 const next = lex.next()
-                if (next.type === lex.KEYWORD && next.val ==='then') {
+                if (next && next.type === lex.KEYWORD && next.val ==='then') {
                     lstmt = doThenStatement(block)
 
                     const ahead = lex.ahead()
@@ -983,7 +985,7 @@ function parse(vm, lex) {
                         rstmt = doStatement(block)
                     }
 
-                } else if (next.type === lex.KEYWORD && next.val === 'goto') {
+                } else if (next && next.type === lex.KEYWORD && next.val === 'goto') {
                     const opt = doExprList('goto')
                     lstmt = {
                         type: vm.COMMAND,
@@ -1015,7 +1017,7 @@ function parse(vm, lex) {
                         }
                     }
 
-                } else if (next.type === lex.KEYWORD && next.val === 'gosub') {
+                } else if (next && next.type === lex.KEYWORD && next.val === 'gosub') {
                     const opt = doExprList('gosub')
                     lstmt = {
                         type: vm.COMMAND,
@@ -1063,6 +1065,9 @@ function parse(vm, lex) {
 
             } else if (token.val === 'on') {
                 const variable = lex.next()
+                if (!variable || variable.type !== lex.SYM) {
+                    lex.err('a variable to switch on is expected')
+                }
 
                 // goto or gosub
                 let type = 0
@@ -1106,7 +1111,7 @@ function parse(vm, lex) {
             } else if (token.val === 'for') {
                 const controlVar = lex.next()
 
-                if (controlVar.type !== lex.SYM) {
+                if (!controlVar || controlVar.type !== lex.SYM) {
                     lex.err('loop control variable expected')
                 }
                 if (!lex.expect(lex.OPERATOR, '=')) {
@@ -1242,7 +1247,7 @@ function parse(vm, lex) {
         } else if (token.type === lex.OPERATOR && token.val === '@') {
             // goto label
             const label = lex.next()
-            if (label.type !== lex.SYM) lex.err('a label name is expected')
+            if (!label || label.type !== lex.SYM) lex.err('a label name is expected')
 
             return {
                 type: vm.COMMAND,
