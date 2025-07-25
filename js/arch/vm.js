@@ -811,6 +811,14 @@ class VM {
         this.resume()
     }
 
+    runSource(source) {
+        const lex = this.lexFromSource(
+                source, this.command.print)
+        const code = this.parse(this, lex)
+        this.run(code, 0, false)
+    }
+
+
     repl() {
         this.loop = true
         this.printWelcome()
