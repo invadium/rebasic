@@ -804,6 +804,7 @@ class VM {
         // execute all statements in the code sequence
         this.replMode = !!replMode
         this.pos = pos? pos : 0
+        this.dataPos = 0
         this.code = block.code
         this.lex = block.lex
         this.interrupted = false

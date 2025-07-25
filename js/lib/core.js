@@ -103,6 +103,7 @@ const core = {
             if (label) {
                 this.code = label.block.code
                 this.pos  = label.pos
+                this.onRun()
                 return
             }
         }
