@@ -36,10 +36,10 @@ const core = {
         }
     },
 
-    'help!': function(name) {
+    'help!': function() {
         const vm = this
         vm.command.cls.call(vm)
-        vm.command.help.call(vm, name)
+        vm.command.help.apply(vm, arguments)
     },
 
     env: function(filter) {
