@@ -277,8 +277,8 @@ class VM {
         this.Dim = Dim
         this.Map = Map
 
-        this.MAX_CYCLES = 10000
-        this.MAX_OUTPUTS = 10
+        this.MAX_CYCLES = 65536
+        this.MAX_OUTPUTS = 16
         this.lastLine = 0
         this.ram = []
         this.lines = []
@@ -307,6 +307,9 @@ class VM {
         this.dataPos = 0
         this.skipLookup = false
         this.util = util
+        this.onRun   = function() {}
+        this.onStop  = function() {}
+        this.onInput = function() {}
         this.interrupt()
         this.loop = false
 
@@ -327,9 +330,6 @@ class VM {
                 vm.onInput(false)
             }
         }
-        this.onRun   = function() {}
-        this.onStop  = function() {}
-        this.onInput = function() {}
 
         this.resume = function() {
             // main vm execution cycle
@@ -359,8 +359,10 @@ class VM {
                     && !vm.resumeOnInput
                     && vm.rstack.length === 0
                     && vm.loop) {
-                vm.interrupted = true
-                vm.onStop()
+                vm.interrupt()
+                // TODO all we really need is to run the interrupt method()???
+                //vm.interrupted = true
+                //vm.onStop()
             }
         }
     }
@@ -431,6 +433,9 @@ class VM {
 
             if (this.opt.debug && !this.opt.errToConsole && e.stack) {
                 this.command.print(e.stack)
+            }
+            if (this.interrupted === false) {
+                this.interrupt()
             }
             if (this.exitOnError) {
                 process.exit(1)
@@ -828,6 +833,7 @@ class VM {
         this.interrupted = true
         this.resumeOnInput = false
         this.resumeOnTimeout = false
+        this.onStop()
     }
 
     waitForInput() {
