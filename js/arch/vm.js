@@ -1,4 +1,4 @@
-const WELCOME = "Welcome to ReBASIC, Version 0.2!"
+const WELCOME = "Welcome to ReBASIC, Version 0.3!"
 const HELP    = 'Enter "help" for instructions.'
 const READY   = "Ready..."
 
@@ -921,6 +921,8 @@ class VM {
             scope[k] = v
         })
         this.scope = scope
+        this.dataPos = 0
+        this.data = []
         this.ram = []
     }
 
