@@ -1,7 +1,49 @@
+// LCG random generator implementation
+function LCGSourceFactory() {
+    let _rnd_m = 0xFFFFFFFF
+    let _rnd_a = 1664525
+    let _rnd_c = 1013904223
+    let _seed = 1
+
+    // core random value
+    function rndv() {
+        _seed = (_rnd_a * _seed + _rnd_c) % _rnd_m
+        return _seed
+    }
+
+    return {
+        setSeed: function(v) {
+            _seed = v
+        },
+
+        getSeed: function() {
+            return _seed
+        },
+
+        // random float
+        rndf: function rndf() {
+            return rndv()/_rnd_m
+        },
+    }
+}
+
+const rndSource = LCGSourceFactory()
+const initialSeed = Math.floor((performance.now() * 10)) % 1000000
+rndSource.setSeed( initialSeed )
 
 const fn = {
     abs: Math.abs,
-    rnd: Math.random,
+    rnd: function(N) {
+        if (N < 0) {
+            const seed = abs(N)
+            rndSource.setSeed(seed)
+            return seed
+        } if (N > 0) {
+            return N * rndSource.rndf()
+        } else {
+            return rndSource.rndf()
+        }
+    },
     sin: Math.sin,
     cos: Math.cos,
     tan: Math.tan,
@@ -17,8 +59,12 @@ const fn = {
 fn.abs.usage = '(x)'
 fn.abs.man = 'absolute value of the number'
 
-fn.rnd.usage = '()'
-fn.rnd.man = 'random number in the range 0-1'
+fn.rnd.usage = '(N)'
+fn.rnd.man = 'random number generator\n'
+             + '  * no N - return a random value between [0..1)\n'
+             + '  * N > 0 - return a random value between [0..N)\n'
+             + '  * N < 0 - set the passed value as a seed'
+
 
 fn.sin.usage = '(x)'
 fn.sin.man = 'sine of [x]'
