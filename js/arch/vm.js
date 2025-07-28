@@ -286,17 +286,18 @@ class VM {
         this.opt = {}
         this.label = {}
         this.command = {
-            'goto':    true,
-            'gosub':   true,
-            'on':      true,
-            'read':    true,
-            'restore': true,
+            'goto':    {},
+            'gosub':   {},
+            'on':      {},
+            'read':    {},
+            'restore': {},
             'print':   vmPrint,
             'input':   vmInput,
         }
         this.fun = {}
         this.scope = {}
         this.constant = {}
+        this.tags = []
 
         this.pos = 0
         this.cycles = 0
@@ -489,12 +490,44 @@ class VM {
         */
     }
 
+    defineTags(tags) {
+        if (!tags) return
+        if (!Array.isArray(tags)) {
+            tags = tags.split(',').map(tag => tag.trim())
+        }
+
+        const vm = this
+        tags.forEach(tag => {
+            if (vm.tags.indexOf(tag) < 0) vm.tags.push(tag)
+        })
+
+        return tags
+    }
+
+    getByTag(tag) {
+        const commands = Object.values(this.command).filter( cmd => cmd.tags && cmd.tags.indexOf(tag) >= 0 )
+        const functions = Object.values(this.fun).filter( fn => fn.tags && fn.tags.indexOf(tag) >= 0 )
+        return commands.concat(functions)
+    }
+
+    listTags() {
+        const lines = []
+        this.tags.forEach(tag => {
+            lines.push(`#${tag}`)
+        })
+        return lines.join('\n')
+    }
+
     defineFun(name, fn) {
+        if (!name || typeof fn !== 'function') return
         this.fun[name] = fn
+        fn.tags = this.defineTags(fn.tags)
     }
 
     defineCmd(name, fn) {
+        if (!name || typeof fn !== 'function') return
         this.command[name] = fn
+        fn.tags = this.defineTags(fn.tags)
     }
 
     defineConst(name, val) {

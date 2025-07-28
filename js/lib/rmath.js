@@ -57,9 +57,11 @@ const fn = {
 }
 
 fn.abs.usage = '(x)'
+fn.abs.tags = 'core, classic, math'
 fn.abs.man = 'absolute value of the number'
 
 fn.rnd.usage = '(N)'
+fn.rnd.tags = 'core, classic, math'
 fn.rnd.man = 'random number generator\n'
              + '  * no N - return a random value between [0..1)\n'
              + '  * N > 0 - return a random value between [0..N)\n'
@@ -67,35 +69,45 @@ fn.rnd.man = 'random number generator\n'
 
 
 fn.sin.usage = '(x)'
+fn.sin.tags = 'core, classic, math'
 fn.sin.man = 'sine of [x]'
 
 fn.cos.usage = '(x)'
+fn.cos.tags = 'core, classic, math'
 fn.cos.man = 'cosine of [x]'
 
 fn.tan.usage = '(x)'
+fn.tan.tags = 'core, classic, math'
 fn.tan.man = 'tangent of [x]'
 
 fn.atn.usage = '(x)'
+fn.atn.tags = 'core, classic, math'
 fn.atn.man = 'angle in radians for tangent of [x]'
 
 fn.atn2.usage = '(y, x)'
+fn.atn2.tags = 'core, classic, math'
 fn.atn2.man = 'angle to the ray passing [y, x]'
 
 fn['int'].usage = '(x)'
+fn['int'].tags = 'core, classic, math'
 fn['int'].man = 'truncate the value of [x]\n'
     + '    the result is an integer value\n'
     + '    always less than [x]'
 
 fn.exp.usage = '(x)'
+fn.exp.tags = 'core, classic, math'
 fn.exp.man = 'value of e raised to the power of x'
 
 fn.log.usage = '(x)'
+fn.log.tags = 'core, classic, math'
 fn.log.man = 'natural log of [x]'
 
 fn.sgn.usage = '(x)'
+fn.sgn.tags = 'core, classic, math'
 fn.sgn.man = 'sign of [x] => -1/0/+1'
 
 fn.sqr.usage = '(x)'
+fn.sqr.tags = 'core, classic, math'
 fn.sqr.man = 'square root of [x]'
 
 const scope = {
