@@ -857,8 +857,8 @@ class VM {
         this.run(code, 0, false)
     }
 
-
     repl() {
+        this.interrupt()
         this.loop = true
         this.printWelcome()
     }
