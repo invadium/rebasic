@@ -93,6 +93,7 @@ const core = {
     },
 
     run: function(n) {
+        this.clearData()
         const lex = this.lexFromSource(
                 this.source(), this.command.print)
         const code = this.parse(this, lex)

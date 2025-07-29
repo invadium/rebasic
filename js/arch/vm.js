@@ -850,6 +850,7 @@ class VM {
     }
 
     runSource(source) {
+        this.clearData()
         const lex = this.lexFromSource(
                 source, this.command.print)
         const code = this.parse(this, lex)
@@ -914,6 +915,11 @@ class VM {
         this.inputHandler(cmd)
     }
 
+    clearData() {
+        this.dataPos = 0
+        this.data = []
+    }
+
     clearScope() {
         const scope = {}
         Object.keys(this.constant).forEach(k => {
@@ -921,14 +927,14 @@ class VM {
             scope[k] = v
         })
         this.scope = scope
-        this.dataPos = 0
-        this.data = []
+        this.clearData()
         this.ram = []
     }
 
     clearSource() {
         this.lines = []
         this.lastLine = 0
+        this.clearData()
     }
 
     printWelcome() {
