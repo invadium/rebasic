@@ -83,7 +83,7 @@ function parse(vm, lex) {
                     toString: valToString,
                 }
             } else {
-                lex.err(`unexpected keyword ${token.val}`)
+                lex.err(`unexpected keyword [${token.val}]`)
             }
         }
 
