@@ -177,6 +177,9 @@ function makeLex(src, getc, retc, eatc, aheadc,
     let tab = 0
     let lineLead = true // beginning of a string flag
     const lines = []
+    const mask = {
+        data:     false,
+    }
 
     function lineFrom(shift) {
         let dump = ''
@@ -269,7 +272,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
     function parseNext() {
 
         let c = getc()
-        if (!c) return false
+        if (!c) return
 
         // skip spaces
         while (isSpace(c)) {
@@ -282,6 +285,10 @@ function makeLex(src, getc, retc, eatc, aheadc,
 
         // next line
         if (isNewLine(c)) {
+            if (mask.data) {
+                retc()
+                return
+            }
             const n = getc()
             if (c === '\n' && n !== '\r') {
                 retc()
@@ -290,10 +297,20 @@ function makeLex(src, getc, retc, eatc, aheadc,
             return parseNext()
         }
 
-        if (c === '#' || c === "'" || c === '`') return afterLineComment()
+        if (c === '#' || c === "'" || c === '`') {
+            if (mask.data) {
+                retc()
+                return
+            }
+            return afterLineComment()
+        }
 
         // skip -- and multiline ---- comments
         if (c === '-' || c === '=') {
+            if (mask.data) {
+                retc()
+                return
+            }
             const cc = c
             if (aheadc() === cc) {
                 getc()
@@ -312,7 +329,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
         mark = cur()
 
         // operator
-        if (isOperator(c)) {
+        if (isOperator(c) && !mask.data) {
             let op = c
             if (c === '<') {
                 if (aheadc() === '>') {
@@ -434,6 +451,37 @@ function makeLex(src, getc, retc, eatc, aheadc,
             xerr('wrong number format')
         }
 
+        if (mask.data) {
+            // a raw data element
+            if (c && c === ',') {
+                return {
+                    type: OPERATOR,
+                    tab:  tab,
+                    val:  c,
+                    pos:  cur() - lineShift,
+                    line: lineNum,
+                }
+            }
+
+            let raw = ''
+            while(c && !isNewLine(c) && c !== ',') {
+                raw += c
+                c = getc()
+            }
+            retc()
+            if (raw.length === 0) return
+
+            return {
+                type: STR,
+                tab:  tab,
+                val:  raw,
+                raw:  true,
+                pos:  cur() - lineShift,
+                line: lineNum,
+            }
+        }
+
+        // keyword or id
         let sym = ''
         while ( isAlphaNum(c) ) {
             sym += c
@@ -510,6 +558,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
     }
 
     return {
+        mask: mask,
         next: next,
         ahead: ahead,
         expect: expect,

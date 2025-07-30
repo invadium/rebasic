@@ -565,8 +565,8 @@ function parse(vm, lex) {
             list.push(expr)
 
             ahead = lex.ahead()
-            if (ahead && ahead.type !== lex.OPERATOR
-                    || (ahead.val !== ',' && ahead.val !== ';')) {
+            if (ahead && (ahead.type !== lex.OPERATOR
+                    || (ahead.val !== ',' && ahead.val !== ';'))) {
                 break
             }
 
@@ -608,6 +608,27 @@ function parse(vm, lex) {
                 return list.join(',')
             },
         }
+    }
+
+    function doDataList() {
+        const ls = []
+        lex.mask.data = true
+
+        let token = lex.next()
+        while(token) {
+            ls.push(token)
+            token = lex.next()
+            if (token) {
+                // looks like next data element
+                if (token.type !== lex.OPERATOR || token.val !== ',') {
+                    lex.err(`a comma [,] is expected for next data element`)
+                }
+                token = lex.next() // consume next data element
+            }
+        }
+
+        lex.mask.data = false
+        return ls
     }
 
     function doExprInList() {
@@ -961,7 +982,8 @@ function parse(vm, lex) {
                 }
 
             } else if (token.val === 'data') {
-                const list = doExprInList()
+                //const list = doExprInList()
+                const list = doDataList()
                 for (let i = 0; i < list.length; i++) {
                     const val = list[i].val
                     vm.store(val)
