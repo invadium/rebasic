@@ -96,6 +96,12 @@ function toDec(c) {
     else return -1
 }
 
+function toBinary(c) {
+    const code = c.charCodeAt(0) - 48
+    if (code === 0 || code === 1) return code
+    else return -1
+}
+
 function isHex(c) {
     const code = c.toUpperCase().charCodeAt(0) - 48
     return (code >= 0 && code < 10) || (code >= 17 && code < 23)
@@ -416,6 +422,24 @@ function makeLex(src, getc, retc, eatc, aheadc,
                     line: lineNum,
                 }
 
+            } else if (c === '0' && (nextc === '0' || nextc === '1')) {
+                // binary sequence, e.g. 0100101
+                if (sign < 0) xerr('wrong binary format - negative sign is unexpected')
+                let d = 0
+                while ((d = toBinary(c)) >= 0) {
+                    n = (n << 1) + d
+                    c = getc()
+                }
+                retc()
+
+                return {
+                    type: NUM,
+                    tab:  tab,
+                    val:  n,
+                    pos:  cur() - lineShift,
+                    line: lineNum,
+                }
+
             } else {
                 let d = 0
                 while ((d = toDec(c)) >= 0) {
@@ -435,7 +459,6 @@ function makeLex(src, getc, retc, eatc, aheadc,
 
                     n = n/precision
                 }
-
                 retc()
 
                 return {
