@@ -863,11 +863,50 @@ class VM {
         this.printWelcome()
     }
 
+    saveState() {
+        this.interruptedState = {
+            pos:             this.pos,
+            code:            this.code,
+            label:           this.label,
+            data:            this.data,
+            dataPos:         this.dataPos,
+            rstack:          this.rstack,
+            lex:             this.lex,
+            interrupted:     this.interrupted,
+            resumeOnInput:   this.resumeOnInput,
+            resumeOnTimeout: this.resumeOnTimeout,
+        }
+    }
+
+    restoreState() {
+        const st = this.interruptedState
+        if (!st) return
+
+        this.pos             = st.pos
+        this.code            = st.code
+        this.label           = st.label
+        this.data            = st.data
+        this.dataPos         = st.dataPos
+        this.rstack          = st.rstack
+        this.lex             = st.lex
+        this.interrupted     = st.interrupted
+        this.resumeOnInput   = st.resumeOnInput
+        this.resumeOnTimeout = st.resumeOnTimeout
+    }
+
     interrupt() {
         this.interrupted = true
         this.resumeOnInput = false
         this.resumeOnTimeout = false
         this.onStop()
+    }
+
+    continueInterrupted() {
+        if (!this.interruptedState) return
+        this.restoreState()
+        this.interrupted = false
+        this.resumeOnTimeout = false
+        this.resume()
     }
 
     waitForInput() {
@@ -879,6 +918,7 @@ class VM {
         if (!this.interrupted
                 || this.resumeOnInput
                 || this.resumeOnTimeout) {
+            this.saveState()
             this.interrupt()
             this.command.print('interrupted...')
         }

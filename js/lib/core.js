@@ -117,6 +117,10 @@ const core = {
         this.command.run.call(this, n)
     },
 
+    'continue': function() {
+        this.continueInterrupted()
+    },
+
     poke: function(n, v) {
         this.util.expectInteger(n)
         this.util.expectInteger(v)
@@ -166,6 +170,8 @@ core['run!'].man = 'run the program after clearing the screen'
 
 core['new'].man = 'erase current program'
 core['new!'].man = 'erase current program and clear the screen'
+
+core['continue'].man = 'resume previously stopped program'
 
 core.clr.man   = 'erase all defined variables'
 core.clear.man = 'erase all defined variables'
