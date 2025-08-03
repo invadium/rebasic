@@ -10,17 +10,24 @@ const IF            = 5
 const ON_GOTO       = 6
 const ON_GOSUB      = 7
 const FOR           = 8
-const NEXT          = 9
-const RETURN        = 10
-const END           = 11
-const LET_EL        = 12
-const SET_EL        = 13
-const GET_EL        = 14
-const TAR_EL        = 15
-const READ          = 16
+const DO            = 9
+const DO_WHILE      = 10
+const DO_UNTIL      = 11
+const LOOP          = 12
+const LOOP_WHILE    = 13
+const LOOP_UNTIL    = 14
+const BREAK         = 15
+const NEXT          = 16
+const RETURN        = 17
+const END           = 18
+const LET_EL        = 19
+const SET_EL        = 20
+const GET_EL        = 21
+const TAR_EL        = 22
+const READ          = 23
 
-const GOTO          = 21
-const GOSUB         = 22
+const GOTO          = 28
+const GOSUB         = 29
 
 const CALL_OR_FETCH = 31
 const VAR_LOC       = 32
@@ -252,6 +259,13 @@ class VM {
         this.ON_GOTO       = ON_GOTO
         this.ON_GOSUB      = ON_GOSUB
         this.FOR           = FOR
+        this.DO            = DO
+        this.DO_WHILE      = DO_WHILE
+        this.DO_UNTIL      = DO_UNTIL
+        this.LOOP          = LOOP
+        this.LOOP_WHILE    = LOOP_WHILE
+        this.LOOP_UNTIL    = LOOP_UNTIL
+        this.BREAK         = BREAK
         this.NEXT          = NEXT
         this.RETURN        = RETURN
         this.END           = END
@@ -812,6 +826,48 @@ class VM {
                 if (i <= to) {
                     this.pos = cfor.jumpTo
                 }
+                break
+
+            case DO:
+                // just go along with it
+                break
+
+            case DO_WHILE:
+                // check the while condition and jump out if not true
+                const doWhileCond = stmt.lval.get()
+                if (!doWhileCond) {
+                    this.pos = stmt.loopCmd.jumpTo
+                }
+                break
+
+            case DO_UNTIL:
+                // check the until condition and jump out if true
+                const doUntilCond = stmt.lval.get()
+                if (doUntilCond) {
+                    this.pos = stmt.loopCmd.jumpTo
+                }
+                break
+
+            case LOOP:
+                this.pos = stmt.doCmd.jumpTo
+                break
+
+            case LOOP_WHILE:
+                const whileCond = stmt.lval.get()
+                if (whileCond) {
+                    this.pos = stmt.doCmd.jumpTo
+                }
+                break
+
+            case LOOP_UNTIL:
+                const untilCond = stmt.lval.get()
+                if (!untilCond) {
+                    this.pos = stmt.doCmd.jumpTo
+                }
+                break
+
+            case BREAK:
+                this.pos = stmt.doCmd.loopCmd.jumpTo
                 break
 
             case RETURN:

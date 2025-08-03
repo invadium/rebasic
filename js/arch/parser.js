@@ -3,6 +3,7 @@
 function parse(vm, lex) {
 
     const nextFor = []
+    const nextDo  = []
 
     function doLabel(block, token) {
         vm.markLabel(token.val, block, block.length())
@@ -1176,10 +1177,9 @@ function parse(vm, lex) {
                 return cmd
 
             } else if (token.val === 'next') {
-
                 const cmd = nextFor.pop()
                 if (!cmd) {
-                    lex.err('no matching for loop for next statement')
+                    lex.err('no [for] statement found to match with [next]')
                 }
                 lex.skipLine()
 
@@ -1192,6 +1192,131 @@ function parse(vm, lex) {
                     toString: function() {
                         return `for ${this.cvar} = ${this.lval}`
                             + ` to ${this.rval} step ${this.step}`
+                    }
+                }
+
+            } else if (token.val === 'do') {
+                let cmd
+
+                const ahead = lex.ahead()
+                if (ahead && ahead.type === lex.KEYWORD && ahead.val === 'while') {
+                    lex.next()
+                    const cond = doExpr()
+
+                    cmd = {
+                        type:   vm.DO_WHILE,
+                        lval:   cond,
+                        jumpTo: block.length(),
+
+                        pos:  token.pos,
+                        line: token.line,
+                        toString: function() {
+                            return `do while ${this.lval}`
+                        }
+                    }
+
+                } else if (ahead && ahead.type === lex.KEYWORD && ahead.val === 'until') {
+                    lex.next()
+                    const cond = doExpr()
+
+                    cmd = {
+                        type:   vm.DO_UNTIL,
+                        lval:   cond,
+                        jumpTo: block.length(),
+
+                        pos:  token.pos,
+                        line: token.line,
+                        toString: function() {
+                            return `do until ${this.lval}`
+                        }
+                    }
+
+                } else {
+                    cmd = {
+                        type:   vm.DO,
+                        jumpTo: block.length(),
+
+                        pos:  token.pos,
+                        line: token.line,
+                        toString: function() {
+                            return `do`
+                        }
+                    }
+                }
+                nextDo.push(cmd)
+                return cmd
+            } else if (token.val === 'loop') {
+                const doCmd = nextDo.pop()
+                if (!doCmd) {
+                    lex.err('no [do] statement found to match with [loop]')
+                }
+
+                let cmd
+                const ahead = lex.ahead()
+
+                if (ahead && ahead.type === lex.KEYWORD && ahead.val === 'while') {
+                    lex.next()
+                    const cond = doExpr()
+
+                    cmd = {
+                        type:   vm.LOOP_WHILE,
+                        lval:   cond,
+                        doCmd:  doCmd,
+                        jumpTo: block.length() + 1,
+
+                        pos:  token.pos,
+                        line: token.line,
+                        toString: function() {
+                            return `loop while ${this.lval}`
+                        }
+                    }
+                } else if (ahead && ahead.type === lex.KEYWORD && ahead.val === 'until') {
+                    lex.next()
+                    const cond = doExpr()
+
+                    cmd = {
+                        type:   vm.LOOP_UNTIL,
+                        lval:   cond,
+                        doCmd:  doCmd,
+                        jumpTo: block.length() + 1,
+
+                        pos:  token.pos,
+                        line: token.line,
+                        toString: function() {
+                            return `loop until ${this.lval}`
+                        }
+                    }
+
+                } else {
+                    cmd = {
+                        type:   vm.LOOP,
+                        doCmd:  doCmd,
+                        jumpTo: block.length() + 1,
+
+                        pos:  token.pos,
+                        line: token.line,
+                        toString: function() {
+                            return `loop`
+                        }
+                    }
+                }
+                doCmd.loopCmd = cmd
+                return cmd
+
+            } else if (token.val === 'break') {
+                const doCmd = nextDo[nextDo.length - 1]
+                if (!doCmd) {
+                    lex.err('no [do] statement found to match with [break]')
+                }
+
+                return {
+                    type: vm.BREAK,
+                    doCmd: doCmd,
+
+                    pos:  token.pos,
+                    line: token.line,
+                    toString: function() {
+                        return `break`
                     }
                 }
 
