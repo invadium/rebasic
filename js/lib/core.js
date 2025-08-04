@@ -88,6 +88,10 @@ const core = {
         this.clearScope()
     },
 
+    erase: function(name) {
+        this.erase(name)
+    },
+
     clear: function() {
         this.clearScope()
     },
@@ -175,6 +179,7 @@ core['continue'].man = 'resume previously stopped program'
 
 core.clr.man   = 'erase all defined variables'
 core.clear.man = 'erase all defined variables'
+core.erase.man = 'erase a defined variable/array/map'
 
 core.poke.usage = '(address), (value)'
 core.poke.man = 'set memory cell at [address] to [value]'

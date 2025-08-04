@@ -1357,6 +1357,7 @@ function parse(vm, lex) {
         if (opt) cmd.opt = opt
 
         if (token.val === 'input'
+                || token.val === 'erase'
                 || token.val === 'help'
                 || token.val === 'help!') {
             cmd.immediate = true

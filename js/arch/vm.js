@@ -657,6 +657,16 @@ class VM {
         struct.set( key, val )
     }
 
+    erase(target) {
+        if (!target || !target.id) throw new Error(`can't erase - a name is expected`)
+
+        if (this.scope[target.id] !== undefined) {
+            delete this.scope[target.id]
+        } else {
+            throw new Error(`undefined variable [${target.id}]`)
+        }
+    }
+
     call(name, expr) {
         const v = this.val(expr)
         //console.log('calling ' + name + '(' + v + ')')
