@@ -147,16 +147,24 @@ class Dim {
             let j = 0
             for (let i = 0; i < at.length - 1; i++) {
                 for (let k = i + 1; k < at.length; k++) {
-                    j += (at[i] - 1) * this.sizes[k]
+                    const ati = at[i]
+                    if (ati <= 0 || ati > this.sizes[k-1]) throw new Error(`index [${at.join(',')}]@${ati} is out of bounds`)
+                    j += (ati - 1) * this.sizes[k]
                 }
             }
 
+            const lastAt = at[at.length - 1]
+            if (lastAt <= 0 || lastAt > this.sizes[this.sizes.length - 1]) {
+                throw new Error(`index [${at.join(',')}]@${lastAt} is out of bounds`)
+            }
             j += at[at.length - 1] - 1
+            // if (j < 0 || j >= this.len) throw new Error(`index [${at.join(',')}] is out of bounds`)
             return this.data[j]
 
         } else {
             // one-dimensional array
             if (!util.isNumber(at)) throw new Error(`array index is expected`)
+            if (at <= 0 || at > this.len) throw new Error(`index [${at}] is out of bounds`)
             return this.data[at - 1]
         }
     }
@@ -179,13 +187,13 @@ class Dim {
 
             j += at[at.length - 1] - 1
 
-            if (j < 0 || j >= this.data.length) throw new Error(`array index out of bounds`)
+            if (j < 0 || j >= this.data.length) throw new Error(`array index [${at.join(',')}] out of bounds`)
             this.data[j] = val
 
         } else {
             // one-dimensional array
             if (!util.isNumber(at)) throw new Error(`array index is expected`)
-            if (at <= 0 || at > this.data.length) throw new Error(`array index out of bounds`)
+            if (at <= 0 || at > this.data.length) throw new Error(`array index [${at}] out of bounds`)
             
             this.data[at - 1] = val
         }
