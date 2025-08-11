@@ -239,6 +239,10 @@ class Map {
         this.data[key.toLowerCase()] = val
     }
 
+    getLength() {
+        return Object.keys(this.data).length
+    }
+
     toPrint() {
         const dir = []
         dir.push('{')

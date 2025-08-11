@@ -8,4 +8,5 @@
 120 print c("third")
 130 print c("Fourth")
 200 print c
+210 print len(c)
 
