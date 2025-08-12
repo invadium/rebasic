@@ -320,6 +320,7 @@ class VM {
             'print':   vmPrint,
             'input':   vmInput,
         }
+        this.special = {}
         this.fun = {}
         this.scope = {}
         this.constant = {}
@@ -556,6 +557,11 @@ class VM {
         fn.tags = this.defineTags(fn.tags)
     }
 
+    defineSpecial(name, st) {
+        if (!name || !st) return
+        this.special[name] = st
+    }
+
     defineConst(name, val) {
         // handle possible number values
         if (!name.endsWith('$')) {
@@ -706,7 +712,7 @@ class VM {
                 // calculate param set
                 let val
                 if (stmt.opt) {
-                    if (stmt.immediate) {
+                    if (stmt.noLookup) {
                         this.skipLookup = true
                         val = stmt.opt.get()
                         this.skipLookup = false

@@ -632,6 +632,30 @@ function parse(vm, lex) {
         return ls
     }
 
+    function doMaskedLine() {
+        const ls = []
+        lex.mask.data = true
+        lex.mask.numbers = true
+
+        let token = lex.next()
+        while(token) {
+            ls.push(token)
+            token = lex.next()
+            if (token) {
+                // looks like next data element
+                if (token.type !== lex.OPERATOR || token.val !== ',') {
+                    lex.err(`a comma [,] is expected for next data element`)
+                }
+                token = lex.next() // consume next data element
+            }
+        }
+
+        lex.mask.numbers = false
+        lex.mask.data = false
+        return ls
+
+    }
+
     function doExprInList() {
         const lval = doExprList()
 
@@ -829,8 +853,22 @@ function parse(vm, lex) {
             return doStatement(block)
 
         } else if (token.type === lex.SYM) {
-            const ahead = lex.ahead()
 
+            // process special command cases
+            const special = vm.special[token.val]
+            if (special) {
+                if (special.masked) {
+                    token.opt = doMaskedLine()
+                }
+                if (special.immediate) {
+                    special.doParse(token)
+                    return doStatement(block)
+                } else {
+                    return cmd
+                }
+            }
+
+            const ahead = lex.ahead()
             if (ahead && ahead.type === lex.OPERATOR) {
                 if (ahead.val === ':') {
                     // named label
@@ -973,7 +1011,7 @@ function parse(vm, lex) {
                 return {
                     type: vm.READ,
                     rval: rval,
-                    immediate: true,
+                    noLookup: true,
 
                     pos: token.pos,
                     line: token.line,
@@ -1360,7 +1398,7 @@ function parse(vm, lex) {
                 || token.val === 'erase'
                 || token.val === 'help'
                 || token.val === 'help!') {
-            cmd.immediate = true
+            cmd.noLookup = true
         }
 
         return cmd
