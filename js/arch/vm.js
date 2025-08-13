@@ -333,6 +333,7 @@ class VM {
         this.rstack = []
         this.data = []
         this.dataPos = 0
+        this.mmap = {}
         this.skipLookup = false
         this.util = util
         this.onRun   = function() {}
@@ -515,6 +516,18 @@ class VM {
             throw new Error(`can't read [${'' + opt}]`)
         }
         */
+    }
+
+    definePatternMapping(pattern, target) {
+        if (!pattern) throw new Error('mmap pattern is expected')
+        if (target === undefined) throw new Error('mmap mapping value is expected')
+
+        this.mmap[pattern.toLowerCase()] = target
+    }
+
+    mapPattern(pattern) {
+        if (!pattern) return
+        return this.mmap[pattern]
     }
 
     defineTags(tags) {
@@ -1042,6 +1055,7 @@ class VM {
     clearData() {
         this.dataPos = 0
         this.data = []
+        this.mmap = {}
     }
 
     clearScope() {

@@ -159,6 +159,8 @@ function makeInputStream(src) {
     }
 
     function eatc(c) {
+        if (pos >= src.length) return -1
+
         let i = 0
         while(getc() === c) i++
         retc()
@@ -190,6 +192,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
     const lines = []
     const mask = {
         data:     false,
+        spaces:   false,
         numbers:  false,
     }
 
@@ -277,6 +280,8 @@ function makeLex(src, getc, retc, eatc, aheadc,
             // end of multiline
             skipLine()
             return parseNext()
+        } else if (i < 0) {
+            xerr(`the multiline comment [${cc}]x${len} is not closed`)
         }
         return afterMultiComment(cc, len)
     }
@@ -287,7 +292,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
         if (!c) return
 
         // skip spaces
-        while (isSpace(c)) {
+        while (!mask.spaces && isSpace(c)) {
             c = getc()
             if (lineLead) {
                 if (c === '\t') tab += TAB - ((cur()-lineShift)%TAB)
@@ -318,11 +323,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
         }
 
         // skip -- and multiline ---- comments
-        if (c === '-' || c === '=') {
-            if (mask.data) {
-                retc()
-                return
-            }
+        if ((c === '-' || c === '=') && (cur() - lineShift) === 0) {
             const cc = c
             if (aheadc() === cc) {
                 getc()

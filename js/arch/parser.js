@@ -635,6 +635,7 @@ function parse(vm, lex) {
     function doMaskedLine() {
         const ls = []
         lex.mask.data = true
+        lex.mask.spaces = true
         lex.mask.numbers = true
 
         let token = lex.next()
@@ -651,6 +652,7 @@ function parse(vm, lex) {
         }
 
         lex.mask.numbers = false
+        lex.mask.spaces = false
         lex.mask.data = false
         return ls
 
@@ -859,9 +861,11 @@ function parse(vm, lex) {
             if (special) {
                 if (special.masked) {
                     token.opt = doMaskedLine()
+                } else if (special.dataList) {
+                    token.opt = doDataList()
                 }
                 if (special.immediate) {
-                    special.doParse(token)
+                    special.doParse(vm, token)
                     return doStatement(block)
                 } else {
                     return cmd
