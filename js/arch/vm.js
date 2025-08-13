@@ -232,7 +232,13 @@ class Dim {
     }
 
     toString() {
-        return '[0, 0, 0...]'
+        const head = []
+        const N = this.len < 12? this.len : 12
+        const suffix = this.len > 12? '...' : ''
+        for (let i = 0; i < N; i++) {
+            head.push(this.data[i])
+        }
+        return `[${head.join(',')}${suffix}]`
     }
 }
 
