@@ -67,6 +67,9 @@ const util = {
     isObject: function(v) {
         return (v && typeof v === 'object' && !Array.isArray(v))
     },
+    isArray: function(v) {
+        return Array.isArray(v)
+    },
     expectNumber: function(n) {
         if (typeof n !== 'number'
                 || Number.isNaN(n)) {
@@ -108,7 +111,7 @@ class Dim {
         this.name  = name
         this.sizes = []
 
-        if (isObj(name)) {
+        if (util.isArray(name)) {
             this.setData(name)
             return 
         }
