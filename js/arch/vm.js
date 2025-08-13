@@ -159,16 +159,24 @@ class Dim {
             let j = 0
             for (let i = 0; i < at.length - 1; i++) {
                 for (let k = i + 1; k < at.length; k++) {
-                    j += (at[i] - 1) * this.sizes[k]
+                    const ati = at[i]
+                    if (ati <= 0 || ati > this.sizes[k-1]) throw new Error(`index [${at.join(',')}]@${ati} is out of bounds`)
+                    j += (ati - 1) * this.sizes[k]
                 }
             }
 
+            const lastAt = at[at.length - 1]
+            if (lastAt <= 0 || lastAt > this.sizes[this.sizes.length - 1]) {
+                throw new Error(`index [${at.join(',')}]@${lastAt} is out of bounds`)
+            }
             j += at[at.length - 1] - 1
+            // if (j < 0 || j >= this.len) throw new Error(`index [${at.join(',')}] is out of bounds`)
             return this.data[j]
 
         } else {
             // one-dimensional array
             if (!util.isNumber(at)) throw new Error(`array index is expected`)
+            if (at <= 0 || at > this.len) throw new Error(`index [${at}] is out of bounds`)
             return this.data[at - 1]
         }
     }
@@ -191,13 +199,13 @@ class Dim {
 
             j += at[at.length - 1] - 1
 
-            if (j < 0 || j >= this.data.length) throw new Error(`array index out of bounds`)
+            if (j < 0 || j >= this.data.length) throw new Error(`array index [${at.join(',')}] out of bounds`)
             this.data[j] = val
 
         } else {
             // one-dimensional array
             if (!util.isNumber(at)) throw new Error(`array index is expected`)
-            if (at <= 0 || at > this.data.length) throw new Error(`array index out of bounds`)
+            if (at <= 0 || at > this.data.length) throw new Error(`array index [${at}] out of bounds`)
             
             this.data[at - 1] = val
         }
@@ -241,6 +249,10 @@ class Map {
         if (!key) throw new Error(`a map key is expected`)
         if (!val) throw new Error(`a value is expected`)
         this.data[key.toLowerCase()] = val
+    }
+
+    getLength() {
+        return Object.keys(this.data).length
     }
 
     toPrint() {
@@ -320,6 +332,7 @@ class VM {
             'print':   vmPrint,
             'input':   vmInput,
         }
+        this.special = {}
         this.fun = {}
         this.scope = {}
         this.constant = {}
@@ -332,6 +345,7 @@ class VM {
         this.rstack = []
         this.data = []
         this.dataPos = 0
+        this.mmap = {}
         this.skipLookup = false
         this.util = util
         this.onRun   = function() {}
@@ -516,6 +530,18 @@ class VM {
         */
     }
 
+    definePatternMapping(pattern, target) {
+        if (!pattern) throw new Error('mmap pattern is expected')
+        if (target === undefined) throw new Error('mmap mapping value is expected')
+
+        this.mmap[pattern.toLowerCase()] = target
+    }
+
+    mapPattern(pattern) {
+        if (!pattern) return
+        return this.mmap[pattern]
+    }
+
     defineTags(tags) {
         if (!tags) return
         if (!Array.isArray(tags)) {
@@ -554,6 +580,11 @@ class VM {
         if (!name || typeof fn !== 'function') return
         this.command[name] = fn
         fn.tags = this.defineTags(fn.tags)
+    }
+
+    defineSpecial(name, st) {
+        if (!name || !st) return
+        this.special[name] = st
     }
 
     defineConst(name, val) {
@@ -706,7 +737,7 @@ class VM {
                 // calculate param set
                 let val
                 if (stmt.opt) {
-                    if (stmt.immediate) {
+                    if (stmt.noLookup) {
                         this.skipLookup = true
                         val = stmt.opt.get()
                         this.skipLookup = false
@@ -1036,6 +1067,7 @@ class VM {
     clearData() {
         this.dataPos = 0
         this.data = []
+        this.mmap = {}
     }
 
     clearScope() {

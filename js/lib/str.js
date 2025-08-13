@@ -8,7 +8,13 @@ const str = {
     },
     len: function(s) {
         if (!s) return 0
-        return s.length
+        if (s instanceof this.Dim) {
+            return s.len
+        } else if (s instanceof this.Map) {
+            return s.getLength()
+        } else {
+            return s.length
+        }
     },
     left$: function(s, i) {
         if (!s) return ""

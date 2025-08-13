@@ -1,3 +1,4 @@
+' test the error on trying to assign outside two-dimensional bounds
 10 dim a(2, 3)
 20 a(2, 4) = 204
 

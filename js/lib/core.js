@@ -60,6 +60,10 @@ const core = {
         this.command.print(this.source(from, to))
     },
 
+    ls: function(from, to) {
+        this.command.print(this.source(from, to))
+    },
+
     'list!': function(from, to) {
         this.command.cls.call(this)
         this.command.print(this.source(from, to))
@@ -156,6 +160,9 @@ core.env.man = 'list all defined variables with their values'
 
 core.list.usage = '(from), (to)'
 core.list.man = 'list the source'
+
+core.ls.usage = '(from), (to)'
+core.ls.man = 'list the source, alias to list'
 
 core['list!'].usage = '(from), (to)'
 core['list!'].man = 'list the source after clearing the screen'

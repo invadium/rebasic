@@ -8,3 +8,4 @@ ANOTHER ONE
   third: 101
   fourth: ANOTHER ONE
 }
+4

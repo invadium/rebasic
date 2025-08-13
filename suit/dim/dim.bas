@@ -10,12 +10,7 @@
 130 print "4:",a(4)
 140 print "5:",a(5)
 
-200 print a
-
-
-300 print "out of range:"
-310 print "0:",a(0)
-320 print "100:",a(100)
+200 print "full array dump:", a
 
 1000 data 201, 301, 401
 

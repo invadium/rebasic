@@ -159,6 +159,8 @@ function makeInputStream(src) {
     }
 
     function eatc(c) {
+        if (pos >= src.length) return -1
+
         let i = 0
         while(getc() === c) i++
         retc()
@@ -190,6 +192,8 @@ function makeLex(src, getc, retc, eatc, aheadc,
     const lines = []
     const mask = {
         data:     false,
+        spaces:   false,
+        numbers:  false,
     }
 
     function lineFrom(shift) {
@@ -276,6 +280,8 @@ function makeLex(src, getc, retc, eatc, aheadc,
             // end of multiline
             skipLine()
             return parseNext()
+        } else if (i < 0) {
+            xerr(`the multiline comment [${cc}]x${len} is not closed`)
         }
         return afterMultiComment(cc, len)
     }
@@ -286,7 +292,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
         if (!c) return
 
         // skip spaces
-        while (isSpace(c)) {
+        while (!mask.spaces && isSpace(c)) {
             c = getc()
             if (lineLead) {
                 if (c === '\t') tab += TAB - ((cur()-lineShift)%TAB)
@@ -317,11 +323,7 @@ function makeLex(src, getc, retc, eatc, aheadc,
         }
 
         // skip -- and multiline ---- comments
-        if (c === '-' || c === '=') {
-            if (mask.data) {
-                retc()
-                return
-            }
+        if ((c === '-' || c === '=') && (cur() - lineShift) === 0) {
             const cc = c
             if (aheadc() === cc) {
                 getc()
@@ -382,101 +384,103 @@ function makeLex(src, getc, retc, eatc, aheadc,
             }
         }
 
-        let sign = 1
-        if (c === '-') {
-            sign = -1
-            c = getc()
-        }
-
-        if (isDigit(c)) {
-            let n = 0
-            const nextc = aheadc()
-            if (c === '0' && nextc === 'x') {
-                getc() // eat x
-                if (sign < 0) xerr("hex value can't be negative")
-
-
-                let d = toHex(getc())
-                if (d < 0) {
-                    xerr('wrong hex number format')
-                }
-                while (d >= 0) {
-                    n = n*16 + d
-                    d = toHex(getc())
-                }
-                retc()
-
-                return {
-                    type: NUM,
-                    tab: tab,
-                    val: n,
-                    pos:  cur() - lineShift,
-                    line: lineNum,
-                }
-            } else if (c === '0' && nextc !== '.' && !isDigit(nextc)) {
-                // hanlde plain 0
+        if (!mask.numbers) {
+            let sign = 1
+            if (c === '-') {
+                sign = -1
                 c = getc()
-                if (c && !isSeparator(c)) xerr('wrong number format')
+            }
 
-                retc()
-                return {
-                    type: NUM,
-                    tab: tab,
-                    val: 0,
-                    pos:  cur() - lineShift,
-                    line: lineNum,
-                }
+            if (isDigit(c)) {
+                let n = 0
+                const nextc = aheadc()
+                if (c === '0' && nextc === 'x') {
+                    getc() // eat x
+                    if (sign < 0) xerr("hex value can't be negative")
 
-            } else if (c === '0' && (nextc === '0' || nextc === '1')) {
-                // binary sequence, e.g. 0100101
-                if (sign < 0) xerr('wrong binary format - negative sign is unexpected')
-                let d = 0
-                while ((d = toBinary(c)) >= 0) {
-                    n = (n << 1) + d
+
+                    let d = toHex(getc())
+                    if (d < 0) {
+                        xerr('wrong hex number format')
+                    }
+                    while (d >= 0) {
+                        n = n*16 + d
+                        d = toHex(getc())
+                    }
+                    retc()
+
+                    return {
+                        type: NUM,
+                        tab: tab,
+                        val: n,
+                        pos:  cur() - lineShift,
+                        line: lineNum,
+                    }
+                } else if (c === '0' && nextc !== '.' && !isDigit(nextc)) {
+                    // hanlde plain 0
                     c = getc()
-                }
-                retc()
+                    if (c && !isSeparator(c)) xerr('wrong number format')
 
-                return {
-                    type: NUM,
-                    tab:  tab,
-                    val:  n,
-                    pos:  cur() - lineShift,
-                    line: lineNum,
-                }
+                    retc()
+                    return {
+                        type: NUM,
+                        tab: tab,
+                        val: 0,
+                        pos:  cur() - lineShift,
+                        line: lineNum,
+                    }
 
-            } else {
-                let d = 0
-                while ((d = toDec(c)) >= 0) {
-                    n = n*10 + d
-                    c = getc()
-                }
+                } else if (c === '0' && (nextc === '0' || nextc === '1')) {
+                    // binary sequence, e.g. 0100101
+                    if (sign < 0) xerr('wrong binary format - negative sign is unexpected')
+                    let d = 0
+                    while ((d = toBinary(c)) >= 0) {
+                        n = (n << 1) + d
+                        c = getc()
+                    }
+                    retc()
 
-                if (c === '.') {
-                    let precision = 1
+                    return {
+                        type: NUM,
+                        tab:  tab,
+                        val:  n,
+                        pos:  cur() - lineShift,
+                        line: lineNum,
+                    }
 
-                    c = getc()
+                } else {
+                    let d = 0
                     while ((d = toDec(c)) >= 0) {
                         n = n*10 + d
-                        precision *= 10
                         c = getc()
                     }
 
-                    n = n/precision
-                }
-                retc()
+                    if (c === '.') {
+                        let precision = 1
 
-                return {
-                    type: NUM,
-                    tab: tab,
-                    val: sign * n,
-                    pos:  cur() - lineShift,
-                    line: lineNum,
+                        c = getc()
+                        while ((d = toDec(c)) >= 0) {
+                            n = n*10 + d
+                            precision *= 10
+                            c = getc()
+                        }
+
+                        n = n/precision
+                    }
+                    retc()
+
+                    return {
+                        type: NUM,
+                        tab: tab,
+                        val: sign * n,
+                        pos:  cur() - lineShift,
+                        line: lineNum,
+                    }
                 }
+
+            } else if (sign < 0) {
+                xerr('wrong number format')
             }
-
-        } else if (sign < 0) {
-            xerr('wrong number format')
         }
 
         if (mask.data) {
