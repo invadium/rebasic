@@ -108,6 +108,11 @@ class Dim {
         this.name  = name
         this.sizes = []
 
+        if (isObj(name)) {
+            this.setData(name)
+            return 
+        }
+
         if (!rval) throw new Error(`array dimensions are expected`)
         if (rval.list) {
             // multi-dimensional
@@ -135,6 +140,13 @@ class Dim {
 
         //console.log(this.dim + ': ' + this.len)
         //console.dir(this.sizes)
+    }
+
+    setData(data) {
+        this.data = data
+        this.sizes = [ data.length ]
+        this.dim = this.sizes.length
+        this.len = data.length
     }
 
     get(at) {
