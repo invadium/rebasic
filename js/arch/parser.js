@@ -885,16 +885,16 @@ function parse(vm, lex) {
                     lex.next()
 
                     const rval = doExpr()
-                    return {
+                    return probeMultiStatement({
                         type: vm.LET,
                         lval: token.val,
                         rval: rval,
-                        pos: token.pos,
+                        pos:  token.pos,
                         line: token.line,
                         toString: function() {
                             return `${this.lval} = ${this.rval}`
                         },
-                    }
+                    }, block)
                 } else if (ahead.val === '(') {
                     // array assign element
                     lex.next()
@@ -912,7 +912,7 @@ function parse(vm, lex) {
 
                     const rval = doExpr()
 
-                    return {
+                    return probeMultiStatement({
                         type: vm.LET_EL,
                         lval: token.val,
                         ival: selectorSet,
@@ -928,7 +928,7 @@ function parse(vm, lex) {
                         toString: function() {
                             return `${this.lval}(${this.ival}) = ${this.rval}`
                         },
-                    }
+                    }, block)
                 }
             }
 
@@ -951,7 +951,7 @@ function parse(vm, lex) {
 
                 const rval = doExpr()
 
-                return {
+                return probeMultiStatement({
                     type: vm.LET,
                     lval: variable.val,
                     rval: rval,
@@ -961,7 +961,7 @@ function parse(vm, lex) {
                     toString: function() {
                         return `let ${this.lval} = ${this.rval}`
                     },
-                }
+                }, block)
 
             } else if (token.val === 'dim') {
                 const array = lex.next()
@@ -979,7 +979,7 @@ function parse(vm, lex) {
                     lex.err(`) is expected`)
                 }
 
-                return {
+                return probeMultiStatement({
                     type: vm.DIM,
                     lval: array.val,
                     rval: rlist,
@@ -989,7 +989,7 @@ function parse(vm, lex) {
                     toString: function() {
                         return `dim ${this.lval}(${this.rval})`
                     },
-                }
+                }, block)
 
             } else if (token.val === 'map') {
                 const map = lex.next()
@@ -998,7 +998,7 @@ function parse(vm, lex) {
                     lex.err('map name is expected')
                 }
 
-                return {
+                return probeMultiStatement({
                     type: vm.MAP,
                     lval: map.val,
 
@@ -1007,12 +1007,12 @@ function parse(vm, lex) {
                     toString: function() {
                         return `map ${this.lval}`
                     },
-                }
+                }, block)
 
             } else if (token.val === 'read') {
                 const rval = doTargetList(token)
 
-                return {
+                return probeMultiStatement({
                     type: vm.READ,
                     rval: rval,
                     noLookup: true,
@@ -1022,7 +1022,7 @@ function parse(vm, lex) {
                     toString: function() {
                         return `read ${this.rval}`
                     },
-                }
+                }, block)
 
             } else if (token.val === 'data') {
                 //const list = doExprInList()
@@ -1118,7 +1118,7 @@ function parse(vm, lex) {
                     lex.err(`[then|goto|gosub] expected!`)
                 }
 
-                return {
+                return probeMultiStatement({
                     type: vm.IF,
                     cond: cond,
                     lstmt: lstmt,
@@ -1126,7 +1126,7 @@ function parse(vm, lex) {
 
                     pos: token.pos,
                     line: token.line,
-                }
+                }, block)
 
             } else if (token.val === 'on') {
                 const variable = lex.next()
@@ -1164,14 +1164,14 @@ function parse(vm, lex) {
                     }
                 }
 
-                return {
+                return probeMultiStatement({
                     type:   type,
                     lval:   variable.val,
                     labels: labels,
 
                     pos:  token.pos,
                     line: token.line,
-                }
+                }, block)
 
             } else if (token.val === 'for') {
                 const controlVar = lex.next()
@@ -1205,6 +1205,7 @@ function parse(vm, lex) {
                     lval: lval,
                     rval: rval,
                     step: step,
+                    block:  block,
                     jumpTo: block.length() + 1,
 
                     pos: token.pos,
@@ -1216,7 +1217,7 @@ function parse(vm, lex) {
                     }
                 }
                 nextFor.push(cmd)
-                return cmd
+                return probeMultiStatement(cmd, block)
 
             } else if (token.val === 'next') {
                 const cmd = nextFor.pop()
@@ -1225,7 +1226,9 @@ function parse(vm, lex) {
                 }
                 lex.skipLine()
 
-                return {
+                //console.log("NEXT FOR:")
+                //console.dir(cmd)
+                return probeMultiStatement({
                     type: vm.NEXT,
                     forCommand: cmd,
 
@@ -1235,7 +1238,7 @@ function parse(vm, lex) {
                         return `for ${this.cvar} = ${this.lval}`
                             + ` to ${this.rval} step ${this.step}`
                     }
-                }
+                }, block)
 
             } else if (token.val === 'do') {
                 let cmd
@@ -1286,7 +1289,7 @@ function parse(vm, lex) {
                     }
                 }
                 nextDo.push(cmd)
-                return cmd
+                return probeMultiStatement(cmd, block)
             } else if (token.val === 'loop') {
                 const doCmd = nextDo.pop()
                 if (!doCmd) {
@@ -1343,7 +1346,7 @@ function parse(vm, lex) {
                     }
                 }
                 doCmd.loopCmd = cmd
-                return cmd
+                return probeMultiStatement(cmd, block)
 
             } else if (token.val === 'break') {
                 const doCmd = nextDo[nextDo.length - 1]
@@ -1405,7 +1408,7 @@ function parse(vm, lex) {
             cmd.noLookup = true
         }
 
-        return cmd
+        return probeMultiStatement(cmd, block)
     }
 
     function doThenStatement(block) {
@@ -1462,6 +1465,34 @@ function parse(vm, lex) {
         } else {
             lex.ret()
             return doStatement(block)
+        }
+    }
+
+    function probeMultiStatement(prevStmt, block) {
+        const ahead = lex.ahead()
+        if (ahead && ahead.type === lex.OPERATOR && ahead.val === ':') {
+            lex.next()
+
+            let nextBlock = block
+            if (nextBlock.type !== vm.MULTIBLOCK) {
+                nextBlock = new vm.Block(lex)
+                nextBlock.type = vm.MULTIBLOCK
+                nextBlock.push(prevStmt)
+                // promote prev statement to a new block
+                if (prevStmt.block) prevStmt.block = nextBlock
+                if (prevStmt.jumpTo) prevStmt.jumpTo = 1
+            } else {
+                nextBlock.push(prevStmt)
+            }
+
+            const nextStmt = doStatement(nextBlock)
+            return nextBlock
+
+        } else {
+            if (block.type === vm.MULTIBLOCK) {
+                block.push(prevStmt)
+            }
+            return prevStmt
         }
     }
 

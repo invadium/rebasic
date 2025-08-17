@@ -26,6 +26,7 @@ const GET_EL        = 21
 const TAR_EL        = 22
 const READ          = 23
 
+const MULTIBLOCK    = 27
 const GOTO          = 28
 const GOSUB         = 29
 
@@ -308,6 +309,7 @@ class VM {
         this.TAR_EL        = TAR_EL
         this.READ          = READ
 
+        this.MULTIBLOCK    = MULTIBLOCK
         this.GOTO          = GOTO
         this.GOSUB         = GOSUB
 
@@ -362,6 +364,8 @@ class VM {
         this.onInput = function() {}
         this.interrupt()
         this.loop = false
+        this.masterPos = 0
+        this.masterCode = null
 
         const vm = this
         this.inputHandler = function(cmd) {
@@ -405,14 +409,22 @@ class VM {
                 vm.command.close()
             }
 
-            if (vm.pos === vm.code.length
-                    && !vm.resumeOnInput
-                    && vm.rstack.length === 0
-                    && vm.loop) {
-                vm.interrupt()
-                // TODO all we really need is to run the interrupt method()???
-                //vm.interrupted = true
-                //vm.onStop()
+            if (vm.pos >= vm.code.length) {
+                if (vm.masterCode) {
+                    vm.code = vm.masterCode
+                    vm.pos = vm.masterPos
+                    vm.masterCode = null
+                    vm.resume()
+                }
+
+                if (!vm.resumeOnInput
+                        && vm.rstack.length === 0
+                        && vm.loop) {
+                    vm.interrupt()
+                    // TODO all we really need is to run the interrupt method()???
+                    //vm.interrupted = true
+                    //vm.onStop()
+                }
             }
         }
     }
@@ -886,6 +898,7 @@ class VM {
                 this.assign(cfor.cvar, i)
 
                 if (i <= to) {
+                    this.code = cfor.block.code
                     this.pos = cfor.jumpTo
                 }
                 break
@@ -948,8 +961,16 @@ class VM {
                 this.pos = this.code.length
                 break
 
+            case MULTIBLOCK:
+                this.masterCode = this.code
+                this.masterPos = this.pos
+                this.code = stmt.code
+                this.pos  = 0
+                break
+
             default:
-                console.log('Unknown statement')
+                console.log('Unknown statement!')
+                console.log(`Type: ${stmt.type}`)
                 console.log(stmt.toString())
                 console.dir(stmt)
                 break
