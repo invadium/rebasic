@@ -1251,6 +1251,7 @@ function parse(vm, lex) {
                     cmd = {
                         type:   vm.DO_WHILE,
                         lval:   cond,
+                        block:  block,
                         jumpTo: block.length(),
 
                         pos:  token.pos,
@@ -1267,6 +1268,7 @@ function parse(vm, lex) {
                     cmd = {
                         type:   vm.DO_UNTIL,
                         lval:   cond,
+                        block:  block,
                         jumpTo: block.length(),
 
                         pos:  token.pos,
@@ -1279,6 +1281,7 @@ function parse(vm, lex) {
                 } else {
                     cmd = {
                         type:   vm.DO,
+                        block:  block,
                         jumpTo: block.length(),
 
                         pos:  token.pos,
@@ -1290,6 +1293,7 @@ function parse(vm, lex) {
                 }
                 nextDo.push(cmd)
                 return probeMultiStatement(cmd, block)
+
             } else if (token.val === 'loop') {
                 const doCmd = nextDo.pop()
                 if (!doCmd) {
@@ -1307,6 +1311,7 @@ function parse(vm, lex) {
                         type:   vm.LOOP_WHILE,
                         lval:   cond,
                         doCmd:  doCmd,
+                        block:  block,
                         jumpTo: block.length() + 1,
 
                         pos:  token.pos,
@@ -1323,6 +1328,7 @@ function parse(vm, lex) {
                         type:   vm.LOOP_UNTIL,
                         lval:   cond,
                         doCmd:  doCmd,
+                        block:  block,
                         jumpTo: block.length() + 1,
 
                         pos:  token.pos,
@@ -1336,6 +1342,7 @@ function parse(vm, lex) {
                     cmd = {
                         type:   vm.LOOP,
                         doCmd:  doCmd,
+                        block:  block,
                         jumpTo: block.length() + 1,
 
                         pos:  token.pos,
@@ -1346,7 +1353,7 @@ function parse(vm, lex) {
                     }
                 }
                 doCmd.loopCmd = cmd
-                return probeMultiStatement(cmd, block)
+                return closeMultiStatement(cmd, block)
 
             } else if (token.val === 'break') {
                 const doCmd = nextDo[nextDo.length - 1]
@@ -1354,7 +1361,7 @@ function parse(vm, lex) {
                     lex.err('no [do] statement found to match with [break]')
                 }
 
-                return {
+                return closeMultiStatement({
                     type: vm.BREAK,
                     doCmd: doCmd,
 
@@ -1363,27 +1370,27 @@ function parse(vm, lex) {
                     toString: function() {
                         return `break`
                     }
-                }
+                }, block)
 
             } else if (token.val === 'return') {
-                return {
+                return closeMultiStatement({
                     type: vm.RETURN,
                     pos: token.pos,
                     line: token.line,
                     toString: function() {
                         return 'return'
                     }
-                }
+                }, block)
 
             } else if (token.val === 'stop' || token.val === 'end') {
-                return {
+                return closeMultiStatement({
                     type: vm.END,
                     pos: token.pos,
                     line: token.line,
                     toString: function() {
                         return 'end'
                     }
-                }
+                }, block)
             }
         }
 
@@ -1477,10 +1484,16 @@ function parse(vm, lex) {
             if (nextBlock.type !== vm.MULTIBLOCK) {
                 nextBlock = new vm.Block(lex)
                 nextBlock.type = vm.MULTIBLOCK
+                nextBlock.__   = block
+                nextBlock.pos  = block.length()
+                nextBlock.code.__ = nextBlock
                 nextBlock.push(prevStmt)
                 // promote prev statement to a new block
+                if (prevStmt.jumpTo) {
+                    const shift = prevStmt.jumpTo - block.length()
+                    prevStmt.jumpTo = shift
+                }
                 if (prevStmt.block) prevStmt.block = nextBlock
-                if (prevStmt.jumpTo) prevStmt.jumpTo = 1
             } else {
                 nextBlock.push(prevStmt)
             }
@@ -1496,6 +1509,13 @@ function parse(vm, lex) {
         }
     }
 
+    function closeMultiStatement(stmt, block) {
+        if (block.type === vm.MULTIBLOCK) {
+            block.push(stmt)
+        }
+        return stmt
+    }
+
     function doBlock(tab, block) {
         let op
         while(op = doStatement(block)) {
@@ -1505,6 +1525,7 @@ function parse(vm, lex) {
 
     // create and parse root block
     const rootBlock = new vm.Block(lex)
+    rootBlock.root = true
     doBlock(0, rootBlock)
 
     return rootBlock

@@ -364,8 +364,6 @@ class VM {
         this.onInput = function() {}
         this.interrupt()
         this.loop = false
-        this.masterPos = 0
-        this.masterCode = null
 
         const vm = this
         this.inputHandler = function(cmd) {
@@ -410,10 +408,10 @@ class VM {
             }
 
             if (vm.pos >= vm.code.length) {
-                if (vm.masterCode) {
-                    vm.code = vm.masterCode
-                    vm.pos = vm.masterPos
-                    vm.masterCode = null
+                if (vm.code.__) {
+                    const block = vm.code.__
+                    vm.code = block.__.code
+                    vm.pos = block.pos + 1
                     vm.resume()
                 }
 
@@ -744,6 +742,20 @@ class VM {
         }
     }
 
+    jumpTo(code, pos) {
+        /*
+        if (this.masterCode === this.code) {
+            this.masterCode = null
+        } else {
+            if (code.type === MULTIBLOCK) {
+                this.MasterCode =  
+            }
+        }
+        */
+        this.code = code
+        this.pos  = pos
+    }
+
     next(stmt) {
         if (!stmt) return
         this.cycles ++
@@ -898,8 +910,7 @@ class VM {
                 this.assign(cfor.cvar, i)
 
                 if (i <= to) {
-                    this.code = cfor.block.code
-                    this.pos = cfor.jumpTo
+                    this.jumpTo(cfor.block.code, cfor.jumpTo)
                 }
                 break
 
@@ -911,7 +922,8 @@ class VM {
                 // check the while condition and jump out if not true
                 const doWhileCond = stmt.lval.get()
                 if (!doWhileCond) {
-                    this.pos = stmt.loopCmd.jumpTo
+                    this.code = stmt.loopCmd.block.code
+                    this.pos  = stmt.loopCmd.jumpTo
                 }
                 break
 
@@ -924,7 +936,8 @@ class VM {
                 break
 
             case LOOP:
-                this.pos = stmt.doCmd.jumpTo
+                this.code = stmt.doCmd.block.code
+                this.pos  = stmt.doCmd.jumpTo
                 break
 
             case LOOP_WHILE:
@@ -962,8 +975,8 @@ class VM {
                 break
 
             case MULTIBLOCK:
-                this.masterCode = this.code
-                this.masterPos = this.pos
+                //this.masterCode = this.code
+                //this.masterPos = this.pos
                 this.code = stmt.code
                 this.pos  = 0
                 break
