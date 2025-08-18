@@ -1034,6 +1034,7 @@ function parse(vm, lex) {
                 return doStatement(block)
 
             } else if (token.val === 'if') {
+                if (block.type === vm.MULTIBLOCK) lex.err("if branching can't be inside a : multi-statement chain")
                 const cond = doExpr()
 
                 let lstmt, rstmt
@@ -1523,10 +1524,23 @@ function parse(vm, lex) {
         }
     }
 
+    function validate() {
+        if (nextDo.length > 0) {
+            const doStmt = nextDo.pop()
+            lex.err('missing "loop" statement', doStmt.line, doStmt.pos)
+        }
+        if (nextFor.length > 0) {
+            const doStmt = nextFor.pop()
+            lex.err('missing "next" statement', doStmt.line, doStmt.pos)
+        }
+    }
+
     // create and parse root block
     const rootBlock = new vm.Block(lex)
     rootBlock.root = true
     doBlock(0, rootBlock)
+
+    validate()
 
     return rootBlock
 }

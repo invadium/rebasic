@@ -237,9 +237,12 @@ function makeLex(src, getc, retc, eatc, aheadc,
         print(cur)
     }
 
-    function err(msg) {
-        dumpSource(lineShift, mark-lineShift)
-        const err = '' + lineNum + '.' + (mark-lineShift) + ': ' + msg
+    function err(msg, line, pos) {
+        line = line || lineNum
+        pos  = pos || mark-lineShift
+        dumpLine(line, pos)
+        //dumpSource(lineShift, mark-lineShift)
+        const err = '' + line + '.' + pos + ': ' + msg
         //print(err)
         throw new Error(err)
     }

@@ -743,17 +743,17 @@ class VM {
     }
 
     jumpTo(code, pos) {
-        /*
-        if (this.masterCode === this.code) {
-            this.masterCode = null
-        } else {
-            if (code.type === MULTIBLOCK) {
-                this.MasterCode =  
-            }
-        }
-        */
         this.code = code
         this.pos  = pos
+    }
+
+    end() {
+        if (this.code.__) {
+            this.code = this.code.__.__.code
+            this.end()
+        } else {
+            this.pos = this.code.length
+        }
     }
 
     next(stmt) {
@@ -915,15 +915,14 @@ class VM {
                 break
 
             case DO:
-                // just go along with it
+                // just go along with its
                 break
 
             case DO_WHILE:
                 // check the while condition and jump out if not true
                 const doWhileCond = stmt.lval.get()
                 if (!doWhileCond) {
-                    this.code = stmt.loopCmd.block.code
-                    this.pos  = stmt.loopCmd.jumpTo
+                    this.jumpTo(stmt.loopCmd.block.code, stmt.loopCmd.jumpTo)
                 }
                 break
 
@@ -931,47 +930,44 @@ class VM {
                 // check the until condition and jump out if true
                 const doUntilCond = stmt.lval.get()
                 if (doUntilCond) {
-                    this.pos = stmt.loopCmd.jumpTo
+                    this.jumpTo(stmt.loopCmd.block.code, stmt.loopCmd.jumpTo)
                 }
                 break
 
             case LOOP:
-                this.code = stmt.doCmd.block.code
-                this.pos  = stmt.doCmd.jumpTo
+                this.jumpTo(stmt.doCmd.block.code, stmt.doCmd.jumpTo)
                 break
 
             case LOOP_WHILE:
                 const whileCond = stmt.lval.get()
                 if (whileCond) {
-                    this.pos = stmt.doCmd.jumpTo
+                    this.jumpTo(stmt.doCmd.block.code, stmt.doCmd.jumpTo)
                 }
                 break
 
             case LOOP_UNTIL:
                 const untilCond = stmt.lval.get()
                 if (!untilCond) {
-                    this.pos = stmt.doCmd.jumpTo
+                    this.jumpTo(stmt.doCmd.block.code, stmt.doCmd.jumpTo)
                 }
                 break
 
             case BREAK:
-                this.pos = stmt.doCmd.loopCmd.jumpTo
+                this.jumpTo(stmt.doCmd.loopCmd.block.code, stmt.doCmd.loopCmd.jumpTo)
                 break
 
             case RETURN:
                 if (this.rstack.length === 0) {
                     // the end
-                    this.pos = Number.MAX_SAFE_INTEGER
+                    this.end()
                 } else {
-                    this.code = this.bstack.pop()
-                    this.pos = this.rstack.pop()
+                    this.jumpTo(this.bstack.pop(), this.rstack.pop())
                 }
                 break
 
             case END:
                 // the end of program
-                //this.pos = Number.MAX_SAFE_INTEGER
-                this.pos = this.code.length
+                this.end()
                 break
 
             case MULTIBLOCK:
