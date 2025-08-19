@@ -98,17 +98,28 @@ function run() {
     setInterrupts(vm)
 
     scripts.forEach(origin => {
-        const src = fs.readFileSync(origin, 'utf8')
+        try {
+            const src = fs.readFileSync(origin, 'utf8')
 
-        // manually parse and run with vm
-        //const lex = lexFromSource(src, vm.command.print)
-        //const code = parse(vm, lex)
-        //vm.run(code, 0)
-        
-        // load source silently and execute "run"
-        vm.loadSource(src, true)
-        vm.exitOnError = true
-        vm.processCommand('run')
+            // manually parse and run with vm
+            //const lex = lexFromSource(src, vm.command.print)
+            //const code = parse(vm, lex)
+            //vm.run(code, 0)
+            
+            // load source silently and execute "run"
+            vm.exitOnError = true
+            vm.loadSource(src, true)
+            vm.processCommand('run')
+        } catch(e) {
+            if (vm.opt.debug) {
+                console.log(e.stack)
+            } else {
+                console.log(e.message)
+            }
+            if (vm.exitOnError) {
+                process.exit(1)
+            }
+        }
     })
 }
 

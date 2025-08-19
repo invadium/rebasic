@@ -427,7 +427,7 @@ class VM {
         }
     }
 
-    placeLine(line, numberedOnly) {
+    placeLine(line, numberedOnly, failOnCollision) {
         // check autonumber
         const dot = line.startsWith('.')
         // check line number
@@ -460,6 +460,7 @@ class VM {
         if (!cmdLine) {
             this.lines[ln] = false // clear the line
         } else {
+            if (failOnCollision && this.lines[ln]) throw new Error(`line number collision for #${ln}: ${line}`)
             this.lines[ln] = line
             if (this.onNewLine) this.onNewLine(ln)
         }
@@ -1093,7 +1094,7 @@ class VM {
         if (src) {
             const lines = src.split('\n').filter(l => l && !l.startsWith('#'))
             for (let i = 0; i < lines.length; i++) {
-                if (this.placeLine(lines[i], false)) loaded ++
+                if (this.placeLine(lines[i], false, true)) loaded ++
             }
         }
         if (!silent) this.command.print(`loaded ${loaded} lines`)
