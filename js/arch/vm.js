@@ -257,7 +257,7 @@ class Map {
 
     set(key, val) {
         if (!key) throw new Error(`a map key is expected`)
-        if (!val) throw new Error(`a value is expected`)
+        if (val === undefined) throw new Error(`a value is expected`)
         this.data[key.toLowerCase()] = val
     }
 
@@ -326,7 +326,7 @@ class VM {
         this.Dim = Dim
         this.Map = Map
 
-        this.MAX_CYCLES = 65536
+        this.MAX_CYCLES = 1024
         this.MAX_OUTPUTS = 16
         this.lastLine = 0
         this.ram = []
