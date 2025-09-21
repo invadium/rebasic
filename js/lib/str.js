@@ -51,30 +51,39 @@ const str = {
 
 str.asc.usage = '(s$)'
 str.asc.man = 'ASCII code of the first character of s$'
+str.asc.tags = 'core'
 
 str.chr$.usage = '(x)'
 str.chr$.man = 'character for ASCII code of [x]'
+str.chr$.tags = 'core'
 
 str.len.usage = '(s$)'
 str.len.man = 'length of the string [s$]'
+str.len.tags = 'core'
 
 str.left$.usage = '(s$,x)'
 str.left$.man = 'get left [x] characters of [s$]'
+str.left$.tags = 'core'
 
 str.mid$.usage = '(s$,n,m)'
 str.mid$.man = 'characters of [s$] from [n] to [m]'
+str.mid$.tags = 'core'
 
 str.right$.usage = '(s$,x)'
 str.right$.man = 'get right [x] characters of [s$]'
+str.right$.tags = 'core'
 
 str.str$.usage = '(x)'
 str.str$.man = 'convert [x] into a string'
+str.str$.tags = 'core'
 
 str.val.usage = '(s$)'
 str.val.man = 'convert s$ into a number'
+str.val.tags = 'core'
 
 str.spc.usage = '(n)'
 str.spc.man = 'string of [n] spaces'
+str.spc.tags = 'core'
 
 str.tab.usage = '(n)'
 str.tab.man = 'string of [n] tabs'
