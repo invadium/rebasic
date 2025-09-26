@@ -776,7 +776,20 @@ function parse(vm, lex) {
             ival: ival,
             select:  function(target) {
                 if (!target) throw new Error('missing a container for element selection')
-                return target.get(this.ival.get())
+                // always element, never target!
+                vm.saveAndResetNoLookup()
+                const ival = this.ival.get()
+                vm.restoreNoLookup()
+
+                if (vm.skipLookup) {
+                    // input mode
+                    return {
+                        container: target,
+                        at:        ival,
+                    }
+                } else {
+                    return target.get(ival)
+                }
             },
             get: function() {
                 return this.ival.get()
@@ -1012,6 +1025,7 @@ function parse(vm, lex) {
             } else if (token.val === 'read') {
                 const rval = doTargetList(token)
 
+                rval.noLookup = true
                 return probeMultiStatement({
                     type: vm.READ,
                     rval: rval,
@@ -1414,6 +1428,7 @@ function parse(vm, lex) {
                 || token.val === 'help'
                 || token.val === 'help!') {
             cmd.noLookup = true
+            if (cmd.rval) cmd.rval.noLookup = true
         }
 
         return probeMultiStatement(cmd, block)

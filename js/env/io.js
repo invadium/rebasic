@@ -65,7 +65,7 @@ function __input__(then) {
     for (let i = 0; i < arguments.length; i++) {
         const v = arguments[i]
 
-        if (typeof v === 'object' && v.id) {
+        if (typeof v === 'object') {
             // we need to preserve input target, so vm can assign input later
             this.inputTarget = v
         } else {

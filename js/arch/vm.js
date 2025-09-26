@@ -358,6 +358,7 @@ class VM {
         this.dataPos = 0
         this.mmap = {}
         this.skipLookup = false
+        this.skipLookupStack = []
         this.util = util
         this.onRun   = function() {}
         this.onStop  = function() {}
@@ -426,6 +427,8 @@ class VM {
             }
         }
     }
+
+
 
     placeLine(line, numberedOnly, failOnCollision) {
         // check autonumber
@@ -630,6 +633,18 @@ class VM {
     }
 
     assignTarget(target, val) {
+        if (target.container) {
+            if (!target.container.name.endsWith('$')) {
+                const n = parseFloat(val)
+                if (!isNaN(n)) {
+                    val = n
+                    //if (name.endsWith('%')) val = Math.round(val)
+                }
+            }
+            target.container.set(target.at, val)
+            return
+        }
+
         const name = target.id
         // handle possible number values based on $ flag
         if (!name.endsWith('$')) {
@@ -642,6 +657,7 @@ class VM {
 
         if (target.index) {
             // dealing with dim or map
+            // TODO did that ever worked? remove?
             this.assignElementPlain(name, target.index, val)
         } else {
             this.scope[name] = val
@@ -1042,6 +1058,16 @@ class VM {
         this.resumeOnInput   = st.resumeOnInput
         this.resumeOnTimeout = st.resumeOnTimeout
     }
+
+    saveAndResetNoLookup() {
+        this.skipLookupStack.push(this.skipLookup)
+        this.skipLookup = false
+    }
+
+    restoreNoLookup() {
+        this.skipLookup = this.skipLookupStack.pop()
+    }
+
 
     interrupt() {
         this.interrupted = true
