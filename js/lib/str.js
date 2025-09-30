@@ -51,42 +51,43 @@ const str = {
 
 str.asc.usage = '(s$)'
 str.asc.man = 'ASCII code of the first character of s$'
-str.asc.tags = 'core'
+str.asc.tags = 'core, classic, string'
 
 str.chr$.usage = '(x)'
 str.chr$.man = 'character for ASCII code of [x]'
-str.chr$.tags = 'core'
+str.chr$.tags = 'core, classic, string'
 
 str.len.usage = '(s$)'
 str.len.man = 'length of the string [s$]'
-str.len.tags = 'core'
+str.len.tags = 'core, classic, string'
 
 str.left$.usage = '(s$,x)'
 str.left$.man = 'get left [x] characters of [s$]'
-str.left$.tags = 'core'
+str.left$.tags = 'core, classic, string'
 
 str.mid$.usage = '(s$,n,m)'
 str.mid$.man = 'characters of [s$] from [n] to [m]'
-str.mid$.tags = 'core'
+str.mid$.tags = 'core, classic, string'
 
 str.right$.usage = '(s$,x)'
 str.right$.man = 'get right [x] characters of [s$]'
-str.right$.tags = 'core'
+str.right$.tags = 'core, classic, string'
 
 str.str$.usage = '(x)'
 str.str$.man = 'convert [x] into a string'
-str.str$.tags = 'core'
+str.str$.tags = 'core, classic, string'
 
 str.val.usage = '(s$)'
 str.val.man = 'convert s$ into a number'
-str.val.tags = 'core'
+str.val.tags = 'core, classic, string'
 
 str.spc.usage = '(n)'
 str.spc.man = 'string of [n] spaces'
-str.spc.tags = 'core'
+str.spc.tags = 'core, classic, string'
 
 str.tab.usage = '(n)'
 str.tab.man = 'string of [n] tabs'
+str.tab.tags = 'core, classic, string'
 
 
 if (module) {

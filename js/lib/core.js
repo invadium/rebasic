@@ -161,7 +161,7 @@ core.env.tags = 'core'
 
 core.list.usage = '(from), (to)'
 core.list.man = 'list the source'
-core.list.tags = 'core'
+core.list.tags = 'core, classic'
 
 core.ls.usage = '(from), (to)'
 core.ls.man = 'list the source, alias to list'
@@ -177,20 +177,20 @@ core['listo!'].man = 'list basic source up to the specified line after clearing 
 
 core.run.usage = '<from line/label>'
 core.run.man = 'run the program (starting from line/label when provided)'
-core.run.tags = 'core'
+core.run.tags = 'core, classic'
 
 core['run!'].usage = '<from line/label>'
 core['run!'].man = 'run the program after clearing the screen'
 
 core['new'].man = 'erase current program'
-core['new'].tags = 'core'
+core['new'].tags = 'core, classic'
 
 core['new!'].man = 'erase current program and clear the screen'
 
 core['continue'].man = 'resume previously stopped program'
 
 core.clr.man   = 'erase all defined variables'
-core.clr.tags = 'core'
+core.clr.tags = 'core, classic'
 
 core.clear.man = 'erase all defined variables'
 
@@ -198,6 +198,7 @@ core.erase.man = 'erase a defined variable/array/map'
 
 core.poke.usage = '(address), (value)'
 core.poke.man = 'set memory cell at [address] to [value]'
+core.poke.tags = 'core, classic'
 
 core.sleep.usage = 'n'
 core.sleep.man = 'wait for [n] seconds'

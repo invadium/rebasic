@@ -12,7 +12,7 @@ const func = {
 
 func.peek.usage = 'address'
 func.peek.man = 'get content of memory at [address]'
-func.peek.tags = 'core'
+func.peek.tags = 'core, classic'
 
 func.time.usage = ''
 func.time.man = 'return current time in milliseconds'
