@@ -50,7 +50,7 @@ const str = {
 }
 
 str.asc.usage = '(s$)'
-str.asc.man = 'ASCII code of the first character of s$'
+str.asc.man = 'ASCII code of the first character'
 str.asc.tags = 'core, classic, string'
 
 str.chr$.usage = '(x)'
@@ -66,7 +66,7 @@ str.left$.man = 'get left [x] characters of [s$]'
 str.left$.tags = 'core, classic, string'
 
 str.mid$.usage = '(s$,n,m)'
-str.mid$.man = 'characters of [s$] from [n] to [m]'
+str.mid$.man = 'characters of s$ from [n] to [m]'
 str.mid$.tags = 'core, classic, string'
 
 str.right$.usage = '(s$,x)'

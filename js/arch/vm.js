@@ -565,20 +565,6 @@ class VM {
         return this.mmap[pattern]
     }
 
-    defineTags(tags) {
-        if (!tags) return
-        if (!Array.isArray(tags)) {
-            tags = tags.split(',').map(tag => tag.trim())
-        }
-
-        const vm = this
-        tags.forEach(tag => {
-            if (vm.tags.indexOf(tag) < 0) vm.tags.push(tag)
-        })
-
-        return tags
-    }
-
     getByTag(tag) {
         const commands = Object.entries(this.command).filter( e => e[1] && e[1].tags && e[1].tags.indexOf(tag) >= 0 )
         const functions = Object.entries(this.fun).filter( e => e[1] && e[1].tags && e[1].tags.indexOf(tag) >= 0 )
@@ -593,15 +579,38 @@ class VM {
         return lines.join('\n')
     }
 
+    defineTags(tags) {
+        if (!tags) return
+        if (!Array.isArray(tags)) {
+            tags = tags.split(',').map(tag => tag.trim())
+        }
+
+        const vm = this
+        tags.forEach(tag => {
+            if (vm.tags.indexOf(tag) < 0) vm.tags.push(tag)
+        })
+
+        return tags
+    }
+
+    extractTitle(fn) {
+        if (fn.man) {
+            const lines = fn.man.split('\n')
+            fn.title = lines[0]
+        }
+    }
+
     defineFun(name, fn) {
         if (!name || typeof fn !== 'function') return
         this.fun[name] = fn
+        this.extractTitle(fn)
         fn.tags = this.defineTags(fn.tags)
     }
 
     defineCmd(name, fn) {
         if (!name || typeof fn !== 'function') return
         this.command[name] = fn
+        this.extractTitle(fn)
         fn.tags = this.defineTags(fn.tags)
     }
 
