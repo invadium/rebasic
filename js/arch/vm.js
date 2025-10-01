@@ -580,8 +580,8 @@ class VM {
     }
 
     getByTag(tag) {
-        const commands = Object.values(this.command).filter( cmd => cmd.tags && cmd.tags.indexOf(tag) >= 0 )
-        const functions = Object.values(this.fun).filter( fn => fn.tags && fn.tags.indexOf(tag) >= 0 )
+        const commands = Object.entries(this.command).filter( e => e[1] && e[1].tags && e[1].tags.indexOf(tag) >= 0 )
+        const functions = Object.entries(this.fun).filter( e => e[1] && e[1].tags && e[1].tags.indexOf(tag) >= 0 )
         return commands.concat(functions)
     }
 
