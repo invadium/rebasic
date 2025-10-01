@@ -1,6 +1,6 @@
 {
   "name": "rebasic",
-  "version": "0.4",
+  "version": "0.4.0",
   "description": "ReBasic interpreter",
   "main": "rebasic.js",
   "preferGlobal": true,
