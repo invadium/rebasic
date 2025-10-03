@@ -1,4 +1,4 @@
-const WELCOME = "Welcome to ReBASIC, Version 0.3!"
+const WELCOME = "Welcome to ReBASIC, Version 0.4!"
 const HELP    = 'Enter "help" for instructions.'
 const READY   = "Ready..."
 
